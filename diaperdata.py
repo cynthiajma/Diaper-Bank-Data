@@ -1,7 +1,6 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
-from matplotlib import pyplot as plt
 import numpy as np
 
 df = pd.read_csv("diaperdata.csv",encoding="latin-1")
@@ -46,12 +45,14 @@ app.layout = html.Div([
     Input('dropdown-selection', 'value')
 )
 def update_graph(value):
-    dff = df[df.CensusRegion==value]
-    dff = dff[["DB_Transport"]].value_counts()
-    dff = dff.to_frame().reset_index()
-    dff.rename(columns={0: 'Count'}, inplace=True)
-    dff.rename(columns={"DB_Transport": 'Method'}, inplace=True)
-    px.bar(dff, x="DB_Transport", y="Count")
+    transport = df[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == value]
+    return px.histogram(dff, x="DB_Transport",
+                        labels={
+                            "DB_Transport": "Method",
+                            "count": "Count",},
+                        title="How diaper bank recipients access their diaper bank")\
+        .update_layout(yaxis_title="Count")
 
 
 if __name__ == '__main__':
