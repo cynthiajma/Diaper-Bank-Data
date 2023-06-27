@@ -31,29 +31,87 @@ df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
 df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
+states = df["State"].sort_values().unique()
 
 app = Dash(__name__)
-
-app.layout = html.Div([
-    html.H1(children='Diaper Bank Data', style={'textAlign':'center'}),
-    dcc.Dropdown(df.CensusRegion.unique(), 'Northeast', id='dropdown-selection'),
-    dcc.Graph(id='graph-content')
-])
+app.title = "Diaper Bank Household Data"
+app.layout = html.Div(
+    children=[
+        html.Div(
+            children=[
+                html.H1(
+                    children="Diaper Bank Household Data", className="header-title"
+                ),
+                html.P(
+                    children=(
+                        "Analyze the behavior of avocado prices and the number"
+                        " of avocados sold in the US between 2015 and 2018"
+                    ),
+                    className="header-description",
+                ),
+            ],
+            className="header",
+        ),
+        html.Div(
+            children=[
+                html.Div(
+                    children=[
+                        html.Div(children="State", className="menu-title"),
+                        dcc.Dropdown(
+                            id="slct_state",
+                            options=[
+                                {"label": state, "value": state}
+                                for state in states
+                            ],
+                            value="Alabama",
+                            placeholder="Select State",
+                            clearable=False,
+                            className="dropdown",
+                        ),
+                    ],
+                ),
+            html.Div(
+                    children=dcc.Graph(
+                        id="usa_map",
+                        figure={}
+                    ), #cloropleth map will go in the figure
+                    className="map",
+                ),
+            ],
+            className="wrapper",
+),
+],
+)
 
 @callback(
-    Output('graph-content', 'figure'),
-    Input('dropdown-selection', 'value')
+     # Callback has an input and output.Component id says to which thing to output to.
+     Output(component_id='usa_map', component_property='figure'),
+    [Input(component_id='slct_state', component_property='value')]  # INPUT!
 )
-def update_graph(value):
-    transport = df[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == value]
-    return px.histogram(dff, x="DB_Transport",
-                        labels={
-                            "DB_Transport": "Method",
-                            "count": "Count",},
-                        title="How diaper bank recipients access their diaper bank")\
-        .update_layout(yaxis_title="Count")
 
+def update_graph(option_slctd): #the call-back function to define. Has an argument that connects to an input. Refers
+    # to component_property
+    print(option_slctd)
+    print(type(option_slctd)) #print for good practice
+
+    #container = "The state chosen by user was: {}".format(option_slctd) #container is returned before fig.
+    bystate = df[['State', 'NumKidsDiapers']].groupby(['State']).mean()
+    bystate = bystate.reset_index()
+    #numkiddf = bystate.to_frame().reset_index()
+
+    dff = bystate.copy()
+    dff = dff[dff["State"] == option_slctd]
+
+    figure = px.choropleth(dff, locations='State',
+                        locationmode="USA-states",
+                        color='NumKidsDiapers',
+                        labels={"NumKidsDiapers": "# of kids in diapers"},
+                        title='num kids diapers title',
+                        scope="usa",
+                        hover_data=['State', 'NumKidsDiapers'],
+                        color_continuous_scale=px.colors.sequential.YlOrRd,
+                        template='plotly_dark')
+    return figure
 
 if __name__ == '__main__':
     app.run_server(debug=True)
