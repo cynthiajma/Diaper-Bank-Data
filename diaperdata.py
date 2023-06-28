@@ -43,19 +43,31 @@ df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 
+choropleth = ['NumKidsDiapers', 'NumAdults']
+
 
 app = Dash(__name__)
 
 app.layout = html.Div(children=[
     html.Div([
         html.H1(children='Diaper Bank Data', style={'textAlign':'center'}),
-        dcc.Dropdown(regions, 'Middle Atlantic', id='dropdown-selection'),
+        dcc.Dropdown(regions, id='dropdown-selection',
+                     placeholder="Select Region",
+                     value="Middle Atlantic",
+                     clearable=False,
+                     className="dropdown"
+                     ),
         html.Br(),
         dcc.Graph(id='graph-content'),
     ]),
     html.Div([
     html.Br(),
-    dcc.Dropdown(states, 'AL', id='dropdown-selection2'),
+    dcc.Dropdown(choropleth, id='variable',
+                placeholder="Select Variable",
+                value="NumKidsDiapers",
+                clearable=False,
+                className="dropdown"
+                ),
     html.Br(),
     dcc.Graph(id='graph2-content'),
     ])
@@ -77,23 +89,31 @@ def update_graph(value):
         .update_layout(yaxis_title="Count")
 
 @callback(
-    Output('graph2-content', 'figure'),
-    Input('dropdown-selection2', 'value'))
+   Output('graph2-content', 'figure'),
+   Input('variable', 'value'))
 
-def update_graph2(value):
-    bystate = df[['State', 'NumKidsDiapers']].groupby(['State']).mean()
-    bystate = bystate.reset_index()
-    dff = bystate.copy()
-    dff = dff[dff["State"] == value]
-    return px.choropleth(dff, locations='State',
-                               locationmode="USA-states",
-                               color='NumKidsDiapers',
-                               labels={"NumKidsDiapers": "# of kids in diapers"},
-                               title='num kids diapers title',
-                               scope="usa",
-                               hover_data=['State', 'NumKidsDiapers'],
-                               color_continuous_scale=px.colors.sequential.YlOrRd,
-                               template='plotly_dark')
+def display_choropleth(variable):
+    if str(variable) == "NumKidsDiapers":
+        dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
+        return px.choropleth(dff, locations='State',
+                            locationmode="USA-states",
+                            color='NumKidsDiapers',
+                            labels={"NumKidsDiapers": "# of Kids"},
+                            title = 'Average number of kids in diapers (per household)',
+                            scope="usa",
+                            hover_data=['State', 'NumKidsDiapers'],
+                            color_continuous_scale = 'Viridis_r')
+    if str(variable) == "NumAdults":
+        dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
+        return px.choropleth(dff, locations='State',
+                             locationmode="USA-states",
+                             color='NumAdults',
+                             labels={"NumAdults": "# of Households"},
+                             title = 'Number of households with a single head of household',
+                             scope="usa",
+                             hover_data=['State', 'NumAdults'],
+                             color_continuous_scale='Viridis_r')
+
 
 
 if __name__ == '__main__':
