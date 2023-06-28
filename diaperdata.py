@@ -55,17 +55,17 @@ app.layout = html.Div(children=[
     ]),
     html.Div([
     html.Br(),
-    dcc.Dropdown(states, 'AL', id='dropdown-selection'),
+    dcc.Dropdown(states, 'AL', id='dropdown-selection2'),
     html.Br(),
     dcc.Graph(id='graph2-content'),
-    ]),
+    ])
 ])
 
 
 @callback(
-    Output('graph-content', 'figure'),
-    Input('dropdown-selection', 'value')
-)
+   Output('graph-content', 'figure'),
+   Input('dropdown-selection', 'value'))
+
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
@@ -75,6 +75,25 @@ def update_graph(value):
                             "count": "Count",},
                         title="How diaper bank recipients access their diaper bank")\
         .update_layout(yaxis_title="Count")
+
+@callback(
+    Output('graph2-content', 'figure'),
+    Input('dropdown-selection2', 'value'))
+
+def update_graph2(value):
+    bystate = df[['State', 'NumKidsDiapers']].groupby(['State']).mean()
+    bystate = bystate.reset_index()
+    dff = bystate.copy()
+    dff = dff[dff["State"] == value]
+    return px.choropleth(dff, locations='State',
+                               locationmode="USA-states",
+                               color='NumKidsDiapers',
+                               labels={"NumKidsDiapers": "# of kids in diapers"},
+                               title='num kids diapers title',
+                               scope="usa",
+                               hover_data=['State', 'NumKidsDiapers'],
+                               color_continuous_scale=px.colors.sequential.YlOrRd,
+                               template='plotly_dark')
 
 
 if __name__ == '__main__':
