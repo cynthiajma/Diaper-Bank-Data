@@ -34,6 +34,7 @@ df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
 states = df["State"].sort_values().unique()
+regions = df["CensusRegion"].sort_values().unique()
 
 app = Dash(__name__)
 app.title = "Diaper Bank Household Data"
@@ -70,6 +71,22 @@ app.layout = html.Div(
                             clearable=False,
                             className="dropdown",
                         ),
+                        html.Div(children="Region", className="menu-title"),
+                        dcc.Dropdown(
+                            id="slct_region",
+                            options=[
+                                {"label": region, "value": region}
+                                for region in regions
+                            ],
+                            value="Northeast",
+                            placeholder="Select Region",
+                            clearable=False,
+                            className="dropdown"),
+                    html.Br(),
+                    dcc.Graph(id='graph-content'),
+                            ],
+                            className="wrapper",
+                        ),
                     ],
                 ),
             html.Div(
@@ -79,15 +96,13 @@ app.layout = html.Div(
                     ), #cloropleth map will go in the figure
                     className="map",
                 ),
-            ],
-            className="wrapper",
-),
-],
+    ],
 )
 
 @callback(
      # Callback has an input and output.Component id says to which thing to output to.
      Output(component_id='usa_map', component_property='figure'),
+
     [Input(component_id='slct_state', component_property='value')]  # INPUT!
 )
 
@@ -114,6 +129,20 @@ def update_graph(option_slctd): #the call-back function to define. Has an argume
                         color_continuous_scale=px.colors.sequential.YlOrRd,
                         template='plotly_dark')
     return figure
+
+@callback(
+    Output('graph-content', 'figure'),
+    Input('slct_region', 'value'))
+def update_graph(value):
+    transport = df[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == value]
+    return px.histogram(dff, x="DB_Transport",
+                        labels={
+                            "DB_Transport": "Method",
+                            "count": "Count"},
+                        title="How diaper bank recipients access their diaper bank") \
+        .update_layout(yaxis_title="Count")
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
