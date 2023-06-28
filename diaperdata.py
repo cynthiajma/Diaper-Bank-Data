@@ -5,6 +5,12 @@ import numpy as np
 
 # gabriel ahs write access to the repo now
 # sarah is trying
+# a bunch of changes
+# a bunch of changes
+# a bunch of changes
+# a bunch of changes
+# a bunch of changes
+# a bunch of changes
 
 df = pd.read_csv("diaperdata.csv",encoding="latin-1")
 
