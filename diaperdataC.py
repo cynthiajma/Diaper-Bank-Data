@@ -38,8 +38,8 @@ states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 choropleth = ['NumKidsDiapers', 'NumAdults']
 
-#external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
-app = Dash(__name__) #external_stylesheets=external_stylesheets)
+external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
     children=[
