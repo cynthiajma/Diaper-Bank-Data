@@ -10,6 +10,7 @@ df = pd.read_csv("diaperdata.csv",encoding="latin-1")
 df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO'])
 df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 99], ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
 
+df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 df.loc[(df['DiaperBankName'] == 'Bare Needs Diaper Bank'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'Basic Necessities'), 'State'] = 'LA'
 df.loc[(df['DiaperBankName'] == 'Cradles to Crayons Philadelphia'), 'State'] = 'PA'
@@ -35,8 +36,10 @@ df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
+choropleth = ['NumKidsDiapers', 'NumAdults']
 
-app = Dash(__name__)
+#external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
+app = Dash(__name__) #external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
     children=[
@@ -55,93 +58,72 @@ app.layout = html.Div(
             ],
             className="header",
         ),
-        html.Div(
-            children=[
-                html.Div(
-                    children=[
-                        html.Div(children="State", className="menu-title"),
-                        dcc.Dropdown(
-                            id="slct_state",
-                            options=[
-                                {"label": state, "value": state}
-                                for state in states
-                            ],
-                            value="Alabama",
-                            placeholder="Select State",
-                            clearable=False,
-                            className="dropdown",
+       html.Div([
+        dcc.Dropdown(regions, id='dropdown-selection',
+                     placeholder="Select Region",
+                     value="Middle Atlantic",
+                     clearable=False,
+                     className="dropdown"
+                     ),
+        html.Br(),
+        dcc.Graph(id='graph-content'),
+       ]),
+        html.Div([
+            html.Br(),
+            dcc.Dropdown(choropleth, id='variable',
+                        placeholder="Select Variable",
+                        value="NumKidsDiapers",
+                        clearable=False,
+                        className="dropdown"
                         ),
-                        html.Div(children="Region", className="menu-title"),
-                        dcc.Dropdown(
-                            id="slct_region",
-                            options=[
-                                {"label": region, "value": region}
-                                for region in regions
-                            ],
-                            value="Northeast",
-                            placeholder="Select Region",
-                            clearable=False,
-                            className="dropdown"),
-                    html.Br(),
-                    dcc.Graph(id='graph-content'),
-                            ],
-                            className="wrapper",
-                        ),
-                    ],
-                ),
-            html.Div(
-                    children=dcc.Graph(
-                        id="usa_map",
-                        figure={}
-                    ), #cloropleth map will go in the figure
-                    className="map",
-                ),
-    ],
+            html.Br(),
+            dcc.Graph(id='graph2-content'),
+            ]),
+
+],
 )
 
-@callback(
-     # Callback has an input and output.Component id says to which thing to output to.
-     Output(component_id='usa_map', component_property='figure'),
 
-    [Input(component_id='slct_state', component_property='value')]  # INPUT!
-)
-
-def update_graph(option_slctd): #the call-back function to define. Has an argument that connects to an input. Refers
-    # to component_property
-    print(option_slctd)
-    print(type(option_slctd)) #print for good practice
-
-    #container = "The state chosen by user was: {}".format(option_slctd) #container is returned before fig.
-    bystate = df[['State', 'NumKidsDiapers']].groupby(['State']).mean()
-    bystate = bystate.reset_index()
-    #numkiddf = bystate.to_frame().reset_index()
-
-    dff = bystate.copy()
-    dff = dff[dff["State"] == option_slctd]
-
-    figure = px.choropleth(dff, locations='State',
-                        locationmode="USA-states",
-                        color='NumKidsDiapers',
-                        labels={"NumKidsDiapers": "# of kids in diapers"},
-                        title='num kids diapers title',
-                        scope="usa",
-                        hover_data=['State', 'NumKidsDiapers'],
-                        color_continuous_scale=px.colors.sequential.YlOrRd,
-                        template='plotly_dark')
-    return figure
 
 @callback(
-    Output('graph-content', 'figure'),
-    Input('slct_region', 'value'))
+   Output('graph-content', 'figure'),
+   Input('dropdown-selection', 'value'))
+
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
     return px.histogram(dff, x="DB_Transport",
                         labels={
                             "DB_Transport": "Method",
-                            "count": "Count"},
-                        title="How diaper bank recipients access their diaper bank") \
+                            "count": "Count",},
+                        title="How diaper bank recipients access their diaper bank")\
         .update_layout(yaxis_title="Count")
+
+@callback(
+   Output('graph2-content', 'figure'),
+   Input('variable', 'value'))
+
+def display_choropleth(variable):
+    if str(variable) == "NumKidsDiapers":
+        dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
+        return px.choropleth(dff, locations='State',
+                            locationmode="USA-states",
+                            color='NumKidsDiapers',
+                            labels={"NumKidsDiapers": "# of Kids"},
+                            title = 'Average number of kids in diapers (per household)',
+                            scope="usa",
+                            hover_data=['State', 'NumKidsDiapers'],
+                            color_continuous_scale = 'Viridis_r')
+    if str(variable) == "NumAdults":
+        dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
+        return px.choropleth(dff, locations='State',
+                             locationmode="USA-states",
+                             color='NumAdults',
+                             labels={"NumAdults": "# of Households"},
+                             title = 'Number of households with a single head of household',
+                             scope="usa",
+                             hover_data=['State', 'NumAdults'],
+                             color_continuous_scale='Viridis_r')
 
 
 if __name__ == '__main__':
