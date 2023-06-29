@@ -2,6 +2,7 @@ from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import plotly.io as pio
 
 df = pd.read_csv("diaperdata.csv",encoding="latin-1")
 
@@ -19,6 +20,7 @@ df.loc[(df['DiaperBankName'] == 'Keeping Families Covered'), 'State'] = 'IL'
 df.loc[(df['DiaperBankName'] == 'Sweet Cheeks Diaper Bank'), 'State'] = 'OH'
 df.loc[(df['DiaperBankName'] == 'Sweet Cheeks Diaper Ministry'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'The Life House'), 'State'] = 'NE'
+df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 
 df.loc[(df['CensusRegion'] == 1), 'CensusRegion'] = 'Northeast'
 df.loc[(df['CensusRegion'] == 2), 'CensusRegion'] = 'Middle Atlantic'
@@ -34,36 +36,44 @@ df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 
-choropleth = ['NumKidsDiapers', 'NumAdults']
-
-
-app = Dash(__name__)
+app = Dash(__name__, external_stylesheets=["/assets/style.css"])
 
 app.layout = html.Div(children=[
     html.Div([
         html.H1(children='Diaper Bank Data', style={'textAlign':'center'}),
-        dcc.Dropdown(regions, id='dropdown-selection',
-                     placeholder="Select Region",
-                     value="Middle Atlantic",
-                     clearable=False,
-                     className="dropdown"
-                     ),
+        html.Label(['Select Variable:'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
-        dcc.Graph(id='graph-content'),
-    ]),
-    html.Div([
-    html.Br(),
-    dcc.Dropdown(choropleth, id='variable',
+        html.Br(),
+        dcc.Dropdown(id='variable',
+                options=[
+                {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
+                {'label': 'Number of Households with a Single Head of Household', 'value': "NumAdults"}],
                 placeholder="Select Variable",
                 value="NumKidsDiapers",
                 clearable=False,
-                className="dropdown"
+                className="dropdown",
+                style={"width": "55%"},
+                optionHeight=40
                 ),
     html.Br(),
     dcc.Graph(id='graph2-content'),
+    ]),
+    html.Div([
+    html.Br(),
+    html.Label(['Select Region:'], style={'font-weight': 'bold', "text-align": "center"}),
+    html.Br(),
+    html.Br(),
+    dcc.Dropdown(regions, id='dropdown-selection',
+                    placeholder="Select Region",
+                    value="Middle Atlantic",
+                    clearable=False,
+                    className="dropdown",
+                    style={"width": "40%"},
+                    optionHeight=40),
+        html.Br(),
+        dcc.Graph(id='graph-content'),
     ])
 ])
-
 
 @callback(
    Output('graph-content', 'figure'),
@@ -72,12 +82,17 @@ app.layout = html.Div(children=[
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
-    return px.histogram(dff, x="DB_Transport",
+    fig = px.histogram(dff, x="DB_Transport",
+                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
+                                                          "Public Transportation", "Taxi/Ride Sharing App"]},
                         labels={
                             "DB_Transport": "Method",
-                            "count": "Count",},
+                            "count": "Count"},
+                        template='plotly_white',
                         title="How diaper bank recipients access their diaper bank")\
-        .update_layout(yaxis_title="Count")
+                        .update_layout(yaxis_title="Count")
+    fig.update_traces(marker_color='#86bce8')
+    return fig
 
 @callback(
    Output('graph2-content', 'figure'),
@@ -100,7 +115,7 @@ def display_choropleth(variable):
                              locationmode="USA-states",
                              color='NumAdults',
                              labels={"NumAdults": "# of Households"},
-                             title = 'Number of households with a single head of household',
+                             title='Number of households with a single head of household',
                              scope="usa",
                              hover_data=['State', 'NumAdults'],
                              color_continuous_scale='Viridis_r')
