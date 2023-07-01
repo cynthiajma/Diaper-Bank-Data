@@ -78,6 +78,7 @@ app.layout = html.Div(
     ])
 
 
+
 @callback(
    Output('graph-content', 'figure'),
    Input('dropdown-selection', 'value'))
@@ -85,14 +86,18 @@ app.layout = html.Div(
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
-    ncols = dff.shape[1]
     nrows = dff.shape[0]
+
     fig = px.histogram(dff, x="DB_Transport",
-                        labels={"DB_Transport": "Method", "count": "Count"},
-                        title="How diaper bank recipients access their diaper bank")
+                    labels={"DB_Transport": "Method", "count": "Count"},
+                    title="How Diaper Bank Recipients Access their Diaper Bank",
+                    color_discrete_map={'DB_Transport': '#86bce8'})
+
+    fig.update_traces(marker=dict(color='#86bce8'))
     fig.update_layout(
         yaxis_title="Count",
-        annotations=[dict(text=f"Figure 1 has {nrows} rows and {ncols} columns")])
+        annotations=[dict(text=f"Figure has a total of {nrows} values")]
+    )
 
     return fig
 
