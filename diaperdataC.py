@@ -1,14 +1,18 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
-import numpy as np
 
-#change
+df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
-df = pd.read_csv("diaperdata.csv",encoding="latin-1")
-
-df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO'])
-df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 99], ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
+df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                                   20, 21, 22, 23, 24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL',
+                                                             'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
+                                                             'MD', 'MA', 'MI', 'MN', 'MS', 'MO'])
+df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
+                                   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 99],
+                                  ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA',
+                                   'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA',
+                                   'WA', 'WV', 'WI', 'WY', "Multiple States"])
 
 df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 df.loc[(df['DiaperBankName'] == 'Bare Needs Diaper Bank'), 'State'] = 'TN'
@@ -50,39 +54,28 @@ app.layout = html.Div(
                 ),
                 html.P(
                     children=(
-                        "Analyze the behavior of avocado prices and the number"
-                        " of avocados sold in the US between 2015 and 2018"
+                        "Exploring Nationwide Data on Diaper Bank Utilization among Households in 2020"
                     ),
                     className="header-description",
                 ),
             ],
             className="header",
         ),
-       html.Div([
-        dcc.Dropdown(regions, id='dropdown-selection',
-                     placeholder="Select Region",
-                     value="Middle Atlantic",
-                     clearable=False,
-                     className="dropdown"
-                     ),
-        html.Br(),
-        dcc.Graph(id='graph-content'),
-       ]),
+        html.Div([
+            dcc.Dropdown(regions, id='dropdown-selection', placeholder="Select Region", value="Middle Atlantic",
+                         clearable=False, className="dropdown"),
+            html.Br(),
+            dcc.Graph(id='graph-content')
+        ]),
         html.Div([
             html.Br(),
-            dcc.Dropdown(choropleth, id='variable',
-                        placeholder="Select Variable",
-                        value="NumKidsDiapers",
-                        clearable=False,
-                        className="dropdown"
-                        ),
+            dcc.Dropdown(choropleth, id='variable', placeholder="Select Variable", value="NumKidsDiapers",
+                         clearable=False, className="dropdown"),
             html.Br(),
             dcc.Graph(id='graph2-content'),
             ]),
 
-],
-)
-
+    ])
 
 
 @callback(
@@ -92,35 +85,42 @@ app.layout = html.Div(
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
-    return px.histogram(dff, x="DB_Transport",
-                        labels={
-                            "DB_Transport": "Method",
-                            "count": "Count",},
-                        title="How diaper bank recipients access their diaper bank")\
-        .update_layout(yaxis_title="Count")
+    ncols = dff.shape[1]
+    nrows = dff.shape[0]
+    fig = px.histogram(dff, x="DB_Transport",
+                        labels={"DB_Transport": "Method", "count": "Count"},
+                        title="How diaper bank recipients access their diaper bank")
+    fig.update_layout(
+        yaxis_title="Count",
+        annotations=[dict(text=f"Figure 1 has {nrows} rows and {ncols} columns")])
+
+    return fig
 
 @callback(
    Output('graph2-content', 'figure'),
    Input('variable', 'value'))
 
+
+
 def display_choropleth(variable):
     if str(variable) == "NumKidsDiapers":
         dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
         return px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='NumKidsDiapers',
-                            labels={"NumKidsDiapers": "# of Kids"},
-                            title = 'Average number of kids in diapers (per household)',
-                            scope="usa",
-                            hover_data=['State', 'NumKidsDiapers'],
-                            color_continuous_scale = 'Viridis_r')
+                             locationmode="USA-states",
+                             color='NumKidsDiapers',
+                             labels={"NumKidsDiapers": "# of Kids"},
+                             title='Average number of kids in diapers (per household)',
+                             scope="usa",
+                             hover_data=['State', 'NumKidsDiapers'],
+                             color_continuous_scale='Viridis_r')
+
     if str(variable) == "NumAdults":
         dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
         return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='NumAdults',
                              labels={"NumAdults": "# of Households"},
-                             title = 'Number of households with a single head of household',
+                             title='Number of households with a single head of household',
                              scope="usa",
                              hover_data=['State', 'NumAdults'],
                              color_continuous_scale='Viridis_r')
