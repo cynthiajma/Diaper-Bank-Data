@@ -73,6 +73,8 @@ app.layout = html.Div(children=[
                     optionHeight=40),
         html.Br(),
         dcc.Graph(id='graph-content'),
+        html.Br(),
+        dcc.Graph(id='graph3-content'),
     ])
 ])
 
@@ -94,6 +96,19 @@ def update_graph(value):
                         .update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     return fig
+
+@callback(
+   Output('graph3-content', 'figure'),
+   Input('dropdown-selection', 'value'))
+
+def update_graph(value):
+    transport = df[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == value]
+    dff = dff.dropna()
+    return px.pie(dff, names="DB_Transport",
+                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
+                                                    "Public Transportation", "Taxi/Ride Sharing App"]},
+                  labels={"DB_Transport": "Method"})
 
 @callback(
    Output('graph2-content', 'figure'),
