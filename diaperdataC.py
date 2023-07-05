@@ -69,12 +69,14 @@ app.layout = html.Div(
         ]),
         html.Div([
             html.Br(),
+            html.H2(
+                children="Diaper Bank Data in the United States", className="header2-title"
+            ),
             dcc.Dropdown(choropleth, id='variable', placeholder="Select Variable", value="NumKidsDiapers",
                          clearable=False, className="dropdown"),
             html.Br(),
             dcc.Graph(id='graph2-content'),
-            ]),
-
+            ], className='map-section'),
     ])
 
 
@@ -94,9 +96,10 @@ def update_graph(value):
                     color_discrete_map={'DB_Transport': '#86bce8'})
 
     fig.update_traces(marker=dict(color='#86bce8'))
+
     fig.update_layout(
         yaxis_title="Count",
-        annotations=[dict(text=f"Figure has a total of {nrows} values")]
+        annotations=[dict(text=f"Figure has {nrows} total values")]
     )
 
     return fig
@@ -110,14 +113,21 @@ def update_graph(value):
 def display_choropleth(variable):
     if str(variable) == "NumKidsDiapers":
         dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
-        return px.choropleth(dff, locations='State',
+        nrows = dff.shape[0]
+        fig = px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='NumKidsDiapers',
                              labels={"NumKidsDiapers": "# of Kids"},
-                             title='Average number of kids in diapers (per household)',
+                             title='Average Number of Kids in Diapers (per Household)',
                              scope="usa",
                              hover_data=['State', 'NumKidsDiapers'],
                              color_continuous_scale='Viridis_r')
+        fig.update_layout(geo=dict(bgcolor='#d6d6d2'))
+        fig.update_layout(
+            annotations=[dict(text=f"Figure 2 depicts data from {nrows} states",
+                         x=0, y=-0.2, xanchor='left', showarrow=False, font=dict(size=14))])
+
+        return fig
 
     if str(variable) == "NumAdults":
         dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
