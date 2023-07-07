@@ -73,31 +73,16 @@ app.layout = html.Div(
                          clearable=False,
                          className="dropdown"),
             html.Br(),
-                    html.Label("Select Option 2"),
-                    dcc.Dropdown(
+            html.Label("Select Map Option"),
+            dcc.Dropdown(
                         id="map-dropdown",
                         options=[],
                         value=None,
                         clearable=False,
-                        className="dropdown")],),
-
-"""
-            html.Div([
-            html.Br(),
-            html.Label(['Select Map:'], className='label'),
-            dcc.Dropdown(id='variable',
-                         options=[
-                             {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
-                             {'label': 'Proportion of Households with a Single Head of Household',
-                              'value': "NumAdults"},
-                             {'label': 'Average Household Income in 2020', 'value': "Income_2020"}],
-                         placeholder="Select Variable",
-                         value="NumKidsDiapers",
-                         clearable=False,
-                         className="dropdown"),
+                        className="dropdown"),
             html.Br(),
             dcc.Graph(id='graph2-content'),
-        ])""",
+        ]),
 
         html.Div([
             html.Br(),
