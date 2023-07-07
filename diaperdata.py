@@ -44,7 +44,8 @@ app.layout = html.Div(children=[
         html.Label(['Select Variable:'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
         html.Br(),
-        dcc.Dropdown(id='variable',
+        html.Div([
+            dcc.Dropdown(id='variable',
                 options=[
                 {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
                 {'label': 'Proportion of Households with a Single Head of Household', 'value': "NumAdults"},
@@ -55,7 +56,20 @@ app.layout = html.Div(children=[
                 className="dropdown",
                 style={"width": "55%"},
                 optionHeight=40
+                )],
+        style={'width': '60%', 'display': 'inline-block'}),
+
+        html.Div([
+            dcc.Dropdown(id='state',
+                options=states,
+                placeholder="Select State",
+                clearable=True,
+                className="dropdown",
+                style={"width": "55%"},
+                optionHeight=40
                 ),
+    ],
+    style={'width': '40%', 'float': 'middle', 'display': 'inline-block'}),
     html.Br(),
     dcc.Graph(id='graph2-content'),
     ]),
@@ -112,11 +126,13 @@ def update_graph(value):
 
 @callback(
    Output('graph2-content', 'figure'),
-   Input('variable', 'value'))
+   Input('variable', 'value'),
+   Input('state', 'value'))
 
-def display_choropleth(variable):
+def display_choropleth(variable, state):
     if str(variable) == "NumKidsDiapers":
         dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
+        dff = dff.loc[(dff['State'] == str(state))]
         return px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='NumKidsDiapers',
@@ -124,7 +140,7 @@ def display_choropleth(variable):
                             title = 'Average number of kids in diapers (per household)',
                             scope="usa",
                             hover_data=['State', 'NumKidsDiapers'],
-                            color_continuous_scale = 'Viridis_r')
+                            color_continuous_scale='ice_r')
     if str(variable) == "NumAdults":
         dff = df[['State', 'NumAdults']]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
@@ -132,6 +148,7 @@ def display_choropleth(variable):
         dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
+        dff = dff.loc[(dff['State'] == str(state))]
         return px.choropleth(dff, locations='State',
                       locationmode="USA-states",
                       color='Proportion of Households',
@@ -139,9 +156,10 @@ def display_choropleth(variable):
                       title='Proportion of households with a single head of household',
                       scope="usa",
                       hover_data=['State', 'Proportion of Households'],
-                      color_continuous_scale='Viridis_r')
+                      color_continuous_scale='ice_r')
     if str(variable) == "Income_2020":
         dff = df.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
+        dff = dff.loc[(dff['State'] == str(state))]
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                          '25,000-29,999', '30,000-34,999',
