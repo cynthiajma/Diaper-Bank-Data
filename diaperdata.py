@@ -47,7 +47,8 @@ app.layout = html.Div(children=[
         dcc.Dropdown(id='variable',
                 options=[
                 {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
-                {'label': 'Number of Households with a Single Head of Household', 'value': "NumAdults"}],
+                {'label': 'Proportion of Households with a Single Head of Household', 'value': "NumAdults"},
+                {'label': 'Average Household Income in 2020', 'value': "Income_2020"}],
                 placeholder="Select Variable",
                 value="NumKidsDiapers",
                 clearable=False,
@@ -110,15 +111,40 @@ def display_choropleth(variable):
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale = 'Viridis_r')
     if str(variable) == "NumAdults":
-        dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
+        dff = df[['State', 'NumAdults']]
+        dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
+        dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
+        dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(name='Proportion of Households').reset_index()
+        dff = dff.loc[dff['Single Household'] == 'Yes']
+        dff = dff[['State', 'Proportion of Households']]
         return px.choropleth(dff, locations='State',
-                             locationmode="USA-states",
-                             color='NumAdults',
-                             labels={"NumAdults": "# of Households"},
-                             title='Number of households with a single head of household',
-                             scope="usa",
-                             hover_data=['State', 'NumAdults'],
-                             color_continuous_scale='Viridis_r')
+                      locationmode="USA-states",
+                      color='Proportion of Households',
+                      labels={"Proportion of Households": "Proportion of Households"},
+                      title='Proportion of households with a single head of household',
+                      scope="usa",
+                      hover_data=['State', 'Proportion of Households'],
+                      color_continuous_scale='Viridis_r')
+    if str(variable) == "Income_2020":
+        dff = df.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
+        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999',
+                                                         '35,000-39,999', '40,000-44,999',
+                                                         '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
+
+        return px.choropleth(dff, locations='State',
+                      locationmode='USA-states',
+                      color='Income_2020',
+                      color_discrete_sequence=px.colors.qualitative.Prism,
+                      category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                       '30,000-34,999', '35,000-39,999', '40,000-44,999',
+                                                       '45,000-49,999', '50,000-59,999', '60,000-69,999',
+                                                       '70,000-79,999', '>=80,000']},
+                      labels={"Income_2020": "Income Range (in dollars)"},
+                      scope="usa",
+                      title="Average Household Income in 2020")
 
 
 

@@ -1,20 +1,21 @@
 from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
+import numpy as np
+import plotly.io as pio
+import plotly
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
-df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-                                   20, 21, 22, 23, 24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL',
-                                                             'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME',
-                                                             'MD', 'MA', 'MI', 'MN', 'MS', 'MO'])
-df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-                                   39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 99],
-                                  ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA',
-                                   'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA',
-                                   'WA', 'WV', 'WI', 'WY', "Multiple States"])
+df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                                   24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+                                             'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+                                             'MA', 'MI', 'MN', 'MS', 'MO'])
+df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+                                   47, 48, 49, 50, 99], ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH',
+                                                         'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
+                                                         'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
 
-df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 df.loc[(df['DiaperBankName'] == 'Bare Needs Diaper Bank'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'Basic Necessities'), 'State'] = 'LA'
 df.loc[(df['DiaperBankName'] == 'Cradles to Crayons Philadelphia'), 'State'] = 'PA'
@@ -26,6 +27,7 @@ df.loc[(df['DiaperBankName'] == 'Keeping Families Covered'), 'State'] = 'IL'
 df.loc[(df['DiaperBankName'] == 'Sweet Cheeks Diaper Bank'), 'State'] = 'OH'
 df.loc[(df['DiaperBankName'] == 'Sweet Cheeks Diaper Ministry'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'The Life House'), 'State'] = 'NE'
+df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 
 df.loc[(df['CensusRegion'] == 1), 'CensusRegion'] = 'Northeast'
 df.loc[(df['CensusRegion'] == 2), 'CensusRegion'] = 'Middle Atlantic'
@@ -40,18 +42,15 @@ df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
-choropleth = ['NumKidsDiapers', 'NumAdults']
 
-external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
-app = Dash(__name__, external_stylesheets=external_stylesheets)
+#external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
+app = Dash(__name__)# external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
     children=[
         html.Div(
             children=[
-                html.H1(
-                    children="Diaper Bank Household Data", className="header-title"
-                ),
+                html.H1(children="Diaper Bank Household Data", className="header-title"),
                 html.P(
                     children=(
                         "Exploring Nationwide Data on Diaper Bank Utilization among Households in 2020"
@@ -62,84 +61,120 @@ app.layout = html.Div(
             className="header",
         ),
         html.Div([
-            dcc.Dropdown(regions, id='dropdown-selection', placeholder="Select Region", value="Middle Atlantic",
-                         clearable=False, className="dropdown"),
             html.Br(),
-            dcc.Graph(id='graph-content')
+            html.Label(['Select Map:'], className='label'),
+            dcc.Dropdown(id='variable',
+                         options=[
+                             {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
+                             {'label': 'Proportion of Households with a Single Head of Household',
+                              'value': "NumAdults"},
+                             {'label': 'Average Household Income in 2020', 'value': "Income_2020"}],
+                         placeholder="Select Variable",
+                         value="NumKidsDiapers",
+                         clearable=False,
+                         className="dropdown"),
+            html.Br(),
+            dcc.Graph(id='graph2-content'),
         ]),
         html.Div([
             html.Br(),
-            html.H2(
-                children="Diaper Bank Data in the United States", className="header2-title"
-            ),
-            dcc.Dropdown(choropleth, id='variable', placeholder="Select Variable", value="NumKidsDiapers",
-                         clearable=False, className="dropdown"),
+            html.Label(['Select Region:'], className='label'),
             html.Br(),
-            dcc.Graph(id='graph2-content'),
-            ], className='map-section'),
-    ])
-
+            dcc.Dropdown(regions, id='dropdown-selection',
+                         placeholder="Select Region",
+                         value="Middle Atlantic",
+                         clearable=False,
+                         className="dropdown"),
+            html.Br(),
+            dcc.Graph(id='graph-content'),
+            html.Br(),
+            dcc.Graph(id='graph3-content'),
+            ]),
+        ])
 
 
 @callback(
    Output('graph-content', 'figure'),
    Input('dropdown-selection', 'value'))
-
 def update_graph(value):
     transport = df[["CensusRegion", "DB_Transport"]]
     dff = transport[transport.CensusRegion == value]
-    nrows = dff.shape[0]
-
     fig = px.histogram(dff, x="DB_Transport",
-                    labels={"DB_Transport": "Method", "count": "Count"},
-                    title="How Diaper Bank Recipients Access their Diaper Bank",
-                    color_discrete_map={'DB_Transport': '#86bce8'})
-
-    fig.update_traces(marker=dict(color='#86bce8'))
-
-    fig.update_layout(
-        yaxis_title="Count",
-        annotations=[dict(text=f"Figure has {nrows} total values")]
-    )
-
+                       category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
+                                                         "Public Transportation", "Taxi/Ride Sharing App"]},
+                       labels={
+                            "DB_Transport": "Method",
+                            "count": "Count"},
+                       template='plotly_white',
+                       title="How diaper bank recipients access their diaper bank").update_layout(yaxis_title="Count")
+    fig.update_traces(marker_color='#86bce8')
     return fig
+
+
+@callback(
+    Output('graph3-content', 'figure'),
+    Input('dropdown-selection', 'value'))
+def update_pie(value):
+    transport = df[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == value]
+    dff = dff.dropna()
+    return px.pie(dff, names="DB_Transport",
+                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
+                                                    "Public Transportation", "Taxi/Ride Sharing App"]},
+                  labels={"DB_Transport": "Method"})
+
 
 @callback(
    Output('graph2-content', 'figure'),
    Input('variable', 'value'))
-
-
-
 def display_choropleth(variable):
     if str(variable) == "NumKidsDiapers":
         dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
-        nrows = dff.shape[0]
-        fig = px.choropleth(dff, locations='State',
+        return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='NumKidsDiapers',
                              labels={"NumKidsDiapers": "# of Kids"},
-                             title='Average Number of Kids in Diapers (per Household)',
+                             title='Average number of kids in diapers (per household)',
                              scope="usa",
                              hover_data=['State', 'NumKidsDiapers'],
-                             color_continuous_scale='Viridis_r')
-        fig.update_layout(geo=dict(bgcolor='#d6d6d2'))
-        fig.update_layout(
-            annotations=[dict(text=f"Figure 2 depicts data from {nrows} states",
-                         x=0, y=-0.2, xanchor='left', showarrow=False, font=dict(size=14))])
-
-        return fig
-
+                             color_continuous_scale="Ice_r")
     if str(variable) == "NumAdults":
-        dff = df.loc[df['NumAdults'] == 1][['State', 'NumAdults']].groupby(['State']).sum().reset_index()
+        dff = df[['State', 'NumAdults']]
+        dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
+        dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
+        dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(
+            name='Proportion of Households').reset_index()
+        dff = dff.loc[dff['Single Household'] == 'Yes']
+        dff = dff[['State', 'Proportion of Households']]
         return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
-                             color='NumAdults',
-                             labels={"NumAdults": "# of Households"},
-                             title='Number of households with a single head of household',
+                             color='Proportion of Households',
+                             labels={"Proportion of Households": "Proportion of Households"},
+                             title='Proportion of households with a single head of household',
                              scope="usa",
-                             hover_data=['State', 'NumAdults'],
-                             color_continuous_scale='Viridis_r')
+                             hover_data=['State', 'Proportion of Households'],
+                             color_continuous_scale='Ice_r')
 
+    if str(variable) == "Income_2020":
+        dff = df.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
+        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                            '25,000-29,999', '30,000-34,999',
+                                                            '35,000-39,999', '40,000-44,999',
+                                                            '45,000-49,999', '50,000-59,999',
+                                                            '60,000-69,999', '70,000-79,999', '>=80,000'])
 
-if __name__ == '__main__':
-    app.run_server(debug=True)
+        return px.choropleth(dff, locations='State',
+                             locationmode='USA-states',
+                             color='Income_2020',
+                             color_discrete_sequence=px.colors.qualitative.Prism,
+                             category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                              '20,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                              '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
+                             labels={"Income_2020": "Income Range (in dollars)"},
+                             scope="usa",
+                             title="Average Household Income in 2020")
+
+    if __name__ == '__main__':
+        app.run_server(debug=True)
