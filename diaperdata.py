@@ -33,8 +33,21 @@ df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
 df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
+df.loc[(df['Race_PreferNoShare'] == 1), 'Race'] = 'Prefer not to share'
+df.loc[(df['Race_AIAN'] == 1), 'Race'] = 'American Indian or Alaska Native'
+df.loc[(df['Race_Asian'] == 1), 'Race'] = 'Asian'
+df.loc[(df['Race_BlackAA'] == 1), 'Race'] = 'Black'
+df.loc[(df['Race_Hispanic'] == 1), 'Race'] = 'Hispanic'
+df.loc[(df['Race_NativeHawaiianPI'] == 1), 'Race'] = 'Native Hawaiian or Pacific Islander'
+df.loc[(df['Race_White'] == 1), 'Race'] = 'White'
+df.loc[(df['Race_MENA'] == 1), 'Race'] = 'Middle East or North Africa'
+df.loc[(df['Race_Multiracial'] == 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
+
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
+races = df["Race"].sort_values().unique()
 
 app = Dash(__name__, external_stylesheets=["/assets/style.css"])
 
@@ -60,9 +73,9 @@ app.layout = html.Div(children=[
         style={'width': '60%', 'display': 'inline-block'}),
 
         html.Div([
-            dcc.Dropdown(id='state',
-                options=states,
-                placeholder="Select State",
+            dcc.Dropdown(id='race',
+                options=races,
+                placeholder="Select Race",
                 clearable=True,
                 className="dropdown",
                 style={"width": "55%"},
@@ -127,12 +140,13 @@ def update_graph(value):
 @callback(
    Output('graph2-content', 'figure'),
    Input('variable', 'value'),
-   Input('state', 'value'))
+   Input('race', 'value'))
 
-def display_choropleth(variable, state):
+def display_choropleth(variable, race):
     if str(variable) == "NumKidsDiapers":
-        dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
-        dff = dff.loc[(dff['State'] == str(state))]
+        dff = df[['State', str(variable), 'Race']]
+        dff = dff.loc[(dff['Race'] == str(race))]
+        dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
         return px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='NumKidsDiapers',
@@ -142,24 +156,26 @@ def display_choropleth(variable, state):
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
     if str(variable) == "NumAdults":
-        dff = df[['State', 'NumAdults']]
+        dff = df[['State', str(variable), 'Race']]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
+        dff = dff.loc[(dff['Race'] == str(race))]
         dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
-        dff = dff.loc[(dff['State'] == str(state))]
+        dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         return px.choropleth(dff, locations='State',
                       locationmode="USA-states",
-                      color='Proportion of Households',
-                      labels={"Proportion of Households": "Proportion of Households"},
-                      title='Proportion of households with a single head of household',
+                      color='Percentage of Households',
+                      labels={"Percentage of Households": "Percentage of Households"},
+                      title='Percentage of households with a single head of household',
                       scope="usa",
-                      hover_data=['State', 'Proportion of Households'],
+                      hover_data=['State', 'Percentage of Households'],
                       color_continuous_scale='ice_r')
     if str(variable) == "Income_2020":
-        dff = df.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
-        dff = dff.loc[(dff['State'] == str(state))]
+        dff = df[['State', str(variable), 'Race']]
+        dff = dff.loc[(dff['Race'] == str(race))]
+        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                          '25,000-29,999', '30,000-34,999',
