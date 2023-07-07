@@ -61,7 +61,7 @@ app.layout = html.Div(children=[
             dcc.Dropdown(id='variable',
                 options=[
                 {'label': 'Average Number of Kids in Diapers', 'value': "NumKidsDiapers"},
-                {'label': 'Proportion of Households with a Single Head of Household', 'value': "NumAdults"},
+                {'label': 'Percentage of Households with a Single Head of Household', 'value': "NumAdults"},
                 {'label': 'Average Household Income in 2020', 'value': "Income_2020"}],
                 placeholder="Select Variable",
                 value="NumKidsDiapers",
@@ -70,7 +70,7 @@ app.layout = html.Div(children=[
                 style={"width": "55%"},
                 optionHeight=40
                 )],
-        style={'width': '60%', 'display': 'inline-block'}),
+        style={'width': '65%', 'display': 'inline-block'}),
 
         html.Div([
             dcc.Dropdown(id='race',
@@ -82,7 +82,7 @@ app.layout = html.Div(children=[
                 optionHeight=40
                 ),
     ],
-    style={'width': '40%', 'float': 'middle', 'display': 'inline-block'}),
+    style={'width': '35%', 'float': 'middle', 'display': 'inline-block'}),
     html.Br(),
     dcc.Graph(id='graph2-content'),
     ]),
