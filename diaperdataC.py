@@ -5,7 +5,7 @@ import numpy as np
 import plotly.io as pio
 import plotly
 
-df = pd.read_csv("diaperdata.csv", encoding="latin-1")
+df = pd.read_csv("diaperdata.csv", encoding="latin-1", low_memory=False)
 
 df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                                    24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
@@ -62,6 +62,28 @@ app.layout = html.Div(
         ),
         html.Div([
             html.Br(),
+            html.Label(['Select Variable:'], className='label'),
+            dcc.Dropdown(id='variable-dropdown',
+                         options=[
+                             {'label': 'Households', 'value': 'Households-value'},
+                             {'label': 'Income',
+                              'value': "Income-value"},
+                             {'label': 'Kids in Diapers', 'value': "Kids in Diapers-value"}],
+                         value="Income-value",
+                         clearable=False,
+                         className="dropdown"),
+            html.Br(),
+                    html.Label("Select Option 2"),
+                    dcc.Dropdown(
+                        id="map-dropdown",
+                        options=[],
+                        value=None,
+                        clearable=False,
+                        className="dropdown")],),
+
+"""
+            html.Div([
+            html.Br(),
             html.Label(['Select Map:'], className='label'),
             dcc.Dropdown(id='variable',
                          options=[
@@ -75,7 +97,8 @@ app.layout = html.Div(
                          className="dropdown"),
             html.Br(),
             dcc.Graph(id='graph2-content'),
-        ]),
+        ])""",
+
         html.Div([
             html.Br(),
             html.Label(['Select Region:'], className='label'),
@@ -92,6 +115,25 @@ app.layout = html.Div(
             ]),
         ])
 
+@callback(
+    Output("map-dropdown", "options"),
+    Output("map-dropdown", "value"),
+    Input("variable-dropdown", "value"))
+def update_map_dropdown(optionslctd):
+    if optionslctd == "Households-value":
+        options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'}]
+        value = "NumAdults"
+    elif optionslctd == "Income-value":
+        options = [{"label": 'Average Household Income in 2020', "value": 'Income_2020'}]
+        value = "Income_2020"
+    elif optionslctd == "Kids in Diapers-value":
+        options = [{"label": 'Average Number of Kids in Diapers', "value": 'NumKidsDiapers'}]
+        value = "NumKidsDiapers"
+    else:
+        options = []
+        value = None
+    return options, value
+
 
 @callback(
    Output('graph-content', 'figure'),
@@ -106,7 +148,7 @@ def update_graph(value):
                             "DB_Transport": "Method",
                             "count": "Count"},
                        template='plotly_white',
-                       title="How diaper bank recipients access their diaper bank").update_layout(yaxis_title="Count")
+                       title="How Diaper Bank Recipients Access their Diaper Bank").update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     return fig
 
@@ -124,57 +166,95 @@ def update_pie(value):
                   labels={"DB_Transport": "Method"})
 
 
-@callback(
-   Output('graph2-content', 'figure'),
-   Input('variable', 'value'))
-def display_choropleth(variable):
-    if str(variable) == "NumKidsDiapers":
-        dff = df[['State', str(variable)]].groupby(['State']).mean().reset_index()
-        return px.choropleth(dff, locations='State',
-                             locationmode="USA-states",
-                             color='NumKidsDiapers',
-                             labels={"NumKidsDiapers": "# of Kids"},
-                             title='Average number of kids in diapers (per household)',
-                             scope="usa",
-                             hover_data=['State', 'NumKidsDiapers'],
-                             color_continuous_scale="Ice_r")
-    if str(variable) == "NumAdults":
-        dff = df[['State', 'NumAdults']]
-        dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
-        dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-        dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(
-            name='Proportion of Households').reset_index()
-        dff = dff.loc[dff['Single Household'] == 'Yes']
-        dff = dff[['State', 'Proportion of Households']]
-        return px.choropleth(dff, locations='State',
-                             locationmode="USA-states",
-                             color='Proportion of Households',
-                             labels={"Proportion of Households": "Proportion of Households"},
-                             title='Proportion of households with a single head of household',
-                             scope="usa",
-                             hover_data=['State', 'Proportion of Households'],
-                             color_continuous_scale='Ice_r')
+@app.callback(
+    Output("graph2-content", "figure"),
+    Input("variable-dropdown", "value"),
+    Input("map-dropdown", "value"),
+)
+def display_choropleth(variable, mapDrop):
+    if mapDrop == "NumKidsDiapers" and variable == "Kids in Diapers-value":
+        dff = df[["State", "NumKidsDiapers"]].groupby(["State"]).mean().reset_index()
+        return px.choropleth(
+            dff,
+            locations="State",
+            locationmode="USA-states",
+            color="NumKidsDiapers",
+            labels={"NumKidsDiapers": "# of Kids"},
+            title="Average Number of Kids in Diapers (per Household)",
+            scope="usa",
+            hover_data=["State", "NumKidsDiapers"],
+            color_continuous_scale="Ice_r",
+        )
+    if mapDrop == "NumAdults" and variable == "Households-value":
+        dff = df[["State", "NumAdults"]]
+        dff.loc[dff["NumAdults"] == 1, "Single Household"] = "Yes"
+        dff.loc[dff["NumAdults"] != 1, "Single Household"] = "No"
+        dff = (
+            dff[["State", "Single Household"]]
+            .groupby("State")
+            .value_counts(normalize=True)
+            .to_frame(name="Proportion of Households")
+            .reset_index()
+        )
+        dff = dff.loc[dff["Single Household"] == "Yes"]
+        dff = dff[["State", "Proportion of Households"]]
+        return px.choropleth(
+            dff,
+            locations="State",
+            locationmode="USA-states",
+            color="Proportion of Households",
+            labels={"Proportion of Households": "Proportion of Households"},
+            title="Proportion of Households with a Single Head of Household",
+            scope="usa",
+            hover_data=["State", "Proportion of Households"],
+            color_continuous_scale="Ice_r",
+        )
 
-    if str(variable) == "Income_2020":
-        dff = df.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
-        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                            '25,000-29,999', '30,000-34,999',
-                                                            '35,000-39,999', '40,000-44,999',
-                                                            '45,000-49,999', '50,000-59,999',
-                                                            '60,000-69,999', '70,000-79,999', '>=80,000'])
+    if mapDrop == "Income_2020" and variable == "Income-value":
+        dff = df.groupby(["State"]).mean(numeric_only=True)["Income_2020"].round().to_frame().reset_index()
+        dff["Income_2020"] = dff["Income_2020"].replace(
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            [
+                "<=15,999",
+                "16,000-19,999",
+                "20,000-24,999",
+                "25,000-29,999",
+                "30,000-34,999",
+                "35,000-39,999",
+                "40,000-44,999",
+                "45,000-49,999",
+                "50,000-59,999",
+                "60,000-69,999",
+                "70,000-79,999",
+                ">=80,000",
+            ],
+        )
 
-        return px.choropleth(dff, locations='State',
-                             locationmode='USA-states',
-                             color='Income_2020',
-                             color_discrete_sequence=px.colors.qualitative.Prism,
-                             category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                              '20,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                              '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
-                             labels={"Income_2020": "Income Range (in dollars)"},
-                             scope="usa",
-                             title="Average Household Income in 2020")
+        return px.choropleth(
+            dff,
+            locations="State",
+            locationmode="USA-states",
+            color="Income_2020",
+            color_discrete_sequence=px.colors.qualitative.Prism,
+            category_orders={
+                "Income_2020": [
+                    "<=15,999",
+                    "16,000-19,999",
+                    "20,000-24,999",
+                    "20,000-29,999",
+                    "30,000-34,999",
+                    "35,000-39,999",
+                    "40,000-44,999",
+                    "45,000-49,999",
+                    "50,000-59,999",
+                    "60,000-69,999",
+                    "70,000-79,999",
+                    ">=80,000",
+                ]
+            },
+            labels={"Income_2020": "Income Range (in dollars)"},
+            scope="usa",
+            title="Average Household Income")
 
-    if __name__ == '__main__':
-        app.run_server(debug=True)
+if __name__ == '__main__':
+    app.run_server(debug=True, port=8060)
