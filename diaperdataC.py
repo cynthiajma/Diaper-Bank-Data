@@ -98,7 +98,7 @@ app.layout = html.Div(
                 html.Label("Select Race"),
                 dcc.Dropdown(id='race',
                              options=races,
-                             placeholder="Select Race",
+                             placeholder="Filter by Race",
                              clearable=True,
                              className="dropdown")]),
             html.Br(),
@@ -130,8 +130,9 @@ def update_map_dropdown(optionslctd):
         options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
-        options = [{"label": 'Average Household Income in 2020', "value": 'Income_2020'}]
-        value = "Income_2020"
+        options = [{"label": 'Average Household Income in 2019', "value": 'Income_2019'},
+                   {'label': 'Average Household Income in 2020', 'value': 'Income_2020'}]
+        value = "Income_2019"
     elif optionslctd == "Kids in Diapers-value":
         options = [{"label": 'Average Number of Kids in Diapers', "value": 'NumKidsDiapers'}]
         value = "NumKidsDiapers"
@@ -209,15 +210,16 @@ def display_choropleth(mapDrop, race):
         )
         dff = dff.loc[dff["Single Household"] == "Yes"]
         dff = dff[["State", "Proportion of Households"]]
+        dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         return px.choropleth(
             dff,
             locations="State",
             locationmode="USA-states",
-            color="Proportion of Households",
-            labels={"Proportion of Households": "Proportion of Households"},
-            title="Proportion of Households with a Single Head of Household",
+            color="Percentage of Households",
+            labels={"Percentage of Households": "% of Households"},
+            title="Percentage of Households with a Single Head of Household",
             scope="usa",
-            hover_data=["State", "Proportion of Households"],
+            hover_data=["State", "Percentage of Households"],
             color_continuous_scale="Ice_r",
         )
 
@@ -240,7 +242,6 @@ def display_choropleth(mapDrop, race):
                 ">=80,000",
             ],
         )
-
         return px.choropleth(
             dff,
             locations="State",
@@ -264,6 +265,50 @@ def display_choropleth(mapDrop, race):
                 ]
             },
             labels={"Income_2020": "Income Range (in dollars)"},
+            scope="usa",
+            title="Average Household Income")
+    if mapDrop == "Income_2019":
+        dff = dff.groupby(["State"]).mean(numeric_only=True)[mapDrop].round().to_frame().reset_index()
+        dff[mapDrop] = dff[mapDrop].replace(
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            [
+                "<=15,999",
+                "16,000-19,999",
+                "20,000-24,999",
+                "25,000-29,999",
+                "30,000-34,999",
+                "35,000-39,999",
+                "40,000-44,999",
+                "45,000-49,999",
+                "50,000-59,999",
+                "60,000-69,999",
+                "70,000-79,999",
+                ">=80,000",
+            ],
+        )
+        return px.choropleth(
+            dff,
+            locations="State",
+            locationmode="USA-states",
+            color="Income_2019",
+            color_discrete_sequence=px.colors.qualitative.Prism,
+            category_orders={
+                "Income_2019": [
+                    "<=15,999",
+                    "16,000-19,999",
+                    "20,000-24,999",
+                    "20,000-29,999",
+                    "30,000-34,999",
+                    "35,000-39,999",
+                    "40,000-44,999",
+                    "45,000-49,999",
+                    "50,000-59,999",
+                    "60,000-69,999",
+                    "70,000-79,999",
+                    ">=80,000",
+                ]
+            },
+            labels={"Income_2019": "Income Range (in dollars)"},
             scope="usa",
             title="Average Household Income")
 
