@@ -126,7 +126,8 @@ app.layout = html.Div(children=[
 
 def update_map_dropdown(optionslctd):
     if optionslctd == "Households-value":
-        options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'}]
+        options = [{"label": 'Percentage of Households with a Single Head of Household', "value": 'NumAdults'},
+                   {"label": 'Percentage of Households with One or More Working Adult', "value": 'Ad1CurrentWork'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
         options = [{'label': 'Average Household Income in 2019', 'value': 'Income_2019'},
@@ -249,6 +250,26 @@ def display_choropleth(variable, race):
                       labels={"Income_2019": "Income Range (in dollars)"},
                       scope="usa",
                       title="Average Household Income in 2019")
+    if str(variable) == "Ad1CurrentWork":
+        dff = dff[['State', 'Ad1CurrentWork', 'Ad2CurrentWork']]
+        dff = dff.dropna(subset=['Ad1CurrentWork', 'Ad2CurrentWork'])
+        dff = dff.replace(2, 0)
+        dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
+        dff.loc[(dff['Sum'] > 1), '1+ Adult Working'] = 'Yes'
+        dff.loc[(dff['Sum'] <= 1), '1+ Adult Working'] = 'No'
+        dff = dff[['State', '1+ Adult Working']].groupby('State').value_counts(normalize=True).to_frame(
+            name='Proportion of Households').reset_index()
+        dff = dff.loc[dff['1+ Adult Working'] == 'Yes']
+        dff = dff[['State', 'Proportion of Households']]
+        dff['Percentage of Households'] = dff['Proportion of Households'] * 100
+        return px.choropleth(dff, locations='State',
+                      locationmode="USA-states",
+                      color='Percentage of Households',
+                      labels={"Percentage of Households": "Percentage of Households"},
+                      title='Percentage of households with one or more working adult',
+                      scope="usa",
+                      hover_data=['State', 'Percentage of Households'],
+                      color_continuous_scale='ice_r')
 
 
 
