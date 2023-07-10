@@ -45,6 +45,36 @@ df.loc[(df['Race_Multiracial'] == 1), 'Race'] = 'Multiracial'
 df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
 df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
 
+df.loc[(df['State'] == 'AL'), 'State_2020_Median'] = 57243
+df.loc[(df['State'] == 'CA'), 'State_2020_Median'] = 81278
+df.loc[(df['State'] == 'CO'), 'State_2020_Median'] = 87689
+df.loc[(df['State'] == 'FL'), 'State_2020_Median'] = 60460
+df.loc[(df['State'] == 'GA'), 'State_2020_Median'] = 62033
+df.loc[(df['State'] == 'HI'), 'State_2020_Median'] = 84600
+df.loc[(df['State'] == 'IA'), 'State_2020_Median'] = 72030
+df.loc[(df['State'] == 'IL'), 'State_2020_Median'] = 77805
+df.loc[(df['State'] == 'LA'), 'State_2020_Median'] = 53576
+df.loc[(df['State'] == 'MD'), 'State_2020_Median'] = 99215
+df.loc[(df['State'] == 'ME'), 'State_2020_Median'] = 66667
+df.loc[(df['State'] == 'MI'), 'State_2020_Median'] = 67399
+df.loc[(df['State'] == 'MO'), 'State_2020_Median'] = 65081
+df.loc[(df['State'] == 'MS'), 'State_2020_Median'] = 47242
+df.loc[(df['State'] == 'NC'), 'State_2020_Median'] = 63252
+df.loc[(df['State'] == 'NE'), 'State_2020_Median'] = 75622
+df.loc[(df['State'] == 'NJ'), 'State_2020_Median'] = 89543
+df.loc[(df['State'] == 'NV'), 'State_2020_Median'] = 64020
+df.loc[(df['State'] == 'NY'), 'State_2020_Median'] = 71865
+df.loc[(df['State'] == 'OH'), 'State_2020_Median'] = 63198
+df.loc[(df['State'] == 'OK'), 'State_2020_Median'] = 54921
+df.loc[(df['State'] == 'PA'), 'State_2020_Median'] = 74094
+df.loc[(df['State'] == 'SC'), 'State_2020_Median'] = 63159
+df.loc[(df['State'] == 'SD'), 'State_2020_Median'] = 73467
+df.loc[(df['State'] == 'TN'), 'State_2020_Median'] = 57542
+df.loc[(df['State'] == 'TX'), 'State_2020_Median'] = 71599
+df.loc[(df['State'] == 'UT'), 'State_2020_Median'] = 87915
+df.loc[(df['State'] == 'WA'), 'State_2020_Median'] = 85157
+df.loc[(df['State'] == 'WY'), 'State_2020_Median'] = 68506
+
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = df["Race"].sort_values().unique()
@@ -61,14 +91,15 @@ app.layout = html.Div(children=[
         html.Br(),
         html.Div([
             dcc.Dropdown(id='variable-dropdown',
-                options=[{'label': 'Households', 'value': 'Households-value'},
-                         {'label': 'Income', 'value': "Income-value"},
-                         {'label': 'Kids in Diapers', 'value': "Kids in Diapers-value"}],
+                options=[{'label': 'Adults', 'value': 'Adults-value'},
+                         {'label': 'Children', 'value': "Children-value"},
+                         {'label': 'Income', 'value': "Income-value"}
+                         ],
                 placeholder="Select Category",
-                value="Households-value",
+                value="Adults-value",
                 clearable=False,
                 className="dropdown",
-                style={"width": "55%"},
+                style={"width": "65%"},
                 optionHeight=40
                 ),
             html.Br(),
@@ -80,7 +111,7 @@ app.layout = html.Div(children=[
                 options=[],
                 value=None,
                 clearable=False,
-                style={"width": "55%"},
+                style={"width": "65%"},
                 className="dropdown"),
             ])
         ]),
@@ -94,7 +125,7 @@ app.layout = html.Div(children=[
                 placeholder="Select Race",
                 clearable=True,
                 className="dropdown",
-                style={"width": "55%"},
+                style={"width": "65%"},
                 optionHeight=40
                 ),
     html.Br(),
@@ -125,16 +156,19 @@ app.layout = html.Div(children=[
     Input("variable-dropdown", "value"))
 
 def update_map_dropdown(optionslctd):
-    if optionslctd == "Households-value":
+    if optionslctd == "Adults-value":
         options = [{"label": 'Percentage of Households with a Single Head of Household', "value": 'NumAdults'},
-                   {"label": 'Percentage of Households with One or More Working Adult', "value": 'Ad1CurrentWork'}]
+                   {"label": 'Percentage of Households with One or More Working Adult', "value": 'Ad1CurrentWork'},
+                   {"label": 'Percentage of Households with One or More Adult in Education or Job Training', "value": 'Ad1_School'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
         options = [{'label': 'Average Household Income in 2019', 'value': 'Income_2019'},
-                   {'label': 'Average Household Income in 2020', 'value': 'Income_2020'}]
+                   {'label': 'Average Household Income in 2020', 'value': 'Income_2020'},
+                   {'label': 'Median Income of Households Relative to their State\'s 2020 Median Income', "value": 'Income_2020_2'}]
         value = "Income_2019"
-    elif optionslctd == "Kids in Diapers-value":
-        options = [{"label": 'Average Number of Kids in Diapers', "value": 'NumKidsDiapers'}]
+    elif optionslctd == "Children-value":
+        options = [{"label": 'Average Number of Children in Diapers (per household)', "value": 'NumKidsDiapers'},
+                   {"label": 'Average Number of Children in Childcare (per household)', "value": 'AnyCareforCHILD1_C'}]
         value = "NumKidsDiapers"
     else:
         options = []
@@ -187,8 +221,8 @@ def display_choropleth(variable, race):
         return px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='NumKidsDiapers',
-                            labels={"NumKidsDiapers": "# of Kids"},
-                            title = 'Average number of kids in diapers (per household)',
+                            labels={"NumKidsDiapers": "# of Children"},
+                            title = 'Average number of children in diapers (per household)',
                             scope="usa",
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
@@ -270,6 +304,58 @@ def display_choropleth(variable, race):
                       scope="usa",
                       hover_data=['State', 'Percentage of Households'],
                       color_continuous_scale='ice_r')
+    if str(variable) == "Ad1_School":
+        dff = dff[['State', 'Ad1_School', 'Ad2_School']]
+        dff = dff.dropna(subset=['Ad1_School', 'Ad2_School'])
+        dff = dff.replace(2, 0)
+        dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
+        dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
+        dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
+        dff = dff[['State', 'Education or Job Training']].groupby('State').value_counts(normalize=True).to_frame(
+            name='Proportion of Households').reset_index()
+        dff = dff.loc[dff['Education or Job Training'] == 'Yes']
+        dff = dff[['State', 'Proportion of Households']]
+        dff['Percentage of Households'] = dff['Proportion of Households'] * 100
+        return px.choropleth(dff, locations='State',
+                      locationmode="USA-states",
+                      color='Percentage of Households',
+                      labels={"Percentage of Households": "Percentage of Households"},
+                      title='Percentage of households with one or more adult in education or job training',
+                      scope="usa",
+                      hover_data=['State', 'Percentage of Households'],
+                      color_continuous_scale='ice_r')
+    if str(variable) == "AnyCareforCHILD1_C":
+        dff = dff[['State', 'AnyCareforCHILD1_C', 'AnyCareforCHILD2_C']]
+        dff = dff.loc[(dff["AnyCareforCHILD1_C"] != 99) | (dff["AnyCareforCHILD2_C"] != 99)]
+        dff = dff.replace(2, 0)
+        dff = dff.replace(99, 0)
+        dff['Sum'] = dff['AnyCareforCHILD1_C'] + dff['AnyCareforCHILD2_C']
+        dff = dff.groupby('State').mean(numeric_only=True).reset_index()
+        dff = dff[['State', 'Sum']]
+        return px.choropleth(dff,
+                      locations='State',
+                      locationmode="USA-states",
+                      color_continuous_scale='ice_r',
+                      color='Sum',
+                      labels={"Sum": '# of Children'},
+                      title='Average number of children in childcare (per household)',
+                      scope="usa")
+    if str(variable) == "Income_2020_2":
+        dff = dff[['State', 'Income_2020', 'State_2020_Median']]
+        dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
+        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999, 59999,
+                                                         69999, 79999, 89999])
+        dff['Proportion of State Median'] = dff['Income_2020'] / dff['State_2020_Median']
+        dff['Percent of State Median'] = dff['Proportion of State Median'] * 100
+        return px.choropleth(dff,
+                      locations='State',
+                      locationmode="USA-states",
+                      color_continuous_scale='ice_r',
+                      color='Percent of State Median',
+                      labels={"Percent of State Median": '% of state median income'},
+                      title='Median income of households relative to their state\'s 2020 median income',
+                      scope="usa")
 
 
 
