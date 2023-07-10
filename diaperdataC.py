@@ -49,8 +49,11 @@ df.loc[(df['Race_NativeHawaiianPI'] == 1), 'Race'] = 'Native Hawaiian or Pacific
 df.loc[(df['Race_White'] == 1), 'Race'] = 'White'
 df.loc[(df['Race_MENA'] == 1), 'Race'] = 'Middle East or North Africa'
 df.loc[(df['Race_Multiracial'] == 1), 'Race'] = 'Multiracial'
-df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
-df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
+             'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
+             'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
+
 
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
@@ -95,7 +98,7 @@ app.layout = html.Div(
                         className="dropdown"),
             html.Div([
                 html.Br(),
-                html.Label("Select Race"),
+                html.Label("Select Race (Optional)"),
                 dcc.Dropdown(id='race',
                              options=races,
                              placeholder="Filter by Race",
@@ -127,7 +130,8 @@ app.layout = html.Div(
     Input("variable-dropdown", "value"))
 def update_map_dropdown(optionslctd):
     if optionslctd == "Households-value":
-        options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'}]
+        options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'},
+                   {'label': 'Number of Households with 1 or More Working Adults', 'value': 'WorkingSum'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
         options = [{"label": 'Average Household Income in 2019', "value": 'Income_2019'},
@@ -142,7 +146,8 @@ def update_map_dropdown(optionslctd):
     return options, value
 
 
-filters = {'race': "", 'state': "", 'region': ""}
+filters = {'race': "", 'region': ""}
+
 
 @callback(
    Output('graph-content', 'figure'),
@@ -222,13 +227,31 @@ def display_choropleth(mapDrop, race):
             hover_data=["State", "Percentage of Households"],
             color_continuous_scale="Ice_r",
         )
+    if mapDrop == "WorkingSum":
+        dff = df[['State', 'Ad1CurrentWork', 'Ad1LookingWork', 'Ad2CurrentWork', 'Ad2LookingWork']]
+        dff = dff.replace(np.nan, 0)
+        dff = dff.replace(2, 0)
+        dff['WorkingSum'] = dff[['Ad1CurrentWork', 'Ad2CurrentWork']].sum(axis=1)
+        dff = dff.groupby(['State']).sum(numeric_only=True).reset_index()
+        dff = dff[['State', 'WorkingSum']]
+
+        return px.choropleth(
+            dff,
+            locations="State",
+            locationmode="USA-states",
+            color="WorkingSum",
+            labels={"WorkingSum": "Number of Households"},
+            title="Number of Households with One or More Working Adults",
+            scope="usa",
+            hover_data=["State", "WorkingSum"],
+            color_continuous_scale="Ice_r"
+        )
 
     if mapDrop == "Income_2020":
         dff = dff.groupby(["State"]).mean(numeric_only=True)[mapDrop].round().to_frame().reset_index()
         dff[mapDrop] = dff[mapDrop].replace(
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-            [
-                "<=15,999",
+            ["<=15,999",
                 "16,000-19,999",
                 "20,000-24,999",
                 "25,000-29,999",
@@ -239,8 +262,7 @@ def display_choropleth(mapDrop, race):
                 "50,000-59,999",
                 "60,000-69,999",
                 "70,000-79,999",
-                ">=80,000",
-            ],
+                ">=80,000"],
         )
         return px.choropleth(
             dff,
