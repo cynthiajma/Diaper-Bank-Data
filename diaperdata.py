@@ -49,7 +49,9 @@ states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = df["Race"].sort_values().unique()
 
-app = Dash(__name__, external_stylesheets=["/assets/style.css"])
+filters = {"race": ""}
+
+app = Dash(__name__)
 
 app.layout = html.Div(children=[
     html.Div([
@@ -143,9 +145,10 @@ def update_graph(value):
    Input('race', 'value'))
 
 def display_choropleth(variable, race):
+    filters["race"] = str(race)
+    dff = df.loc[(df['Race']) == filters["race"]]
     if str(variable) == "NumKidsDiapers":
-        dff = df[['State', str(variable), 'Race']]
-        dff = dff.loc[(dff['Race'] == str(race))]
+        dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
         return px.choropleth(dff, locations='State',
                             locationmode="USA-states",
@@ -156,10 +159,9 @@ def display_choropleth(variable, race):
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
     if str(variable) == "NumAdults":
-        dff = df[['State', str(variable), 'Race']]
+        dff = dff[['State', str(variable)]]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-        dff = dff.loc[(dff['Race'] == str(race))]
         dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
@@ -173,8 +175,7 @@ def display_choropleth(variable, race):
                       hover_data=['State', 'Percentage of Households'],
                       color_continuous_scale='ice_r')
     if str(variable) == "Income_2020":
-        dff = df[['State', str(variable), 'Race']]
-        dff = dff.loc[(dff['Race'] == str(race))]
+        dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
