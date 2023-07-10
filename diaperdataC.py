@@ -40,8 +40,21 @@ df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
 df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 
+df.loc[(df['Race_PreferNoShare'] == 1), 'Race'] = 'Prefer not to share'
+df.loc[(df['Race_AIAN'] == 1), 'Race'] = 'American Indian or Alaska Native'
+df.loc[(df['Race_Asian'] == 1), 'Race'] = 'Asian'
+df.loc[(df['Race_BlackAA'] == 1), 'Race'] = 'Black'
+df.loc[(df['Race_Hispanic'] == 1), 'Race'] = 'Hispanic'
+df.loc[(df['Race_NativeHawaiianPI'] == 1), 'Race'] = 'Native Hawaiian or Pacific Islander'
+df.loc[(df['Race_White'] == 1), 'Race'] = 'White'
+df.loc[(df['Race_MENA'] == 1), 'Race'] = 'Middle East or North Africa'
+df.loc[(df['Race_Multiracial'] == 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
+
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
+races = df["Race"].sort_values().unique()
 
 #external_stylesheets = ['Diaper-Bank-Data/assets/diaperstyles.css']
 app = Dash(__name__)# external_stylesheets=external_stylesheets)
@@ -80,10 +93,17 @@ app.layout = html.Div(
                         value=None,
                         clearable=False,
                         className="dropdown"),
+            html.Div([
+                html.Br(),
+                html.Label("Select Race"),
+                dcc.Dropdown(id='race',
+                             options=races,
+                             placeholder="Select Race",
+                             clearable=True,
+                             className="dropdown")]),
             html.Br(),
             dcc.Graph(id='graph2-content'),
         ]),
-
         html.Div([
             html.Br(),
             html.Label(['Select Region:'], className='label'),
@@ -99,6 +119,7 @@ app.layout = html.Div(
             dcc.Graph(id='graph3-content'),
             ]),
         ])
+
 
 @callback(
     Output("map-dropdown", "options"),
@@ -120,12 +141,14 @@ def update_map_dropdown(optionslctd):
     return options, value
 
 
+filters = {'race': "", 'state': "", 'region': ""}
+
 @callback(
    Output('graph-content', 'figure'),
    Input('dropdown-selection', 'value'))
 def update_graph(value):
-    transport = df[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == value]
+    filters['region'] = value
+    dff = df[df['CensusRegion'] == filters['region']][['CensusRegion', 'DB_Transport']]
     fig = px.histogram(dff, x="DB_Transport",
                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
                                                          "Public Transportation", "Taxi/Ride Sharing App"]},
@@ -142,8 +165,8 @@ def update_graph(value):
     Output('graph3-content', 'figure'),
     Input('dropdown-selection', 'value'))
 def update_pie(value):
-    transport = df[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == value]
+    filters['region'] = value
+    dff = df[df['CensusRegion'] == filters['region']][['CensusRegion', 'DB_Transport']]
     dff = dff.dropna()
     return px.pie(dff, names="DB_Transport",
                   category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
@@ -153,12 +176,15 @@ def update_pie(value):
 
 @app.callback(
     Output("graph2-content", "figure"),
-    Input("variable-dropdown", "value"),
     Input("map-dropdown", "value"),
+    Input('race', 'value')
 )
-def display_choropleth(variable, mapDrop):
-    if mapDrop == "NumKidsDiapers" and variable == "Kids in Diapers-value":
-        dff = df[["State", "NumKidsDiapers"]].groupby(["State"]).mean().reset_index()
+def display_choropleth(mapDrop, race):
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['Race']) == filters['race']] if filters['race'] else df
+    if mapDrop == "NumKidsDiapers":
+        dff = dff[['State', mapDrop]]
+        dff= dff.groupby(['State']).mean(numeric_only=True).reset_index()
         return px.choropleth(
             dff,
             locations="State",
@@ -170,8 +196,8 @@ def display_choropleth(variable, mapDrop):
             hover_data=["State", "NumKidsDiapers"],
             color_continuous_scale="Ice_r",
         )
-    if mapDrop == "NumAdults" and variable == "Households-value":
-        dff = df[["State", "NumAdults"]]
+    if mapDrop == "NumAdults":
+        dff = dff[["State", mapDrop]]
         dff.loc[dff["NumAdults"] == 1, "Single Household"] = "Yes"
         dff.loc[dff["NumAdults"] != 1, "Single Household"] = "No"
         dff = (
@@ -195,9 +221,9 @@ def display_choropleth(variable, mapDrop):
             color_continuous_scale="Ice_r",
         )
 
-    if mapDrop == "Income_2020" and variable == "Income-value":
-        dff = df.groupby(["State"]).mean(numeric_only=True)["Income_2020"].round().to_frame().reset_index()
-        dff["Income_2020"] = dff["Income_2020"].replace(
+    if mapDrop == "Income_2020":
+        dff = dff.groupby(["State"]).mean(numeric_only=True)[mapDrop].round().to_frame().reset_index()
+        dff[mapDrop] = dff[mapDrop].replace(
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
             [
                 "<=15,999",
