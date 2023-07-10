@@ -145,8 +145,8 @@ def update_graph(value):
    Input('race', 'value'))
 
 def display_choropleth(variable, race):
-    filters["race"] = str(race)
-    dff = df.loc[(df['Race']) == filters["race"]]
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
