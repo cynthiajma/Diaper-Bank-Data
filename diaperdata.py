@@ -202,7 +202,7 @@ def update_graph(region, race):
                             "DB_Transport": "Method",
                             "count": "Count"},
                        template='plotly_white',
-                       title="How diaper bank recipients access their diaper bank").\
+                       title="How Diaper Bank Recipients Access their Diaper Bank").\
         update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     return fig
@@ -220,8 +220,9 @@ def update_pie(region, race):
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
     return px.pie(dff, names="DB_Transport",
-                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
-                                                    "Public Transportation", "Taxi/Ride Sharing App"]},
+                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+                                                    "Taxi/Ride Sharing App", "Walk"
+                                                    ]},
                   labels={"DB_Transport": "Method"})
 
 
@@ -239,7 +240,7 @@ def display_choropleth(variable, race):
                              locationmode="USA-states",
                              color='NumKidsDiapers',
                              labels={"NumKidsDiapers": "# of Children"},
-                             title='Average number of children in diapers (per household)',
+                             title='Average Number of Children in Diapers (per household)',
                              scope="usa",
                              hover_data=['State', 'NumKidsDiapers'],
                              color_continuous_scale='ice_r')
@@ -255,8 +256,8 @@ def display_choropleth(variable, race):
         return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='Percentage of Households',
-                             labels={"Percentage of Households": "Percentage of Households"},
-                             title='Percentage of households with a single head of household',
+                             labels={"Percentage of Households": "% of Households"},
+                             title='Percentage of Households with a Single Head of Household',
                              scope="usa",
                              hover_data=['State', 'Percentage of Households'],
                              color_continuous_scale='ice_r')
@@ -317,8 +318,8 @@ def display_choropleth(variable, race):
         return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='Percentage of Households',
-                             labels={"Percentage of Households": "Percentage of Households"},
-                             title='Percentage of households with one or more working adult',
+                             labels={"Percentage of Households": "% of Households"},
+                             title='Percentage of Households with One or More Working Adult',
                              scope="usa",
                              hover_data=['State', 'Percentage of Households'],
                              color_continuous_scale='ice_r')
@@ -337,8 +338,8 @@ def display_choropleth(variable, race):
         return px.choropleth(dff, locations='State',
                              locationmode="USA-states",
                              color='Percentage of Households',
-                             labels={"Percentage of Households": "Percentage of Households"},
-                             title='Percentage of households with one or more adult in education or job training',
+                             labels={"Percentage of Households": "% of Households"},
+                             title='Percentage of Households with One or More Adult in Education or Job Training',
                              scope="usa",
                              hover_data=['State', 'Percentage of Households'],
                              color_continuous_scale='ice_r')
@@ -356,7 +357,7 @@ def display_choropleth(variable, race):
                              color_continuous_scale='ice_r',
                              color='Sum',
                              labels={"Sum": '# of Children'},
-                             title='Average number of children in childcare (per household)',
+                             title='Average Number of Children in Childcare (per household)',
                              scope="usa")
     if str(variable) == "Income_2020_2":
         dff = dff[['State', 'Income_2020', 'State_2020_Median']]
@@ -372,7 +373,7 @@ def display_choropleth(variable, race):
                              color_continuous_scale='ice_r',
                              color='Percent of State Median',
                              labels={"Percent of State Median": '% of state median income'},
-                             title='Median income of households relative to their state\'s 2020 median income',
+                             title='Median Income of Households Relative to their State\'s 2020 Median Income',
                              scope="usa")
 
 
