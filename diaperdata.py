@@ -4,10 +4,16 @@ import pandas as pd
 import numpy as np
 import plotly.io as pio
 
-df = pd.read_csv("diaperdata.csv",encoding="latin-1")
+df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
-df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO'])
-df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 99], ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
+df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+                                   24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
+                                             'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS',
+                                             'MO'])
+df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,
+                                   47, 48, 49, 50, 99], ['MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH',
+                                                         'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
+                                                         'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
 
 df.loc[(df['DiaperBankName'] == 'Bare Needs Diaper Bank'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'Basic Necessities'), 'State'] = 'LA'
@@ -42,8 +48,10 @@ df.loc[(df['Race_NativeHawaiianPI'] == 1), 'Race'] = 'Native Hawaiian or Pacific
 df.loc[(df['Race_White'] == 1), 'Race'] = 'White'
 df.loc[(df['Race_MENA'] == 1), 'Race'] = 'Middle East or North Africa'
 df.loc[(df['Race_Multiracial'] == 1), 'Race'] = 'Multiracial'
-df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
-df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI', 'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
+             'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) > 1), 'Race'] = 'Multiracial'
+df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
+             'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
 
 df.loc[(df['State'] == 'AL'), 'State_2020_Median'] = 57243
 df.loc[(df['State'] == 'CA'), 'State_2020_Median'] = 81278
@@ -79,14 +87,15 @@ states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = df["Race"].sort_values().unique()
 
-filters = {"race": ""}
+filters = {"race": "",
+           "region": ""}
 
 app = Dash(__name__)
 
 app.layout = html.Div(children=[
     html.Div([
         html.H1(children='Diaper Bank Data', style={'textAlign':'center'}),
-        html.Label(['Select Variable:'], style={'font-weight': 'bold', "text-align": "center"}),
+        html.Label(['Select Category:'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
         html.Br(),
         html.Div([
@@ -113,42 +122,43 @@ app.layout = html.Div(children=[
                 clearable=False,
                 style={"width": "65%"},
                 className="dropdown"),
-            ])
+            ]),
         ]),
+    html.Div([
+        html.Br(),
+        html.Label(['Select Region: (how to show it\'s only for bottom two graphs???)'], style={'font-weight': 'bold',
+                                                                                                "text-align": "center"}),
+        html.Br(),
+        html.Br(),
+        dcc.Dropdown(regions, id='region',
+                    placeholder="Select Region",
+                    value="Middle Atlantic",
+                    clearable=False,
+                    className="dropdown",
+                    style={"width": "65%"},
+                    optionHeight=40),
         html.Br(),
         html.Label(['Select Race (optional):'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
         html.Br(),
         html.Div([
             dcc.Dropdown(id='race',
-                options=races,
-                placeholder="Select Race",
-                clearable=True,
-                className="dropdown",
-                style={"width": "65%"},
-                optionHeight=40
-                ),
-    html.Br(),
-    dcc.Graph(id='graph2-content'),
-    ]),
-    html.Div([
-        html.Br(),
-        html.Label(['Select Region:'], style={'font-weight': 'bold', "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(regions, id='dropdown-selection',
-                    placeholder="Select Region",
-                    value="Middle Atlantic",
-                    clearable=False,
-                    className="dropdown",
-                    style={"width": "40%"},
-                    optionHeight=40),
+                         options=races,
+                         placeholder="Select Race",
+                         clearable=True,
+                         className="dropdown",
+                         style={"width": "65%"},
+                         optionHeight=40
+                         ),
+        dcc.Graph(id='graph2-content'),
         html.Br(),
         dcc.Graph(id='graph-content'),
         html.Br(),
         dcc.Graph(id='graph3-content'),
+        ]),
     ]),
-])
+    ])
+
 
 @callback(
     Output("map-dropdown", "options"),
@@ -159,12 +169,14 @@ def update_map_dropdown(optionslctd):
     if optionslctd == "Adults-value":
         options = [{"label": 'Percentage of Households with a Single Head of Household', "value": 'NumAdults'},
                    {"label": 'Percentage of Households with One or More Working Adult', "value": 'Ad1CurrentWork'},
-                   {"label": 'Percentage of Households with One or More Adult in Education or Job Training', "value": 'Ad1_School'}]
+                   {"label": 'Percentage of Households with One or More Adult in Education or Job Training',
+                    "value": 'Ad1_School'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
         options = [{'label': 'Average Household Income in 2019', 'value': 'Income_2019'},
                    {'label': 'Average Household Income in 2020', 'value': 'Income_2020'},
-                   {'label': 'Median Income of Households Relative to their State\'s 2020 Median Income', "value": 'Income_2020_2'}]
+                   {'label': 'Median Income of Households Relative to their State\'s 2020 Median Income',
+                    "value": 'Income_2020_2'}]
         value = "Income_2019"
     elif optionslctd == "Children-value":
         options = [{"label": 'Average Number of Children in Diapers (per household)', "value": 'NumKidsDiapers'},
@@ -177,11 +189,15 @@ def update_map_dropdown(optionslctd):
 
 @callback(
    Output('graph-content', 'figure'),
-   Input('dropdown-selection', 'value'))
+   Input('region', 'value'),
+   Input('race', 'value'))
 
-def update_graph(value):
-    transport = df[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == value]
+def update_graph(value, race):
+    filters['region'] = value
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    transport = dff[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == filters['region']]
     fig = px.histogram(dff, x="DB_Transport",
                         category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
                                                           "Public Transportation", "Taxi/Ride Sharing App"]},
@@ -196,11 +212,15 @@ def update_graph(value):
 
 @callback(
    Output('graph3-content', 'figure'),
-   Input('dropdown-selection', 'value'))
+   Input('region', 'value'),
+   Input('race', 'value'))
 
-def update_pie(value):
-    transport = df[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == value]
+def update_pie(value, race):
+    filters['region'] = value
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    transport = dff[["CensusRegion", "DB_Transport"]]
+    dff = transport[transport.CensusRegion == filters['region']]
     dff = dff.dropna()
     return px.pie(dff, names="DB_Transport",
                   category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
