@@ -94,23 +94,23 @@ app = Dash(__name__)
 
 app.layout = html.Div(children=[
     html.Div([
-        html.H1(children='Diaper Bank Data', style={'textAlign':'center'}),
+        html.H1(children='Diaper Bank Data', style={'textAlign': 'center'}),
         html.Label(['Select Category:'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
         html.Br(),
         html.Div([
             dcc.Dropdown(id='variable-dropdown',
-                options=[{'label': 'Adults', 'value': 'Adults-value'},
-                         {'label': 'Children', 'value': "Children-value"},
-                         {'label': 'Income', 'value': "Income-value"}
-                         ],
-                placeholder="Select Category",
-                value="Adults-value",
-                clearable=False,
-                className="dropdown",
-                style={"width": "65%"},
-                optionHeight=40
-                ),
+                         options=[{'label': 'Adults', 'value': 'Adults-value'},
+                                  {'label': 'Children', 'value': "Children-value"},
+                                  {'label': 'Income', 'value': "Income-value"}
+                                  ],
+                         placeholder="Select Category",
+                         value="Adults-value",
+                         clearable=False,
+                         className="dropdown",
+                         style={"width": "65%"},
+                         optionHeight=40
+                         ),
             html.Br(),
             html.Label(["Select Variable:"], style={'font-weight': 'bold', "text-align": "center"}),
             html.Br(),
@@ -126,37 +126,36 @@ app.layout = html.Div(children=[
         ]),
     html.Div([
         html.Br(),
-        html.Label(['Select Region: (how to show it\'s only for bottom two graphs???)'], style={'font-weight': 'bold',
-                                                                                                "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(regions, id='region',
-                    placeholder="Select Region",
-                    value="Middle Atlantic",
-                    clearable=False,
-                    className="dropdown",
-                    style={"width": "65%"},
-                    optionHeight=40),
-        html.Br(),
         html.Label(['Select Race (optional):'], style={'font-weight': 'bold', "text-align": "center"}),
         html.Br(),
         html.Br(),
+        dcc.Dropdown(id='race',
+                     options=races,
+                     placeholder="Select Race",
+                     clearable=True,
+                     className="dropdown",
+                     style={"width": "65%"},
+                     optionHeight=40
+                     ),
+        html.Br(),
         html.Div([
-            dcc.Dropdown(id='race',
-                         options=races,
-                         placeholder="Select Race",
+            html.Label(['Select Region: (optional) (how to show it\'s only for bottom two graphs???)'],
+                       style={'font-weight': 'bold', "text-align": "center"}),
+            html.Br(),
+            html.Br(),
+            dcc.Dropdown(regions, id='region',
+                         placeholder="Select Region",
                          clearable=True,
                          className="dropdown",
                          style={"width": "65%"},
-                         optionHeight=40
-                         ),
-        dcc.Graph(id='graph2-content'),
-        html.Br(),
-        dcc.Graph(id='graph-content'),
-        html.Br(),
-        dcc.Graph(id='graph3-content'),
+                         optionHeight=40),
+            dcc.Graph(id='graph2-content'),
+            html.Br(),
+            dcc.Graph(id='graph-content'),
+            html.Br(),
+            dcc.Graph(id='graph3-content'),
+            ]),
         ]),
-    ]),
     ])
 
 
@@ -164,7 +163,6 @@ app.layout = html.Div(children=[
     Output("map-dropdown", "options"),
     Output("map-dropdown", "value"),
     Input("variable-dropdown", "value"))
-
 def update_map_dropdown(optionslctd):
     if optionslctd == "Adults-value":
         options = [{"label": 'Percentage of Households with a Single Head of Household', "value": 'NumAdults'},
@@ -187,51 +185,50 @@ def update_map_dropdown(optionslctd):
         value = None
     return options, value
 
+
 @callback(
    Output('graph-content', 'figure'),
    Input('region', 'value'),
    Input('race', 'value'))
-
-def update_graph(value, race):
-    filters['region'] = value
+def update_graph(region, race):
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    transport = dff[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == filters['region']]
+    filters["region"] = str(region) if region else ""
+    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    dff = dff[["CensusRegion", "DB_Transport"]]
+    dff = dff.sort_values('DB_Transport')
     fig = px.histogram(dff, x="DB_Transport",
-                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
-                                                          "Public Transportation", "Taxi/Ride Sharing App"]},
-                        labels={
+                       labels={
                             "DB_Transport": "Method",
                             "count": "Count"},
-                        template='plotly_white',
-                        title="How diaper bank recipients access their diaper bank")\
-                        .update_layout(yaxis_title="Count")
+                       template='plotly_white',
+                       title="How diaper bank recipients access their diaper bank").\
+        update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     return fig
+
 
 @callback(
    Output('graph3-content', 'figure'),
    Input('region', 'value'),
    Input('race', 'value'))
-
-def update_pie(value, race):
-    filters['region'] = value
+def update_pie(region, race):
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    transport = dff[["CensusRegion", "DB_Transport"]]
-    dff = transport[transport.CensusRegion == filters['region']]
+    filters["region"] = str(region) if region else ""
+    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
     return px.pie(dff, names="DB_Transport",
                   category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Walk",
                                                     "Public Transportation", "Taxi/Ride Sharing App"]},
                   labels={"DB_Transport": "Method"})
 
+
 @callback(
    Output('graph2-content', 'figure'),
    Input('map-dropdown', 'value'),
    Input('race', 'value'))
-
 def display_choropleth(variable, race):
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
@@ -239,29 +236,30 @@ def display_choropleth(variable, race):
         dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
         return px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='NumKidsDiapers',
-                            labels={"NumKidsDiapers": "# of Children"},
-                            title = 'Average number of children in diapers (per household)',
-                            scope="usa",
-                            hover_data=['State', 'NumKidsDiapers'],
-                            color_continuous_scale='ice_r')
+                             locationmode="USA-states",
+                             color='NumKidsDiapers',
+                             labels={"NumKidsDiapers": "# of Children"},
+                             title='Average number of children in diapers (per household)',
+                             scope="usa",
+                             hover_data=['State', 'NumKidsDiapers'],
+                             color_continuous_scale='ice_r')
     if str(variable) == "NumAdults":
         dff = dff[['State', str(variable)]]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-        dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True).to_frame(name='Proportion of Households').reset_index()
+        dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True)\
+            .to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         return px.choropleth(dff, locations='State',
-                      locationmode="USA-states",
-                      color='Percentage of Households',
-                      labels={"Percentage of Households": "Percentage of Households"},
-                      title='Percentage of households with a single head of household',
-                      scope="usa",
-                      hover_data=['State', 'Percentage of Households'],
-                      color_continuous_scale='ice_r')
+                             locationmode="USA-states",
+                             color='Percentage of Households',
+                             labels={"Percentage of Households": "Percentage of Households"},
+                             title='Percentage of households with a single head of household',
+                             scope="usa",
+                             hover_data=['State', 'Percentage of Households'],
+                             color_continuous_scale='ice_r')
     if str(variable) == "Income_2020":
         dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
@@ -273,16 +271,16 @@ def display_choropleth(variable, race):
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
 
         return px.choropleth(dff, locations='State',
-                      locationmode='USA-states',
-                      color='Income_2020',
-                      color_discrete_sequence=px.colors.qualitative.Prism,
-                      category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                       '30,000-34,999', '35,000-39,999', '40,000-44,999',
-                                                       '45,000-49,999', '50,000-59,999', '60,000-69,999',
-                                                       '70,000-79,999', '>=80,000']},
-                      labels={"Income_2020": "Income Range (in dollars)"},
-                      scope="usa",
-                      title="Average Household Income in 2020")
+                             locationmode='USA-states',
+                             color='Income_2020',
+                             color_discrete_sequence=px.colors.qualitative.Prism,
+                             category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                              '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                              '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
+                             labels={"Income_2020": "Income Range (in dollars)"},
+                             scope="usa",
+                             title="Average Household Income in 2020")
     if str(variable) == "Income_2019":
         dff = dff[['State', str(variable)]]
         dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
@@ -294,16 +292,16 @@ def display_choropleth(variable, race):
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
 
         return px.choropleth(dff, locations='State',
-                      locationmode='USA-states',
-                      color='Income_2019',
-                      color_discrete_sequence=px.colors.qualitative.Prism,
-                      category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                       '30,000-34,999', '35,000-39,999', '40,000-44,999',
-                                                       '45,000-49,999', '50,000-59,999', '60,000-69,999',
-                                                       '70,000-79,999', '>=80,000']},
-                      labels={"Income_2019": "Income Range (in dollars)"},
-                      scope="usa",
-                      title="Average Household Income in 2019")
+                             locationmode='USA-states',
+                             color='Income_2019',
+                             color_discrete_sequence=px.colors.qualitative.Prism,
+                             category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                              '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                              '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
+                             labels={"Income_2019": "Income Range (in dollars)"},
+                             scope="usa",
+                             title="Average Household Income in 2019")
     if str(variable) == "Ad1CurrentWork":
         dff = dff[['State', 'Ad1CurrentWork', 'Ad2CurrentWork']]
         dff = dff.dropna(subset=['Ad1CurrentWork', 'Ad2CurrentWork'])
@@ -317,13 +315,13 @@ def display_choropleth(variable, race):
         dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         return px.choropleth(dff, locations='State',
-                      locationmode="USA-states",
-                      color='Percentage of Households',
-                      labels={"Percentage of Households": "Percentage of Households"},
-                      title='Percentage of households with one or more working adult',
-                      scope="usa",
-                      hover_data=['State', 'Percentage of Households'],
-                      color_continuous_scale='ice_r')
+                             locationmode="USA-states",
+                             color='Percentage of Households',
+                             labels={"Percentage of Households": "Percentage of Households"},
+                             title='Percentage of households with one or more working adult',
+                             scope="usa",
+                             hover_data=['State', 'Percentage of Households'],
+                             color_continuous_scale='ice_r')
     if str(variable) == "Ad1_School":
         dff = dff[['State', 'Ad1_School', 'Ad2_School']]
         dff = dff.dropna(subset=['Ad1_School', 'Ad2_School'])
@@ -337,13 +335,13 @@ def display_choropleth(variable, race):
         dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         return px.choropleth(dff, locations='State',
-                      locationmode="USA-states",
-                      color='Percentage of Households',
-                      labels={"Percentage of Households": "Percentage of Households"},
-                      title='Percentage of households with one or more adult in education or job training',
-                      scope="usa",
-                      hover_data=['State', 'Percentage of Households'],
-                      color_continuous_scale='ice_r')
+                             locationmode="USA-states",
+                             color='Percentage of Households',
+                             labels={"Percentage of Households": "Percentage of Households"},
+                             title='Percentage of households with one or more adult in education or job training',
+                             scope="usa",
+                             hover_data=['State', 'Percentage of Households'],
+                             color_continuous_scale='ice_r')
     if str(variable) == "AnyCareforCHILD1_C":
         dff = dff[['State', 'AnyCareforCHILD1_C', 'AnyCareforCHILD2_C']]
         dff = dff.loc[(dff["AnyCareforCHILD1_C"] != 99) | (dff["AnyCareforCHILD2_C"] != 99)]
@@ -353,13 +351,13 @@ def display_choropleth(variable, race):
         dff = dff.groupby('State').mean(numeric_only=True).reset_index()
         dff = dff[['State', 'Sum']]
         return px.choropleth(dff,
-                      locations='State',
-                      locationmode="USA-states",
-                      color_continuous_scale='ice_r',
-                      color='Sum',
-                      labels={"Sum": '# of Children'},
-                      title='Average number of children in childcare (per household)',
-                      scope="usa")
+                             locations='State',
+                             locationmode="USA-states",
+                             color_continuous_scale='ice_r',
+                             color='Sum',
+                             labels={"Sum": '# of Children'},
+                             title='Average number of children in childcare (per household)',
+                             scope="usa")
     if str(variable) == "Income_2020_2":
         dff = dff[['State', 'Income_2020', 'State_2020_Median']]
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
@@ -369,14 +367,13 @@ def display_choropleth(variable, race):
         dff['Proportion of State Median'] = dff['Income_2020'] / dff['State_2020_Median']
         dff['Percent of State Median'] = dff['Proportion of State Median'] * 100
         return px.choropleth(dff,
-                      locations='State',
-                      locationmode="USA-states",
-                      color_continuous_scale='ice_r',
-                      color='Percent of State Median',
-                      labels={"Percent of State Median": '% of state median income'},
-                      title='Median income of households relative to their state\'s 2020 median income',
-                      scope="usa")
-
+                             locations='State',
+                             locationmode="USA-states",
+                             color_continuous_scale='ice_r',
+                             color='Percent of State Median',
+                             labels={"Percent of State Median": '% of state median income'},
+                             title='Median income of households relative to their state\'s 2020 median income',
+                             scope="usa")
 
 
 if __name__ == '__main__':
