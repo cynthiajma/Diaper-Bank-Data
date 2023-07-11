@@ -54,6 +54,35 @@ df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'R
 df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
              'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer not to share'
 
+df.loc[(df['State'] == 'AL'), 'State_2020_Median'] = 57243
+df.loc[(df['State'] == 'CA'), 'State_2020_Median'] = 81278
+df.loc[(df['State'] == 'CO'), 'State_2020_Median'] = 87689
+df.loc[(df['State'] == 'FL'), 'State_2020_Median'] = 60460
+df.loc[(df['State'] == 'GA'), 'State_2020_Median'] = 62033
+df.loc[(df['State'] == 'HI'), 'State_2020_Median'] = 84600
+df.loc[(df['State'] == 'IA'), 'State_2020_Median'] = 72030
+df.loc[(df['State'] == 'IL'), 'State_2020_Median'] = 77805
+df.loc[(df['State'] == 'LA'), 'State_2020_Median'] = 53576
+df.loc[(df['State'] == 'MD'), 'State_2020_Median'] = 99215
+df.loc[(df['State'] == 'ME'), 'State_2020_Median'] = 66667
+df.loc[(df['State'] == 'MI'), 'State_2020_Median'] = 67399
+df.loc[(df['State'] == 'MO'), 'State_2020_Median'] = 65081
+df.loc[(df['State'] == 'MS'), 'State_2020_Median'] = 47242
+df.loc[(df['State'] == 'NC'), 'State_2020_Median'] = 63252
+df.loc[(df['State'] == 'NE'), 'State_2020_Median'] = 75622
+df.loc[(df['State'] == 'NJ'), 'State_2020_Median'] = 89543
+df.loc[(df['State'] == 'NV'), 'State_2020_Median'] = 64020
+df.loc[(df['State'] == 'NY'), 'State_2020_Median'] = 71865
+df.loc[(df['State'] == 'OH'), 'State_2020_Median'] = 63198
+df.loc[(df['State'] == 'OK'), 'State_2020_Median'] = 54921
+df.loc[(df['State'] == 'PA'), 'State_2020_Median'] = 74094
+df.loc[(df['State'] == 'SC'), 'State_2020_Median'] = 63159
+df.loc[(df['State'] == 'SD'), 'State_2020_Median'] = 73467
+df.loc[(df['State'] == 'TN'), 'State_2020_Median'] = 57542
+df.loc[(df['State'] == 'TX'), 'State_2020_Median'] = 71599
+df.loc[(df['State'] == 'UT'), 'State_2020_Median'] = 87915
+df.loc[(df['State'] == 'WA'), 'State_2020_Median'] = 85157
+df.loc[(df['State'] == 'WY'), 'State_2020_Median'] = 68506
 
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
@@ -75,7 +104,7 @@ app.layout = html.Div(
                 ),
             ],
             className="header",
-        ),
+        ), ####dddd
         html.Div([
             html.Br(),
             html.Label(['Select Variable:'], className='label'),
@@ -85,7 +114,11 @@ app.layout = html.Div(
                              {'label': 'Income',
                               'value': "Income-value"},
                              {'label': 'Kids in Diapers', 'value': "Kids in Diapers-value"}],
-                         value="Income-value",
+ptions=[{'label': 'Adults', 'value': 'Adults-value'},
+                         {'label': 'Children', 'value': "Children-value"},
+                         {'label': 'Income', 'value': "Income-value"}
+                         ],
+                         value="Households-value",
                          clearable=False,
                          className="dropdown"),
             html.Br(),
@@ -131,7 +164,7 @@ app.layout = html.Div(
 def update_map_dropdown(optionslctd):
     if optionslctd == "Households-value":
         options = [{"label": 'Proportion of Households with a Single Head of Household', "value": 'NumAdults'},
-                   {'label': 'Number of Households with 1 or More Working Adults', 'value': 'WorkingSum'}]
+                   {'label': 'Number of Households with One or More Working Adults', 'value': 'WorkingSum'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
         options = [{"label": 'Average Household Income in 2019', "value": 'Income_2019'},
@@ -269,7 +302,7 @@ def display_choropleth(mapDrop, race):
             locations="State",
             locationmode="USA-states",
             color="Income_2020",
-            color_discrete_sequence=px.colors.qualitative.Prism,
+            color_discrete_sequence=px.colors.qualitative.Pastel1,
             category_orders={
                 "Income_2020": [
                     "<=15,999",
