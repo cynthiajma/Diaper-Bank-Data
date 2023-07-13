@@ -630,14 +630,14 @@ def update_illness(race, state):
     dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
     dff1 = dff1.replace(np.nan, 0)
     dff2 = dff2.replace(np.nan, 0)
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No More Diaper-Related Illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No Diaper-Related Illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still Had Diaper-Related Illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got Diaper-Related Illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No More Diaper-Related Illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No Diaper-Related Illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still Had Diaper-Related Illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got Diaper-Related Illness'
     dff1 = dff1[['Outcome']]
     dff2 = dff2[['Outcome']]
     dff1 = dff1.value_counts()
@@ -696,8 +696,8 @@ def childcare_pie1(state, race):
     outsidehomech1 = outsidehomech1['Outside'].value_counts()
     outsidehome = outsidehomech1 + outsidehomech2
     outsidehome = outsidehome.to_frame().reset_index()
-    outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of home'
-    outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not outside of home'
+    outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of Home'
+    outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not Outside of Home'
     outsidehome = outsidehome.drop(['Outside'], axis=1)
     print(outsidehome[:5])
     percent_inHome = round((outsidehome['count'].iloc[1] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[
@@ -754,9 +754,9 @@ def childcare_pie2(state, race):
     senddiapersoutside = senddiapersch1 + senddiapersch2
     senddiapersoutside = senddiapersoutside.to_frame().reset_index()
     senddiapersoutside.loc[
-        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 1), 'Diaper'] = 'Need to send diapers'
+        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 1), 'Diaper'] = 'Need to Send Diapers'
     senddiapersoutside.loc[
-        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'No need to send diapers'
+        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'Do Not Need to Send Diapers'
     senddiapersoutside = senddiapersoutside.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
     percent_needDiapers = round(
         (senddiapersoutside['count'].iloc[0] / (senddiapersoutside['count'].iloc[0] + senddiapersoutside['count'].iloc[
