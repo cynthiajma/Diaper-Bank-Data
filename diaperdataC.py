@@ -651,7 +651,7 @@ def update_illness(race, state):
                  labels={"Outcome": "Outcome"},
                  template='plotly_white',
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Distribution of diaper related illnesses among children after receiving diapers<br><sup>"
+                 title="Distribution of Diaper Related Illnesses among Children after Receiving Diapers<br><sup>"
                        "You have selected " + str(race) + " as race.",
                  )
     fig.update_layout(annotations=[dict(
@@ -756,12 +756,17 @@ def childcare_pie2(state, race):
     senddiapersoutside.loc[
         (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'No need to send diapers'
     senddiapersoutside = senddiapersoutside.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
+    percent_needDiapers = round(
+        (senddiapersoutside['count'].iloc[0] / (senddiapersoutside['count'].iloc[0] + senddiapersoutside['count'].iloc[
+            1])) *
+    100, 1)
     fig = px.pie(senddiapersoutside, names='Diaper', values='count',
                  category_orders={"Diaper": ['Need to Send Diapers', 'Do Not Need to Send Diapers']},
                  labels={'Diaper': 'Diaper Requirement'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title=f'Of the {percent_inHome}% that Use Childcare Outside of Home: '
+                 title=f'Of the {percent_inHome}% that Use Childcare Outside of Home, {percent_needDiapers}% are '
+                       f'Required to Send Diapers to Childcare'
                  )
     fig.update_layout(annotations=[dict(
         x=0.5,
@@ -778,7 +783,6 @@ def childcare_pie2(state, race):
    Input('race', 'value'),
    Input('state', 'value'))
 def update_income2019(race, state):
-    print(race)
     filters['state'] = state if state else ""
     filters["race"] = race if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
