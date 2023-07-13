@@ -109,57 +109,76 @@ app.layout = html.Div(
             ],
             className="header",
         ),
-        html.Div([
-            html.Br(),
-            html.Label(['Select Category:'], className='label'),
-            dcc.Dropdown(id='variable-dropdown',
-                         options=[{'label': 'Adults', 'value': 'Adults-value'},
-                         {'label': 'Children', 'value': "Children-value"},
-                         {'label': 'Income', 'value': "Income-value"}
-                         ],
-                         placeholder="Select Category",
-                         value="Adults-value",
-                         clearable=False,
-                         className="dropdown"),
-
-            html.Br(),
-            html.Label("Select Map Variable"),
-            dcc.Dropdown(
-                        id="map-dropdown",
-                        options=[],
-                        value=None,
-                        clearable=False,
-                        className="dropdown"),
-            html.Br(),
-            html.Label("Filter by Race (Optional)"),
-            dcc.Dropdown(id='race',
-                         options=races,
-                         placeholder="Select Race",
-                         clearable=True,
-                         className="dropdown"),
-            html.Br(),
-            html.Label("Filter by State"),
-            dcc.Dropdown(id='state',
-                         options=states,
-                         placeholder="Select State",
-                         clearable=True,
-                         className="dropdown"),
-            # html.Br(),
-            # html.Label(['Select Region:'], className='label'),
-            # html.Br(),
-            # dcc.Dropdown(regions, id='region',
-            #              placeholder="Select Region",
-            #              clearable=True,
-            #              className="dropdown"),
-            ]),
-        html.Div([
-            html.Br(),
-            dcc.Graph(id='map-content'),
-            dcc.Graph(id='graph-content'),
-            html.Br(),
-            dcc.Graph(id='graph3-content'),
-            ]),
-        ])
+        html.Div(
+            children=[
+                html.Br(),
+                html.Label(['Select Category:'], className='label'),
+                dcc.Dropdown(
+                    id='variable-dropdown',
+                    options=[
+                        {'label': 'Adults', 'value': 'Adults-value'},
+                        {'label': 'Children', 'value': 'Children-value'},
+                        {'label': 'Income', 'value': 'Income-value'}
+                    ],
+                    placeholder="Select Category",
+                    value="Adults-value",
+                    clearable=False,
+                    className="dropdown"
+                ),
+                html.Br(),
+                html.Label("Select Map Variable"),
+                dcc.Dropdown(
+                    id="map-dropdown",
+                    options=[],
+                    value=None,
+                    clearable=False,
+                    className="dropdown"
+                ),
+                html.Br(),
+                html.Label("Filter by Race (Optional)"),
+                dcc.Dropdown(
+                    id='race',
+                    options=races,
+                    placeholder="Select Race",
+                    clearable=True,
+                    className="dropdown"
+                ),
+                html.Br(),
+                html.Label("Filter by State"),
+                dcc.Dropdown(
+                    id='state',
+                    options=states,
+                    placeholder="Select State",
+                    clearable=True,
+                    className="dropdown"
+                ),
+            ],
+        ),
+        html.Div(
+            children=[
+                html.Br(),
+                dcc.Graph(id='map-content'),
+                html.Div(
+                    children=[
+                        html.Br(),
+                        html.Label(['Select Region:'], className='label'),
+                        html.Br(),
+                        dcc.Dropdown(
+                            options=regions,
+                            id='region',
+                            placeholder="Select Region",
+                            clearable=True,
+                            className="dropdown"
+                        ),
+                    ]
+                ),
+                dcc.Graph(id='transport-content'),
+                html.Br(),
+                dcc.Graph(id='transport-pie-content'),
+            ],
+        ),
+    ]
+)
 
 
 @callback(
@@ -187,69 +206,6 @@ def update_map_dropdown(optionslctd):
         options = []
         value = None
     return options, value
-
-
-@callback(
-   Output('graph-content', 'figure'),
-   Input('state', 'value'),
-   #Input('region', 'value'),
-   Input('race', 'value'))
-def update_graph(state, race):
-    filters['state'] = state if race else ""
-    filters["race"] = str(race) if race else ""
-    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
-    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
-    #filters["region"] = str(region) if region else ""
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
-    dff = dff.sort_values('DB_Transport')
-    title = "How "
-    if race is not None:
-        title += f"{race} "
-    # if region is not None:
-    #     title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
-    else:
-        title += 'Diaper Bank Recipients Access their Diaper Bank'
-    fig = px.histogram(dff, x="DB_Transport",
-                       labels={
-                            "DB_Transport": "Method",
-                            "count": "Count"},
-                       template='plotly_white',
-                       title=title)
-    fig.update_layout(yaxis_title="Count")
-    fig.update_traces(marker_color='#86bce8')
-    return fig
-
-
-@callback(
-   Output('graph3-content', 'figure'),
-   #Input('region', 'value'),
-   Input('race', 'value'),
-   Input('state', 'value'))
-def update_pie(race, state):
-    filters['state'] = state if race else ""
-    filters["race"] = str(race) if race else ""
-    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
-    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
-    #filters["region"] = str(region) if region else ""
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
-    dff = dff.dropna()
-    fig = px.pie(dff, names="DB_Transport",
-                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation", "Taxi/Ride",
-                                                   "Sharing App", 'Walk']},
-                 labels={"DB_Transport": "Method"},
-                 template="plotly_white")
-    nrows = dff.shape[0]
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Figure has {nrows} values.',
-        showarrow=False
-    )])
-    return fig
 
 
 @callback(
@@ -492,6 +448,69 @@ def display_choropleth(variable, race, state):
             showarrow=False
         )])
         return fig
+
+
+@callback(
+   Output('transport-content', 'figure'),
+   Input('state', 'value'),
+   Input('region', 'value'),
+   Input('race', 'value'))
+def update_transport_graph(region, state, race):
+    filters['state'] = state if race else ""
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    filters["region"] = str(region) if region else ""
+    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    dff = dff[["CensusRegion", "DB_Transport"]]
+    dff = dff.sort_values('DB_Transport')
+    title = "How "
+    if race is not None:
+        title += f"{race} "
+    if region is not None:
+        title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
+    else:
+        title += 'Diaper Bank Recipients Access their Diaper Bank'
+    fig = px.histogram(dff, x="DB_Transport",
+                       labels={
+                            "DB_Transport": "Method",
+                            "count": "Count"},
+                       template='plotly_white',
+                       title=title)
+    fig.update_layout(yaxis_title="Count")
+    fig.update_traces(marker_color='#86bce8')
+    return fig
+
+
+@callback(
+   Output('transport-pie-content', 'figure'),
+   Input('region', 'value'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_transport_pie(region, race, state):
+    filters['state'] = state if race else ""
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    filters["region"] = str(region) if region else ""
+    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    dff = dff[["CensusRegion", "DB_Transport"]]
+    dff = dff.dropna()
+    fig = px.pie(dff, names="DB_Transport",
+                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation", "Taxi/Ride",
+                                                   "Sharing App", 'Walk']},
+                 labels={"DB_Transport": "Method"},
+                 template="plotly_white")
+    nrows = dff.shape[0]
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=-0.19,
+        xref='paper',
+        yref='paper',
+        text=f'Figure has {nrows} values.',
+        showarrow=False
+    )])
+    return fig
 
 
 if __name__ == '__main__':
