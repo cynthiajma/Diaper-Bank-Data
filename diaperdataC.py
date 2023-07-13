@@ -89,7 +89,14 @@ regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 
-
+df['Income_2019'] = df['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+df['Income_2020'] = df['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
 filters = {"race": "",
            "region": "", "state": ""}
 
@@ -172,6 +179,7 @@ app.layout = html.Div(
                 #         ),
                 #     ]
                 # ),
+                dcc.Graph(id='preterm-content'),
                 html.Div(
                     children=[
                         dcc.Graph(id='transport-content'),
@@ -179,11 +187,19 @@ app.layout = html.Div(
                         dcc.Graph(id='transport-pie-content')
                     ],
                 ),
+                dcc.Graph(id='illness-content'),
                 html.Div(
                     children=[
                         dcc.Graph(id='childcare1-content'),
                         html.Br(),
                         dcc.Graph(id='childcare2-content')
+                    ],
+                ),
+                html.Div(
+                    children=[
+                        dcc.Graph(id='income2019-content'),
+                        html.Br(),
+                        dcc.Graph(id='income2020-content')
                     ],
                 ),
             ],
@@ -530,6 +546,126 @@ def update_transport_pie(race, state):
 
 
 @callback(
+   Output('preterm-content', 'figure'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_preterm(race, state):
+    filters['race'] = race if race else ""
+    filters['state'] = state if state else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    dff = dff[
+        ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
+         'Race']]
+    dff = dff.dropna(how='all')
+    rows = dff.shape[0]
+    dfff = dff.replace(np.nan, 0)
+    dfff = dfff.replace(2, 1)
+    dfff['Total Children'] = dfff[
+        ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm',
+         'CH8Preterm']].sum(axis=1)
+    dfff = dfff[['Race', 'Total Children']].groupby(['Race']).sum('Total Children').reset_index()
+    dfff['Total Children'] = dfff['Total Children'].astype(int)
+    dff = dff.replace(np.nan, 0)
+    dff = dff.replace(2, 0)
+    dff['Sum'] = dff[['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm',
+                      'CH8Preterm']].sum(axis=1)
+    dff = dff[['Race', 'Sum']].groupby('Race').sum().astype(int).reset_index()
+    dff = dff.merge(dfff)
+    dff['Preterm'] = dff['Sum'] / dff['Total Children'] * 100
+    dff['Term'] = 100 - dff['Preterm']
+    dff = dff.drop(['Sum', 'Total Children'], axis=1)
+    dff = dff.sort_values(by='Preterm')
+    fig = px.bar(dff, y='Race', x=['Preterm', 'Term'],
+                 template='plotly_white',
+                 color_discrete_map={
+                     "Preterm": "#e81e36",
+                     "Term": "#86bce8"},
+                 labels={"variable": "Preterm or Term",
+                         "value": "Percent"},
+                 title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
+                       f"{race} as race.",
+                 barmode='stack')
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
+
+
+@callback(
+   Output('illness-content', 'figure'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_illness(race, state):
+    filters['race'] = race if race else ""
+    filters['state'] = state if state else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    dff = dff[
+        ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
+         'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
+         'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
+    dff = dff.replace(2, 0)
+    dff1 = dff[
+        ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
+         'CH1HaveUTIAfter']]
+    dff1 = dff1.dropna(how='all')
+    dff1['CH1BeforeSum'] = dff1[['CH1HaveRashBefore', 'CH1HaveSevRashBefore', 'CH1HaveUTIBefore']].sum(axis=1)
+    dff1['CH1AfterSum'] = dff1[['CH1HaveRashAfter', 'CH1HaveSevRashAfter', 'CH1HaveUTIAfter']].sum(axis=1)
+    dff2 = dff[
+        ['CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter', 'CH2HaveUTIBefore',
+         'CH2HaveUTIAfter']]
+    dff2 = dff2.dropna(how='all')
+    rows = dff1.shape[0] + dff2.shape[0]
+    dff2['CH2BeforeSum'] = dff2[['CH2HaveRashBefore', 'CH2HaveSevRashBefore', 'CH2HaveUTIBefore']].sum(axis=1)
+    dff2['CH2AfterSum'] = dff2[['CH2HaveRashAfter', 'CH2HaveSevRashAfter', 'CH2HaveUTIAfter']].sum(axis=1)
+    dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
+    dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
+    dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
+    dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
+    dff1 = dff1.replace(np.nan, 0)
+    dff2 = dff2.replace(np.nan, 0)
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    dff1 = dff1[['Outcome']]
+    dff2 = dff2[['Outcome']]
+    dff1 = dff1.value_counts()
+    dff2 = dff2.value_counts()
+    dff = dff1 + dff2
+    dff = dff.to_frame('Number of Children')
+    dff = dff.reset_index()
+    dff['Outcome'] = dff['Outcome'].astype('str')
+    dff['Number of Children'] = dff['Number of Children'].astype('int')
+    fig = px.pie(dff, names="Outcome", values="Number of Children",
+                 labels={"Outcome": "Outcome"},
+                 template='plotly_white',
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title="Distribution of diaper related illnesses among children after receiving diapers<br><sup>"
+                       "You have selected " + str(race) + " as race.",
+                 )
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
+
+
+@callback(
     Output('childcare1-content', 'figure'),
     Input('state', 'value'),
     Input('race', 'value')
@@ -637,7 +773,73 @@ def childcare_pie2(state, race):
     )])
     return fig
 
+@callback(
+   Output('income2019-content', 'figure'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_income2019(race, state):
+    print(race)
+    filters['state'] = state if state else ""
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    nrows = dff.dropna(subset=['Income_2019']).shape[0]
+    dff = dff['Income_2019'].value_counts()[
+        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
+         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff.to_frame('Count').reset_index()
+    fig = px.pie(dff, names='Income_2019', values='Count',
+                 labels={"Income_2019": "Income Range (in dollars)"},
+                 category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
+                 title=f"Distribution of Household Incomes in 2019<br><sup>You have selected {race} as race.",
+                 color_discrete_sequence=px.colors.sequential.ice,)
+    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {nrows} responses.',
+                      showarrow=False
+                      )])
+    return fig
 
+
+@callback(
+   Output('income2020-content', 'figure'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_income2020(race, state):
+    filters['state'] = state if state else ""
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    rows = dff.dropna(subset=['Income_2020']).shape[0]
+    dff = dff['Income_2020'].value_counts()[
+        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
+         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff.to_frame('Count').reset_index()
+    fig = px.pie(dff, names='Income_2020', values='Count',
+                 labels={"Income_2020": "Income Range (in dollars)"},
+                 category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
+                 title=f"Distribution of Household Incomes in 2020<br><sup>You have selected {race} as race.",
+                 color_discrete_sequence=px.colors.sequential.ice,)
+    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8060)
