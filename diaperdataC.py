@@ -3,16 +3,7 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 import plotly.io as pio
-import json
 
-df_counties = pd.read_csv('counties2.csv')
-selected_column = df_counties['FIPS']
-county_fips = selected_column.tolist()
-json_data = json.dumps(county_fips)
-with open('county_fips.json', 'w') as json_file:
-    json_file.write(json_data)
-with open('county_fips.json') as json_file:
-    geojson_data = json.load(json_file)
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
@@ -100,7 +91,7 @@ races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Mid
 
 
 filters = {"race": "",
-           "region": ""}
+           "region": "", "state": ""}
 
 app = Dash(__name__)
 app.title = "Diaper Bank Household Data"
@@ -132,7 +123,7 @@ app.layout = html.Div(
                          className="dropdown"),
 
             html.Br(),
-            html.Label("Select Variable"),
+            html.Label("Select Map Variable"),
             dcc.Dropdown(
                         id="map-dropdown",
                         options=[],
@@ -140,23 +131,30 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"),
             html.Br(),
-            html.Label("Select Race (Optional)"),
+            html.Label("Filter by Race (Optional)"),
             dcc.Dropdown(id='race',
                          options=races,
-                         placeholder="Filter by Race",
+                         placeholder="Select Race",
                          clearable=True,
                          className="dropdown"),
             html.Br(),
-            html.Label(['Select Region:'], className='label'),
-            html.Br(),
-            dcc.Dropdown(regions, id='region',
-                         placeholder="Select Region",
+            html.Label("Filter by State"),
+            dcc.Dropdown(id='state',
+                         options=states,
+                         placeholder="Select State",
                          clearable=True,
                          className="dropdown"),
+            # html.Br(),
+            # html.Label(['Select Region:'], className='label'),
+            # html.Br(),
+            # dcc.Dropdown(regions, id='region',
+            #              placeholder="Select Region",
+            #              clearable=True,
+            #              className="dropdown"),
             ]),
         html.Div([
             html.Br(),
-            dcc.Graph(id='graph2-content'),
+            dcc.Graph(id='map-content'),
             dcc.Graph(id='graph-content'),
             html.Br(),
             dcc.Graph(id='graph3-content'),
@@ -193,20 +191,23 @@ def update_map_dropdown(optionslctd):
 
 @callback(
    Output('graph-content', 'figure'),
-   Input('region', 'value'),
+   Input('state', 'value'),
+   #Input('region', 'value'),
    Input('race', 'value'))
-def update_graph(region, race):
+def update_graph(state, race):
+    filters['state'] = state if race else ""
     filters["race"] = str(race) if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = str(region) if region else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    #filters["region"] = str(region) if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
     title = "How "
     if race is not None:
         title += f"{race} "
-    if region is not None:
-        title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
+    # if region is not None:
+    #     title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
     else:
         title += 'Diaper Bank Recipients Access their Diaper Bank'
     fig = px.histogram(dff, x="DB_Transport",
@@ -222,12 +223,15 @@ def update_graph(region, race):
 
 @callback(
    Output('graph3-content', 'figure'),
-   Input('region', 'value'),
-   Input('race', 'value'))
-def update_pie(region, race):
+   #Input('region', 'value'),
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_pie(race, state):
+    filters['state'] = state if race else ""
     filters["race"] = str(race) if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = str(region) if region else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    #filters["region"] = str(region) if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
@@ -249,17 +253,20 @@ def update_pie(region, race):
 
 
 @callback(
-   Output('graph2-content', 'figure'),
+   Output('map-content', 'figure'),
    Input('map-dropdown', 'value'),
-   Input('race', 'value'))
-def display_choropleth(variable, race):
+   Input('race', 'value'),
+   Input('state', 'value'))
+def display_choropleth(variable, race, state):
+    filters['state'] = state if state else ""
     filters["race"] = str(race) if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    dff = df.loc[(df['State']) == filters['state']] if filters['state'] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
         nrows = dff.shape[0]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
-        fig = px.choropleth(dff, geojson=geojson_data, locations='State',
+        fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='NumKidsDiapers',
                             labels={"NumKidsDiapers": "# of Children"},
@@ -272,7 +279,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -300,7 +307,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -333,7 +340,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -365,7 +372,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -396,7 +403,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -427,7 +434,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -454,7 +461,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
@@ -481,7 +488,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {nrows} values.',
+            text=f'Filters match to {nrows} responses',
             showarrow=False
         )])
         return fig
