@@ -672,7 +672,7 @@ def update_illness(race, state):
 )
 def childcare_pie1(state, race):
     global percent_inHome
-    percent_inHome = 83.6
+    percent_inHome = 16.4
     filters['race'] = race if race else ""
     filters["state"] = state if state else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
@@ -699,9 +699,11 @@ def childcare_pie1(state, race):
     outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of home'
     outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not outside of home'
     outsidehome = outsidehome.drop(['Outside'], axis=1)
-    percent_inHome = round((outsidehome['count'].iloc[0] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[1])) * 100, 1)
+    print(outsidehome[:5])
+    percent_inHome = round((outsidehome['count'].iloc[1] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[
+        1])) * 100, 1)
     fig = px.pie(outsidehome, names='Type of Childcare', values='count',
-                 category_orders={"Type of Childcare": ['Not Outside of Home', 'Outside of Home']},
+                 category_orders={"Type of Childcare": ['Outside of Home', 'Not Outside of Home']},
                  labels={'Type of Childcare': 'Childcare Type'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
@@ -765,7 +767,8 @@ def childcare_pie2(state, race):
                  labels={'Diaper': 'Diaper Requirement'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title=f'Of the {percent_inHome}% that Use Childcare Outside of Home, {percent_needDiapers}% are '
+                 title=f'Of the {percent_inHome}% {race} Households that Use Childcare Outside of Ho'
+                       f'me, {percent_needDiapers}% are '
                        f'Required to Send Diapers to Childcare'
                  )
     fig.update_layout(annotations=[dict(
