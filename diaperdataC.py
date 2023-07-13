@@ -90,15 +90,17 @@ races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Mid
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 
 df['Income_2019'] = df['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+                                              ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                               '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                               '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
 df['Income_2020'] = df['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+                                              ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                               '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                               '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
 filters = {"race": "",
            "region": "", "state": ""}
+
+global percent_inHome
 
 app = Dash(__name__)
 app.title = "Diaper Bank Household Data"
@@ -277,14 +279,14 @@ def display_choropleth(variable, race, state):
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-        fig=px.choropleth(dff, locations='State',
-                          locationmode="USA-states",
-                          color='Percentage of Households',
-                          labels={"Percentage of Households": "Percentage of Households"},
-                          title='Percentage of Households with a Single Head of Household',
-                          scope="usa",
-                          hover_data=['State', 'Percentage of Households'],
-                          color_continuous_scale='ice_r')
+        fig = px.choropleth(dff, locations='State',
+                            locationmode="USA-states",
+                            color='Percentage of Households',
+                            labels={"Percentage of Households": "Percentage of Households"},
+                            title='Percentage of Households with a Single Head of Household',
+                            scope="usa",
+                            hover_data=['State', 'Percentage of Households'],
+                            color_continuous_scale='ice_r')
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -306,18 +308,18 @@ def display_choropleth(variable, race, state):
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
 
-        fig=px.choropleth(dff, locations='State',
-                          locationmode='USA-states',
-                          color='Income_2020',
-                          color_discrete_sequence=px.colors.qualitative.Prism,
-                          category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,'
+        fig = px.choropleth(dff, locations='State',
+                            locationmode='USA-states',
+                            color='Income_2020',
+                            color_discrete_sequence=px.colors.qualitative.Prism,
+                            category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,'
                                                                                                          '999',
                                                            '30,000-34,999', '35,000-39,999', '40,000-44,999',
                                                            '45,000-49,999', '50,000-59,999', '60,000-69,999',
                                                            '70,000-79,999', '>=80,000']},
-                          labels={"Income_2020": "Income Range (in dollars)"},
-                          scope="usa",
-                          title="Average Household Income in 2020")
+                            labels={"Income_2020": "Income Range (in dollars)"},
+                            scope="usa",
+                            title="Average Household Income in 2020")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -339,17 +341,17 @@ def display_choropleth(variable, race, state):
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
 
-        fig=px.choropleth(dff, locations='State',
-                          locationmode='USA-states',
-                          color='Income_2019',
-                          color_discrete_sequence=px.colors.qualitative.Prism,
-                          category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+        fig = px.choropleth(dff, locations='State',
+                            locationmode='USA-states',
+                            color='Income_2019',
+                            color_discrete_sequence=px.colors.qualitative.Prism,
+                            category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                            '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                            '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                            '60,000-69,999', '70,000-79,999', '>=80,000']},
-                          labels={"Income_2019": "Income Range (in dollars)"},
-                          scope="usa",
-                          title="Average Household Income in 2019")
+                            labels={"Income_2019": "Income Range (in dollars)"},
+                            scope="usa",
+                            title="Average Household Income in 2019")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -690,7 +692,8 @@ def childcare_pie1(state, race):
     outsidehomech2 = outsidehomech2.replace(np.nan, 0)
     nrows += outsidehomech2.shape[0]
     outsidehomech2['Outside'] = outsidehomech2['CH2_EarlyHeadStart'] + outsidehomech2['CH2_ChildCareCenter']\
-                                + outsidehomech2['CH2_FamilyChildCareHome'] + outsidehomech2['CH2_Preschool'] + outsidehomech2['CH2_FamFriendCare']
+                                + outsidehomech2['CH2_FamilyChildCareHome'] + outsidehomech2['CH2_Preschool'] \
+                                + outsidehomech2['CH2_FamFriendCare']
     outsidehomech2.loc[(outsidehomech2['Outside'] > 0), 'Outside'] = 1.0
     outsidehomech2 = outsidehomech2['Outside'].value_counts()
     outsidehomech1 = outsidehomech1['Outside'].value_counts()
@@ -758,18 +761,17 @@ def childcare_pie2(state, race):
     senddiapersoutside.loc[
         (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'Do Not Need to Send Diapers'
     senddiapersoutside = senddiapersoutside.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
-    percent_needDiapers = round(
+    percent_diapers = round(
         (senddiapersoutside['count'].iloc[0] / (senddiapersoutside['count'].iloc[0] + senddiapersoutside['count'].iloc[
-            1])) *
-    100, 1)
+            1])) * 100, 1)
     fig = px.pie(senddiapersoutside, names='Diaper', values='count',
                  category_orders={"Diaper": ['Need to Send Diapers', 'Do Not Need to Send Diapers']},
                  labels={'Diaper': 'Diaper Requirement'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title=f'Of the {percent_inHome}% {race} Households that Use Childcare Outside of Ho'
-                       f'me, {percent_needDiapers}% are '
-                       f'Required to Send Diapers to Childcare'
+                 title=f'Of the {percent_inHome}% that Use Childcare Outside of Ho'
+                       f'me, {percent_diapers}% are Required to Send Diapers to Childcare<br><sup>You have selected '
+                       f'{race} as race.'
                  )
     fig.update_layout(annotations=[dict(
         x=0.5,
@@ -780,6 +782,7 @@ def childcare_pie2(state, race):
         showarrow=False,
     )])
     return fig
+
 
 @callback(
    Output('income2019-content', 'figure'),
@@ -847,6 +850,7 @@ def update_income2020(race, state):
                       showarrow=False
                       )])
     return fig
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8060)
