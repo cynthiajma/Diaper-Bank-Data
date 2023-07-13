@@ -503,8 +503,8 @@ def update_transport_graph(state, race):
    Input('state', 'value')
 )
 def update_transport_pie(race, state):
+    filters['race'] = race if race else ""
     filters['state'] = state if state else ""
-    filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
     #filters["region"] = str(region) if region else ""
@@ -537,8 +537,8 @@ def update_transport_pie(race, state):
 def childcare_pie1(state, race):
     global percent_inHome
     percent_inHome = 83.6
-    filters['state'] = state if state else ""
-    filters["race"] = str(race) if race else ""
+    filters['race'] = race if race else ""
+    filters["state"] = state if state else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
     outsidehomech1 = dff[
@@ -589,7 +589,7 @@ def childcare_pie1(state, race):
 def childcare_pie2(state, race):
     global percent_inHome
     filters['state'] = state if state else ""
-    filters["race"] = str(race) if race else ""
+    filters["race"] = race if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
     senddiapersch1 = dff[
