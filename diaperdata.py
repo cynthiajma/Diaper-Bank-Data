@@ -88,6 +88,7 @@ races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Mid
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 
 filters = {"race": "",
+           "state": "",
            "region": ""}
 
 app = Dash(__name__)
@@ -143,6 +144,19 @@ app.layout = html.Div(children=[
                      optionHeight=40
                      ),
         html.Br(),
+        html.Label(['Select State (optional):'], style={'font-weight': 'bold', "text-align": "center"}),
+        html.Br(),
+        html.Br(),
+        dcc.Dropdown(id='state',
+                     options=states,
+                     placeholder="Select State",
+                     clearable=True,
+                     searchable=False,
+                     className="dropdown",
+                     style={"width": "65%"},
+                     optionHeight=40
+                     ),
+        html.Br(),
         html.Div([
             html.Label(['Select Region: (optional) (how to show it\'s only for bottom two graphs???)'],
                        style={'font-weight': 'bold', "text-align": "center"}),
@@ -162,6 +176,8 @@ app.layout = html.Div(children=[
             dcc.Graph(id='graph5-content'),
             dcc.Graph(id='graph6-content'),
             dcc.Graph(id='graph7-content'),
+            dcc.Graph(id='graph8-content'),
+            dcc.Graph(id='graph9-content')
             ]),
         ]),
     ])
@@ -199,9 +215,9 @@ def update_map_dropdown(optionslctd):
    Input('region', 'value'),
    Input('race', 'value'))
 def update_graph(region, race):
-    filters["race"] = str(race) if race else ""
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = str(region) if region else ""
+    filters["region"] = region if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
@@ -222,9 +238,9 @@ def update_graph(region, race):
    Input('region', 'value'),
    Input('race', 'value'))
 def update_pie(region, race):
-    filters["race"] = str(race) if race else ""
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = str(region) if region else ""
+    filters["region"] = region if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
@@ -250,10 +266,13 @@ def update_pie(region, race):
 
 @callback(
    Output('graph4-content', 'figure'),
-   Input('race', 'value'))
-def update_bar(race):
-    filters["race"] = str(race) if race else ""
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_bar(race, state):
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff = dff[
         ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
          'Race']]
@@ -284,7 +303,7 @@ def update_bar(race):
                  labels={"variable": "Preterm or Term",
                          "value": "Percent"},
                  title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
-                       + str(race) + " as race.",
+                             + str(race) + " as race and " + str(state) + " as state.",
                  barmode='stack')
     fig.update_layout(annotations=[dict(
                       x=0.5,
@@ -299,10 +318,13 @@ def update_bar(race):
 
 @callback(
    Output('graph5-content', 'figure'),
-   Input('race', 'value'))
-def update_pie(race):
-    filters["race"] = str(race) if race else ""
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_pie(race, state):
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff = dff[
         ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
          'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
@@ -348,8 +370,8 @@ def update_pie(race):
                  labels={"Outcome": "Outcome"},
                  template='plotly_white',
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Distribution of diaper related illnesses among children after receiving diapers<br><sup>"
-                       "You have selected " + str(race) + " as race.",
+                 title="Distribution of diaper related illnesses among children after receiving diapers<br><sup>You have selected "
+                             + str(race) + " as race and " + str(state) + " as state.",
                  )
     fig.update_layout(annotations=[dict(
                       x=0.5,
@@ -364,10 +386,13 @@ def update_pie(race):
 
 @callback(
    Output('graph6-content', 'figure'),
-   Input('race', 'value'))
-def update_pie(race):
-    filters["race"] = str(race) if race else ""
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_pie(race, state):
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if race else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                   ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                    '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -383,7 +408,8 @@ def update_pie(race):
                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title="Distribution of Household Incomes in 2019<br><sup>You have selected " + str(race) + " as race.",
+                 title="Distribution of Household Incomes in 2019<br><sup>You have selected "
+                             + str(race) + " as race and " + str(state) + " as state.",
                  color_discrete_sequence=px.colors.sequential.ice,)
     fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     fig.update_layout(annotations=[dict(
@@ -399,10 +425,13 @@ def update_pie(race):
 
 @callback(
    Output('graph7-content', 'figure'),
-   Input('race', 'value'))
-def update_pie(race):
-    filters["race"] = str(race) if race else ""
+   Input('race', 'value'),
+   Input('state', 'value'))
+def update_pie(race, state):
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                   ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                    '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -418,7 +447,8 @@ def update_pie(race):
                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title="Distribution of Household Incomes in 2020<br><sup>You have selected " + str(race) + " as race.",
+                 title="Distribution of Household Incomes in 2020<br><sup>You have selected "
+                             + str(race) + " as race and " + str(state) + " as state.",
                  color_discrete_sequence=px.colors.sequential.ice,)
     fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     fig.update_layout(annotations=[dict(
@@ -432,11 +462,121 @@ def update_pie(race):
     return fig
 
 @callback(
+    Output('graph8-content', 'figure'),
+    Input('race', 'value'),
+    Input('state', 'value'))
+def childcare_pie1(race, state):
+    global percent_inHome
+    percent_inHome = 16.4
+    filters['race'] = race if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    dff1 = dff[
+        ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare']]
+    dff1 = dff1.replace(np.nan, 0)
+    dff1['Outside'] = dff1['CH1_EarlyHeadStart'] + dff1['CH1_ChildCareCenter'] + dff1['CH1_FamilyChildCareHome'] + dff1[
+        'CH1_Preschool'] + dff1['CH1_FamFriendCare']
+    dff1.loc[(dff1['Outside'] > 0), 'Outside'] = 1.0
+    nrows = dff1.shape[0]
+    dff1 = dff1['Outside'].value_counts()
+    dff2 = dff[
+        ['CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare']]
+    dff2 = dff2.replace(np.nan, 0)
+    dff2['Outside'] = dff2['CH2_EarlyHeadStart'] + dff2['CH2_ChildCareCenter'] + dff2['CH2_FamilyChildCareHome'] + dff2[
+        'CH2_Preschool'] + dff2['CH2_FamFriendCare']
+    dff2.loc[(dff2['Outside'] > 0), 'Outside'] = 1.0
+    nrows += dff2.shape[0]
+    dff2 = dff2['Outside'].value_counts()
+    dff = dff1 + dff2
+    dff = dff.to_frame('Number of Children')
+    dff = dff.rename_axis('index').reset_index()
+    dff.loc[(dff['index'] == 1), 'Type of Childcare'] = 'Outside of home'
+    dff.loc[(dff['index'] == 0), 'Type of Childcare'] = 'Not outside of home'
+    dff = dff.drop(['index'], axis=1)
+    percent_inHome = round(
+        (dff['Number of Children'].iloc[1] / (dff['Number of Children'].iloc[0] + dff['Number of Children'].iloc[1])) * 100, 1)
+    fig = px.pie(dff, names="Type of Childcare", values="Number of Children",
+           labels={'Type of Childcare': 'Childcare Type'},
+           template="plotly_white",
+           color_discrete_sequence=px.colors.sequential.RdBu_r,
+           title="Percent of Children in Outside Childcare<br><sup>You have selected "
+                             + str(race) + " as race and " + str(state) + " as state.",
+           category_orders={"Type of Childcare": ['Outside of home', 'Not outside of home']}
+           )
+    fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=-0.19,
+            xref='paper',
+            yref='paper',
+            text=f'Filters match to {nrows} responses (Child 1 and 2 were counted as different responses).',
+            showarrow=False
+        )])
+    return fig
+
+
+@callback(
+    Output('graph9-content', 'figure'),
+    Input('race', 'value'),
+    Input('state', 'value'))
+def childcare_pie2(race, state):
+    global percent_inHome
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    dff1 = dff[
+        ['CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool',
+         'CH1_FamFriendCare']]
+    dff1 = dff1.dropna(how='all')
+    dff1 = dff1.dropna(subset=['CH1ChildCare_DiapersRequired_C'])
+    dff1 = dff1.replace(np.nan, 0)
+    nrows = dff1.shape[0]
+    dff1['Outside'] = dff1['CH1_FamFriendCare'] + dff1['CH1_ChildCareCenter'] + \
+                                dff1['CH1_FamilyChildCareHome'] + dff1['CH1_Preschool']
+    dff1.loc[(dff1['Outside'] > 0), 'Outside'] = 1.0
+    dff1 = dff1.loc[(dff1['Outside'] == 1)]
+    dff1 = dff1['CH1ChildCare_DiapersRequired_C'].value_counts()
+    dff2 = dff[['CH2ChildCare_DiapersRequired_C', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare']]
+    dff2 = dff2.dropna(how='all')
+    dff2 = dff2.dropna(subset=['CH2ChildCare_DiapersRequired_C'])
+    dff2 = dff2.replace(np.nan, 0)
+    nrows += dff2.shape[0]
+    dff2['Outside'] = dff2['CH2_FamFriendCare'] + dff2['CH2_ChildCareCenter'] + dff2['CH2_FamilyChildCareHome'] + dff2['CH2_Preschool']
+    dff2.loc[(dff2['Outside'] > 0), 'Outside'] = 1.0
+    dff2 = dff2.loc[(dff2['Outside'] == 1)]
+    dff2 = dff2['CH2ChildCare_DiapersRequired_C'].value_counts()
+    dff = dff1 + dff2
+    dff = dff.to_frame().reset_index()
+    dff.loc[
+        (dff['CH1ChildCare_DiapersRequired_C'] == 1), 'Diaper'] = 'Need to send diapers'
+    dff.loc[
+        (dff['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'No need to send diapers'
+    dff = dff.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
+    fig = px.pie(dff, names='Diaper', values='count',
+                 category_orders={"Diaper": ['Need to Send Diapers', 'Do Not Need to Send Diapers']},
+                 labels={'Diaper': 'Diaper Requirement'},
+                 template="plotly_white",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title=f"Of the {percent_inHome}% that Use Childcare Outside of Home:<br><sup>You have selected "
+                       + str(race) + " as race and " + str(state) + " as state.")
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=-0.19,
+        xref='paper',
+        yref='paper',
+        text=f'Filters match to {nrows} responses.',
+        showarrow=False,
+    )])
+    return fig
+
+
+@callback(
    Output('graph2-content', 'figure'),
    Input('map-dropdown', 'value'),
    Input('race', 'value'))
 def display_choropleth(variable, race):
-    filters["race"] = str(race) if race else ""
+    filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
