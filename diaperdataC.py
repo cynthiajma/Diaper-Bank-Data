@@ -158,23 +158,34 @@ app.layout = html.Div(
             children=[
                 html.Br(),
                 dcc.Graph(id='map-content'),
+                # html.Div(
+                #     children=[
+                #         html.Br(),
+                #         html.Label(['Select Region:'], className='label'),
+                #         html.Br(),
+                #         dcc.Dropdown(
+                #             options=regions,
+                #             id='region',
+                #             placeholder="Select Region",
+                #             clearable=True,
+                #             className="dropdown"
+                #         ),
+                #     ]
+                # ),
                 html.Div(
                     children=[
+                        dcc.Graph(id='transport-content'),
                         html.Br(),
-                        html.Label(['Select Region:'], className='label'),
-                        html.Br(),
-                        dcc.Dropdown(
-                            options=regions,
-                            id='region',
-                            placeholder="Select Region",
-                            clearable=True,
-                            className="dropdown"
-                        ),
-                    ]
+                        dcc.Graph(id='transport-pie-content')
+                    ],
                 ),
-                dcc.Graph(id='transport-content'),
-                html.Br(),
-                dcc.Graph(id='transport-pie-content'),
+                html.Div(
+                    children=[
+                        dcc.Graph(id='childcare1-content'),
+                        html.Br(),
+                        dcc.Graph(id='childcare2-content')
+                    ],
+                ),
             ],
         ),
     ]
@@ -453,24 +464,27 @@ def display_choropleth(variable, race, state):
 @callback(
    Output('transport-content', 'figure'),
    Input('state', 'value'),
-   Input('region', 'value'),
+   #Input('region', 'value'),
    Input('race', 'value'))
-def update_transport_graph(region, state, race):
+def update_transport_graph(state, race):
     filters['state'] = state if race else ""
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
-    filters["region"] = str(region) if region else ""
+    #filters["region"] = str(region) if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
+
     title = "How "
     if race is not None:
         title += f"{race} "
-    if region is not None:
-        title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
-    else:
-        title += 'Diaper Bank Recipients Access their Diaper Bank'
+    #if region is not None:
+        #title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
+    title += 'Diaper Bank Recipients Access their Diaper Bank'
+    if state is not None:
+        title += f' in {state}'
+
     fig = px.histogram(dff, x="DB_Transport",
                        labels={
                             "DB_Transport": "Method",
@@ -484,15 +498,16 @@ def update_transport_graph(region, state, race):
 
 @callback(
    Output('transport-pie-content', 'figure'),
-   Input('region', 'value'),
+   #Input('region', 'value'),
    Input('race', 'value'),
-   Input('state', 'value'))
-def update_transport_pie(region, race, state):
+   Input('state', 'value')
+)
+def update_transport_pie(race, state):
     filters['state'] = state if race else ""
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
-    filters["region"] = str(region) if region else ""
+    #filters["region"] = str(region) if region else ""
     dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
@@ -500,16 +515,65 @@ def update_transport_pie(region, race, state):
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation", "Taxi/Ride",
                                                    "Sharing App", 'Walk']},
                  labels={"DB_Transport": "Method"},
-                 template="plotly_white")
+                 template="plotly_white",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r)
     nrows = dff.shape[0]
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,
         xref='paper',
         yref='paper',
-        text=f'Figure has {nrows} values.',
+        text=f'Filters match to {nrows} responses.',
         showarrow=False
     )])
+    return fig
+
+@callback(
+    Output('childcare1-content', 'figure'),
+    Input('state', 'value'),
+    Input('race', 'value')
+)
+def childcare_pie1(state, race):
+    filters['state'] = state if race else ""
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    outsidehomech1 = dff[
+        ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare']]
+    outsidehomech1 = outsidehomech1.replace(np.nan, 0)
+    nrows = outsidehomech1.shape[0]
+    outsidehomech1['Outside'] = outsidehomech1['CH1_EarlyHeadStart'] + outsidehomech1['CH1_ChildCareCenter']\
+                                + outsidehomech1['CH1_FamilyChildCareHome'] + outsidehomech1['CH1_Preschool']\
+                                + outsidehomech1['CH1_FamFriendCare']
+    outsidehomech1.loc[(outsidehomech1['Outside'] > 0), 'Outside'] = 1.0
+    outsidehomech2 = df[['CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool',
+                         'CH2_FamFriendCare']]
+    outsidehomech2 = outsidehomech2.replace(np.nan, 0)
+    nrows += outsidehomech2.shape[0]
+    outsidehomech2['Outside'] = outsidehomech2['CH2_EarlyHeadStart'] + outsidehomech2['CH2_ChildCareCenter']\
+                                + outsidehomech2['CH2_FamilyChildCareHome'] + outsidehomech2['CH2_Preschool'] + outsidehomech2['CH2_FamFriendCare']
+    outsidehomech2.loc[(outsidehomech2['Outside'] > 0), 'Outside'] = 1.0
+    outsidehomech2 = outsidehomech2['Outside'].value_counts()
+    outsidehomech1 = outsidehomech1['Outside'].value_counts()
+    outsidehome = outsidehomech1 + outsidehomech2
+    outsidehome = outsidehome.to_frame().reset_index()
+    outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of home'
+    outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not outside of home'
+    outsidehome = outsidehome.drop(['Outside'], axis=1)
+    fig = px.pie(outsidehome, names='Type of Childcare', values='count',
+                 category_orders={"Type of Childcare": ['Not Outside of Home', 'Outside of Home']},
+                 labels={'Type of Childcare': 'Childcare Type'},
+                 template="plotly_white",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r
+                 )
+    fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=-0.19,
+            xref='paper',
+            yref='paper',
+            text=f'Filters match to {nrows} responses.',
+            showarrow=False
+        )])
     return fig
 
 
