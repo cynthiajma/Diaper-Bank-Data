@@ -467,7 +467,7 @@ def display_choropleth(variable, race, state):
    #Input('region', 'value'),
    Input('race', 'value'))
 def update_transport_graph(state, race):
-    filters['state'] = state if race else ""
+    filters['state'] = state if state else ""
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
@@ -503,7 +503,7 @@ def update_transport_graph(state, race):
    Input('state', 'value')
 )
 def update_transport_pie(race, state):
-    filters['state'] = state if race else ""
+    filters['state'] = state if state else ""
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
@@ -528,13 +528,16 @@ def update_transport_pie(race, state):
     )])
     return fig
 
+
 @callback(
     Output('childcare1-content', 'figure'),
     Input('state', 'value'),
     Input('race', 'value')
 )
 def childcare_pie1(state, race):
-    filters['state'] = state if race else ""
+    global percent_inHome
+    percent_inHome = 83.6
+    filters['state'] = state if state else ""
     filters["race"] = str(race) if race else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
@@ -560,11 +563,12 @@ def childcare_pie1(state, race):
     outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of home'
     outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not outside of home'
     outsidehome = outsidehome.drop(['Outside'], axis=1)
+    percent_inHome = round((outsidehome['count'].iloc[0] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[1])) * 100, 1)
     fig = px.pie(outsidehome, names='Type of Childcare', values='count',
                  category_orders={"Type of Childcare": ['Not Outside of Home', 'Outside of Home']},
                  labels={'Type of Childcare': 'Childcare Type'},
                  template="plotly_white",
-                 color_discrete_sequence=px.colors.sequential.RdBu_r
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
                  )
     fig.update_layout(annotations=[dict(
             x=0.5,
@@ -575,6 +579,64 @@ def childcare_pie1(state, race):
             showarrow=False
         )])
     return fig
+
+
+@callback(
+    Output('childcare2-content', 'figure'),
+    Input('state', 'value'),
+    Input('race', 'value')
+)
+def childcare_pie2(state, race):
+    global percent_inHome
+    filters['state'] = state if state else ""
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
+    dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
+    senddiapersch1 = dff[
+        ['CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool',
+         'CH1_FamFriendCare']]
+    senddiapersch1 = senddiapersch1.dropna(how='all')
+    senddiapersch1 = senddiapersch1.dropna(subset=['CH1ChildCare_DiapersRequired_C'])
+    senddiapersch1 = senddiapersch1.replace(np.nan, 0)
+    nrows = senddiapersch1.shape[0]
+    senddiapersch1['Outside'] = senddiapersch1['CH1_FamFriendCare'] + senddiapersch1['CH1_ChildCareCenter'] + \
+                                senddiapersch1['CH1_FamilyChildCareHome'] + senddiapersch1['CH1_Preschool']
+    senddiapersch1.loc[(senddiapersch1['Outside'] > 0), 'Outside'] = 1.0
+    senddiapersch1 = senddiapersch1.loc[(senddiapersch1['Outside'] == 1)]
+    senddiapersch1 = senddiapersch1['CH1ChildCare_DiapersRequired_C'].value_counts()
+    senddiapersch2 = df[['CH2ChildCare_DiapersRequired_C', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare']]
+    senddiapersch2 = senddiapersch2.dropna(how='all')
+    senddiapersch2 = senddiapersch2.dropna(subset=['CH2ChildCare_DiapersRequired_C'])
+    senddiapersch2 = senddiapersch2.replace(np.nan, 0)
+    nrows += senddiapersch2.shape[0]
+    senddiapersch2['Outside'] = senddiapersch2['CH2_FamFriendCare'] + senddiapersch2['CH2_ChildCareCenter'] + senddiapersch2['CH2_FamilyChildCareHome'] + senddiapersch2['CH2_Preschool']
+    senddiapersch2.loc[(senddiapersch2['Outside'] > 0), 'Outside'] = 1.0
+    senddiapersch2 = senddiapersch2.loc[(senddiapersch2['Outside'] == 1)]
+    senddiapersch2 = senddiapersch2['CH2ChildCare_DiapersRequired_C'].value_counts()
+    senddiapersoutside = senddiapersch1 + senddiapersch2
+    senddiapersoutside = senddiapersoutside.to_frame().reset_index()
+    senddiapersoutside.loc[
+        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 1), 'Diaper'] = 'Need to send diapers'
+    senddiapersoutside.loc[
+        (senddiapersoutside['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'No need to send diapers'
+    senddiapersoutside = senddiapersoutside.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
+    fig = px.pie(senddiapersoutside, names='Diaper', values='count',
+                 category_orders={"Diaper": ['Need to Send Diapers', 'Do Not Need to Send Diapers']},
+                 labels={'Diaper': 'Diaper Requirement'},
+                 template="plotly_white",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title=f'Of the {percent_inHome}% that Use Childcare Outside of Home: '
+                 )
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=-0.19,
+        xref='paper',
+        yref='paper',
+        text=f'Filters match to {nrows} responses.',
+        showarrow=False,
+    )])
+    return fig
+
 
 
 if __name__ == '__main__':
