@@ -159,7 +159,8 @@ app.layout = html.Div(children=[
             dcc.Graph(id='graph2-content'),
             dcc.Graph(id='graph-content'),
             dcc.Graph(id='graph3-content'),
-            dcc.Graph(id='graph4-content')
+            dcc.Graph(id='graph4-content'),
+            dcc.Graph(id='graph5-content')
             ]),
         ]),
     ])
@@ -208,7 +209,7 @@ def update_graph(region, race):
                             "DB_Transport": "Method",
                             "count": "Count"},
                        template='plotly_white',
-                       title="How Diaper Bank Recipients Access their Diaper Bank <br><sup>You have selected "
+                       title="How Diaper Bank Recipients Access their Diaper Bank<br><sup>You have selected "
                              + str(race) + " as race and " + str(region) + " as region.")
     fig.update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
@@ -240,10 +241,11 @@ def update_pie(region, race):
                       y=-0.19,
                       xref='paper',
                       yref='paper',
-                      text=f'Figure has {rows} values.',
+                      text=f'Filters matched to {rows} responses.',
                       showarrow=False
                       )])
     return fig
+
 
 @callback(
    Output('graph4-content', 'figure'),
@@ -280,14 +282,80 @@ def update_bar(race):
                      "Term": "#86bce8"},
                  labels={"variable": "Preterm or Term",
                          "value": "Percent"},
-                 title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity",
+                 title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
+                       + str(race) + " as race.",
                  barmode='stack')
     fig.update_layout(annotations=[dict(
                       x=0.5,
                       y=-0.25,
                       xref='paper',
                       yref='paper',
-                      text=f'Figure has {rows} values.',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
+
+
+@callback(
+   Output('graph5-content', 'figure'),
+   Input('race', 'value'))
+def update_pie(race):
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    dff = dff[
+        ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
+         'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
+         'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
+    dff = dff.replace(2, 0)
+    dff1 = dff[
+        ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
+         'CH1HaveUTIAfter']]
+    dff1 = dff1.dropna(how='all')
+    dff1['CH1BeforeSum'] = dff1[['CH1HaveRashBefore', 'CH1HaveSevRashBefore', 'CH1HaveUTIBefore']].sum(axis=1)
+    dff1['CH1AfterSum'] = dff1[['CH1HaveRashAfter', 'CH1HaveSevRashAfter', 'CH1HaveUTIAfter']].sum(axis=1)
+    dff2 = dff[
+        ['CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter', 'CH2HaveUTIBefore',
+         'CH2HaveUTIAfter']]
+    dff2 = dff2.dropna(how='all')
+    rows = dff1.shape[0] + dff2.shape[0]
+    dff2['CH2BeforeSum'] = dff2[['CH2HaveRashBefore', 'CH2HaveSevRashBefore', 'CH2HaveUTIBefore']].sum(axis=1)
+    dff2['CH2AfterSum'] = dff2[['CH2HaveRashAfter', 'CH2HaveSevRashAfter', 'CH2HaveUTIAfter']].sum(axis=1)
+    dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
+    dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
+    dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
+    dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
+    dff1 = dff1.replace(np.nan, 0)
+    dff2 = dff2.replace(np.nan, 0)
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    dff1 = dff1[['Outcome']]
+    dff2 = dff2[['Outcome']]
+    dff1 = dff1.value_counts()
+    dff2 = dff2.value_counts()
+    dff = dff1 + dff2
+    dff = dff.to_frame('Number of Children')
+    dff = dff.reset_index()
+    dff['Outcome'] = dff['Outcome'].astype('str')
+    dff['Number of Children'] = dff['Number of Children'].astype('int')
+    fig = px.pie(dff, names="Outcome", values="Number of Children",
+                 labels={"Outcome": "Outcome"},
+                 template='plotly_white',
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title="Distribution of diaper related illnesses among children after receiving diapers<br><sup>"
+                       "You have selected " + str(race) + " as race.",
+                 )
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
                       showarrow=False
                       )])
     return fig
@@ -318,7 +386,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -347,7 +415,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -378,7 +446,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -410,7 +478,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -441,7 +509,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -472,7 +540,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -499,7 +567,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
@@ -526,7 +594,7 @@ def display_choropleth(variable, race):
             y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Figure has {rows} values.',
+            text=f'Filters matched to {rows} responses.',
             showarrow=False
         )])
         return fig
