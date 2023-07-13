@@ -2,7 +2,6 @@ from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 import numpy as np
-import plotly.io as pio
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
@@ -160,7 +159,9 @@ app.layout = html.Div(children=[
             dcc.Graph(id='graph-content'),
             dcc.Graph(id='graph3-content'),
             dcc.Graph(id='graph4-content'),
-            dcc.Graph(id='graph5-content')
+            dcc.Graph(id='graph5-content'),
+            dcc.Graph(id='graph6-content'),
+            dcc.Graph(id='graph7-content'),
             ]),
         ]),
     ])
@@ -360,6 +361,75 @@ def update_pie(race):
                       )])
     return fig
 
+
+@callback(
+   Output('graph6-content', 'figure'),
+   Input('race', 'value'))
+def update_pie(race):
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+    rows = dff.dropna(subset=['Income_2019']).shape[0]
+    dff = dff['Income_2019'].value_counts()[
+        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
+         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff.to_frame('Count').reset_index()
+    fig = px.pie(dff, names='Income_2019', values='Count',
+                 labels={"Income_2019": "Income Range (in dollars)"},
+                 category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
+                 title="Distribution of Household Incomes in 2019<br><sup>You have selected " + str(race) + " as race.",
+                 color_discrete_sequence=px.colors.sequential.ice,)
+    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
+
+
+@callback(
+   Output('graph7-content', 'figure'),
+   Input('race', 'value'))
+def update_pie(race):
+    filters["race"] = str(race) if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                  ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                   '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                   '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+    rows = dff.dropna(subset=['Income_2020']).shape[0]
+    dff = dff['Income_2020'].value_counts()[
+        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
+         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff.to_frame('Count').reset_index()
+    fig = px.pie(dff, names='Income_2020', values='Count',
+                 labels={"Income_2020": "Income Range (in dollars)"},
+                 category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
+                 title="Distribution of Household Incomes in 2020<br><sup>You have selected " + str(race) + " as race.",
+                 color_discrete_sequence=px.colors.sequential.ice,)
+    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(annotations=[dict(
+                      x=0.5,
+                      y=-0.25,
+                      xref='paper',
+                      yref='paper',
+                      text=f'Filters matched to {rows} responses.',
+                      showarrow=False
+                      )])
+    return fig
 
 @callback(
    Output('graph2-content', 'figure'),
