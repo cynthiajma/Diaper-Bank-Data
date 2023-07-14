@@ -499,7 +499,7 @@ def update_transport_graph(state, race):
         title += f"{race} "
     #if region is not None:
         #title += f"Diaper Bank Recipients Access their Diaper Bank in the {region} Region of the U.S."
-    title += 'Diaper Bank Recipients Access their Diaper Bank'
+    title += 'Diaper Bank Recipients Access Diaper Products'
     if state is not None:
         title += f' in {state}'
 
@@ -570,13 +570,14 @@ def update_preterm(race, state):
     dfff['Total Children'] = dfff['Total Children'].astype(int)
     dff = dff.replace(np.nan, 0)
     dff = dff.replace(2, 0)
-    dff['Sum'] = dff[['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm',
-                      'CH8Preterm']].sum(axis=1)
-    dff = dff[['Race', 'Sum']].groupby('Race').sum().astype(int).reset_index()
+    dff['SumPreterm'] = dff[
+        ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm',
+         'CH8Preterm']].sum(axis=1)
+    dff = dff[['Race', 'SumPreterm']].groupby('Race').sum().astype(int).reset_index()
     dff = dff.merge(dfff)
-    dff['Preterm'] = dff['Sum'] / dff['Total Children'] * 100
+    dff['Preterm'] = dff['SumPreterm'] / dff['Total Children'] * 100
     dff['Term'] = 100 - dff['Preterm']
-    dff = dff.drop(['Sum', 'Total Children'], axis=1)
+    dff['SumTerm'] = dff['Total Children'] - dff['SumPreterm']
     dff = dff.sort_values(by='Preterm')
     fig = px.bar(dff, y='Race', x=['Preterm', 'Term'],
                  template='plotly_white',
@@ -584,7 +585,9 @@ def update_preterm(race, state):
                      "Preterm": "#e81e36",
                      "Term": "#86bce8"},
                  labels={"variable": "Preterm or Term",
-                         "value": "Percent"},
+                         "value": "Percent",
+                         'sumPreterm': 'Total Preterm',
+                         'sumTerm': 'Total Term'},
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
                        f"{race} as race.",
                  barmode='stack')
@@ -679,30 +682,40 @@ def childcare_pie1(state, race):
     filters["state"] = state if state else ""
     dff = df.loc[(df['State']) == filters["state"]] if filters["state"] else df
     dff = dff.loc[(dff['Race']) == filters["race"]] if filters["race"] else dff
-    outsidehomech1 = dff[
-        ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare']]
-    outsidehomech1 = outsidehomech1.replace(np.nan, 0)
-    nrows = outsidehomech1.shape[0]
-    outsidehomech1['Outside'] = outsidehomech1['CH1_EarlyHeadStart'] + outsidehomech1['CH1_ChildCareCenter']\
-                                + outsidehomech1['CH1_FamilyChildCareHome'] + outsidehomech1['CH1_Preschool']\
-                                + outsidehomech1['CH1_FamFriendCare']
-    outsidehomech1.loc[(outsidehomech1['Outside'] > 0), 'Outside'] = 1.0
-    outsidehomech2 = df[['CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool',
-                         'CH2_FamFriendCare']]
-    outsidehomech2 = outsidehomech2.replace(np.nan, 0)
-    nrows += outsidehomech2.shape[0]
-    outsidehomech2['Outside'] = outsidehomech2['CH2_EarlyHeadStart'] + outsidehomech2['CH2_ChildCareCenter']\
-                                + outsidehomech2['CH2_FamilyChildCareHome'] + outsidehomech2['CH2_Preschool'] \
-                                + outsidehomech2['CH2_FamFriendCare']
-    outsidehomech2.loc[(outsidehomech2['Outside'] > 0), 'Outside'] = 1.0
-    outsidehomech2 = outsidehomech2['Outside'].value_counts()
-    outsidehomech1 = outsidehomech1['Outside'].value_counts()
-    outsidehome = outsidehomech1 + outsidehomech2
-    outsidehome = outsidehome.to_frame().reset_index()
-    outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of Home'
-    outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not Outside of Home'
+    nrows = 'not sure'
+    outsidehomech_all = df[
+        ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare',
+         'CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare',
+         'NoChildCare']]
+    outsidehomech_all['NoChildCare'].value_counts().sum()
+    outsidehomech_all.loc[(outsidehomech_all['NoChildCare'] == 1), 'HomeCare'] = 1
+    outsidehomech_all.loc[(outsidehomech_all['NoChildCare'] == 0), 'HomeCare'] = 1
+    outsidehomech_all.loc[(outsidehomech_all['NoChildCare'] == 9), 'HomeCare'] = 0
+    outsidehomech_all = outsidehomech_all.drop(['NoChildCare'], axis=1)
+    outsidehomech_all = outsidehomech_all.replace(np.nan, 0)
+    outsidehomech_all['Outside'] = outsidehomech_all['CH1_EarlyHeadStart'] + outsidehomech_all['CH1_ChildCareCenter'] + \
+                                   outsidehomech_all['CH1_FamilyChildCareHome'] + outsidehomech_all['CH1_Preschool'] + \
+                                   outsidehomech_all['CH1_FamFriendCare'] + outsidehomech_all['CH2_EarlyHeadStart'] + \
+                                   outsidehomech_all['CH2_ChildCareCenter'] + outsidehomech_all[
+                                       'CH2_FamilyChildCareHome'] + outsidehomech_all['CH2_Preschool'] + \
+                                   outsidehomech_all['CH2_FamFriendCare']
+    outsidehomech_2 = outsidehomech_all['HomeCare'].value_counts().to_frame().reset_index()
+    num = outsidehomech_2['count'].iloc[0]
+    outsidehomech_all = outsidehomech_all.replace(np.nan, 0)
+    outsidehomech_all['Outside'] = outsidehomech_all['CH1_EarlyHeadStart'] + outsidehomech_all['CH1_ChildCareCenter'] + \
+                                   outsidehomech_all['CH1_FamilyChildCareHome'] + outsidehomech_all['CH1_Preschool'] + \
+                                   outsidehomech_all['CH1_FamFriendCare'] + outsidehomech_all['CH2_EarlyHeadStart'] + \
+                                   outsidehomech_all['CH2_ChildCareCenter'] + outsidehomech_all[
+                                       'CH2_FamilyChildCareHome'] + outsidehomech_all['CH2_Preschool'] + \
+                                   outsidehomech_all['CH2_FamFriendCare']
+    outsidehomech_all.loc[(outsidehomech_all['Outside'] > 0), 'Outside'] = 1.0
+    outsidehomech_all = outsidehomech_all['Outside']
+    outsidehomech_all = outsidehomech_all.value_counts()
+    outsidehome = outsidehomech_all.to_frame().reset_index()
+    outsidehome.loc[(outsidehome['Outside'] == 1), 'Type of Childcare'] = 'Outside of home'
+    outsidehome.loc[(outsidehome['Outside'] == 0), 'Type of Childcare'] = 'Not outside of home'
     outsidehome = outsidehome.drop(['Outside'], axis=1)
-    print(outsidehome[:5])
+    outsidehome['count'].iloc[0] = num
     percent_inHome = round((outsidehome['count'].iloc[1] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[
         1])) * 100, 1)
     fig = px.pie(outsidehome, names='Type of Childcare', values='count',
