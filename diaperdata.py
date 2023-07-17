@@ -37,6 +37,7 @@ df.loc[(df['DB_Transport'] == 2), 'DB_Transport'] = 'Public Transportation'
 df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
 df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
+df.loc[(df['PartnerAgencyType'] == "HOMEVISIT"), 'DB_Transport'] = 'Home Visit'
 
 df.loc[(df['Race_PreferNoShare'] == 1), 'Race'] = 'Prefer Not To Share'
 df.loc[(df['Race_AIAN'] == 1), 'Race'] = 'American Indian or Alaskan Native'
@@ -160,17 +161,6 @@ app.layout = html.Div(children=[
                      ),
         html.Br(),
         html.Div([
-            html.Label(['Select Region: (optional) (how to show it\'s only for bottom two graphs???)'],
-                       style={'font-weight': 'bold', "text-align": "center"}),
-            html.Br(),
-            html.Br(),
-            dcc.Dropdown(regions, id='region',
-                         placeholder="Select Region",
-                         clearable=True,
-                         searchable=False,
-                         className="dropdown",
-                         style={"width": "65%"},
-                         optionHeight=40),
             dcc.Graph(id='graph2-content'),
             dcc.Graph(id='graph-content'),
             dcc.Graph(id='graph3-content'),
@@ -214,13 +204,13 @@ def update_map_dropdown(optionslctd):
 
 @callback(
     Output('graph-content', 'figure'),
-    Input('region', 'value'),
+    Input('state', 'value'),
     Input('race', 'value'))
-def update_graph(region, race):
+def update_graph(state, race):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = region if region else ""
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
     fig = px.histogram(dff, x="DB_Transport",
@@ -228,8 +218,12 @@ def update_graph(region, race):
                            "DB_Transport": "Method",
                            "count": "Count"},
                        template='plotly_white',
-                       title="How Diaper Bank Recipients Access their Diaper Bank<br><sup>You have selected "
-                             + str(race) + " as race and " + str(region) + " as region.")
+                       title="How Diaper Bank Recipients Access their Diaper Bank Products<br><sup>You have selected "
+                             + str(race) + " as race and " + str(state) + " as state.",
+                       category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+                                                         "Taxi/Ride Sharing App", "Walk", "Home Visit"
+                                                         ]}
+                       )
     fig.update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     return fig
@@ -237,18 +231,18 @@ def update_graph(region, race):
 
 @callback(
     Output('graph3-content', 'figure'),
-    Input('region', 'value'),
+    Input('state', 'value'),
     Input('race', 'value'))
-def update_pie(region, race):
+def update_pie(state, race):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["region"] = region if region else ""
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
     fig = px.pie(dff, names="DB_Transport",
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
-                                                   "Taxi/Ride Sharing App", "Walk"
+                                                   "Taxi/Ride Sharing App", "Walk", "Home Visit"
                                                    ]},
                  labels={"DB_Transport": "Method"},
                  template='plotly_white',
@@ -367,7 +361,7 @@ def update_pie(race, state):
     dff = dff.to_frame('Number of Children')
     dff = dff.reset_index()
     dff['Outcome'] = dff['Outcome'].astype('str')
-    dff['Number of Children'] = dff['Number of Children'].astype('int')
+    dff['Number of Children'] = dff['Number of Children'].astype(float).fillna(0).astype(int)
     fig = px.pie(dff, names="Outcome", values="Number of Children",
                  labels={"Outcome": "Outcome"},
                  template='plotly_white',
@@ -400,20 +394,21 @@ def update_pie(race, state):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2019']).shape[0]
-    dff = dff['Income_2019'].value_counts()[
-        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
-         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff['Income_2019'].value_counts()
     dff = dff.to_frame('Count').reset_index()
-    fig = px.pie(dff, names='Income_2019', values='Count',
-                 labels={"Income_2019": "Income Range (in dollars)"},
+    fig = px.histogram(dff, x='Income_2019', y='Count',
+                 labels={"Income_2019": "Income Range (in dollars)",
+                         "sum of Count": "Count"},
                  category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
                  title="Distribution of Household Incomes in 2019<br><sup>You have selected " + str(race) +
                        " as race and " + str(state) + " as state.",
-                 color_discrete_sequence=px.colors.sequential.ice, )
-    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                 template='plotly_white')
+    #fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(yaxis_title="Count")
+    fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -439,20 +434,21 @@ def update_pie(race, state):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2020']).shape[0]
-    dff = dff['Income_2020'].value_counts()[
-        ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999', '30,000-34,999', '35,000-39,999',
-         '40,000-44,999', '45,000-49,999', '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000']]
+    dff = dff['Income_2020'].value_counts()
     dff = dff.to_frame('Count').reset_index()
-    fig = px.pie(dff, names='Income_2020', values='Count',
-                 labels={"Income_2020": "Income Range (in dollars)"},
+    fig = px.histogram(dff, x='Income_2020', y='Count',
+                 labels={"Income_2020": "Income Range (in dollars)",
+                         "sum of Count": "Count"},
                  category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
                  title="Distribution of Household Incomes in 2020<br><sup>You have selected " + str(race) +
                        " as race and " + str(state) + " as state.",
-                 color_discrete_sequence=px.colors.sequential.ice, )
-    fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                 template='plotly_white')
+    #fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    fig.update_layout(yaxis_title="Count")
+    fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -507,6 +503,7 @@ def childcare_pie1(race, state):
                  title="Percent of Children in Outside Childcare<br><sup>You have selected "
                        + str(race) + " as race and " + str(state) + " as state.",
                  category_orders={"Type of Childcare": ['Outside of home', 'Not outside of home']})
+    fig.update_traces(pull=[0.05, 0])
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,
