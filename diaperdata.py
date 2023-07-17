@@ -83,16 +83,21 @@ df.loc[(df['State'] == 'UT'), 'State_2020_Median'] = 87915
 df.loc[(df['State'] == 'WA'), 'State_2020_Median'] = 85157
 df.loc[(df['State'] == 'WY'), 'State_2020_Median'] = 68506
 
+df.loc[(df['NumAdults'] == 1), 'Single Household'] = 'Yes'
+df.loc[(df['NumAdults'] != 1), 'Single Household'] = 'No'
+
 global percent_inHome
 
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
+singlehead = ['Yes', 'No']
 
 filters = {"race": "",
            "state": "",
-           "region": ""}
+           "region": "",
+           "singlehead": ""}
 
 app = Dash(__name__)
 app.title = "Diaper Bank Household Data"
@@ -160,6 +165,20 @@ app.layout = html.Div(children=[
                      optionHeight=40
                      ),
         html.Br(),
+        html.Label(['Select if Single Head of Household (optional):'],
+                   style={'font-weight': 'bold', "text-align": "center"}),
+        html.Br(),
+        html.Br(),
+        dcc.Dropdown(id='singlehead',
+                     options=singlehead,
+                     placeholder="Select if Single Head of Household",
+                     clearable=True,
+                     searchable=False,
+                     className="dropdown",
+                     style={"width": "65%"},
+                     optionHeight=40
+                     ),
+        html.Br(),
         html.Div([
             dcc.Graph(id='graph2-content'),
             dcc.Graph(id='graph-content'),
@@ -205,12 +224,15 @@ def update_map_dropdown(optionslctd):
 @callback(
     Output('graph-content', 'figure'),
     Input('state', 'value'),
-    Input('race', 'value'))
-def update_graph(state, race):
+    Input('race', 'value'),
+    Input('singlehead', 'value'))
+def update_graph(state, race, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
     fig = px.histogram(dff, x="DB_Transport",
@@ -232,12 +254,15 @@ def update_graph(state, race):
 @callback(
     Output('graph3-content', 'figure'),
     Input('state', 'value'),
-    Input('race', 'value'))
-def update_pie(state, race):
+    Input('race', 'value'),
+Input('singlehead', 'value'))
+def update_pie(state, race, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff = dff[["CensusRegion", "DB_Transport"]]
     dff = dff.dropna()
     fig = px.pie(dff, names="DB_Transport",
@@ -263,12 +288,15 @@ def update_pie(state, race):
 @callback(
     Output('graph4-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def update_bar(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def update_bar(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff = dff[
         ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
          'Race']]
@@ -315,12 +343,15 @@ def update_bar(race, state):
 @callback(
     Output('graph5-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def update_pie(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def update_pie(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff = dff[
         ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
          'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
@@ -383,12 +414,15 @@ def update_pie(race, state):
 @callback(
     Output('graph6-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def update_pie(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def update_pie(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if race else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -397,16 +431,15 @@ def update_pie(race, state):
     dff = dff['Income_2019'].value_counts()
     dff = dff.to_frame('Count').reset_index()
     fig = px.histogram(dff, x='Income_2019', y='Count',
-                 labels={"Income_2019": "Income Range (in dollars)",
-                         "sum of Count": "Count"},
-                 category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title="Distribution of Household Incomes in 2019<br><sup>You have selected " + str(race) +
+                       labels={"Income_2019": "Income Range (in dollars)",
+                               "sum of Count": "Count"},
+                       category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                        '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                        '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                        '60,000-69,999', '70,000-79,999', '>=80,000']},
+                       title="Distribution of Household Incomes in 2019<br><sup>You have selected " + str(race) +
                        " as race and " + str(state) + " as state.",
-                 template='plotly_white')
-    #fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                       template='plotly_white')
     fig.update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
@@ -423,12 +456,15 @@ def update_pie(race, state):
 @callback(
     Output('graph7-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def update_pie(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def update_pie(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -437,16 +473,15 @@ def update_pie(race, state):
     dff = dff['Income_2020'].value_counts()
     dff = dff.to_frame('Count').reset_index()
     fig = px.histogram(dff, x='Income_2020', y='Count',
-                 labels={"Income_2020": "Income Range (in dollars)",
-                         "sum of Count": "Count"},
-                 category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                  '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                  '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                  '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title="Distribution of Household Incomes in 2020<br><sup>You have selected " + str(race) +
+                       labels={"Income_2020": "Income Range (in dollars)",
+                               "sum of Count": "Count"},
+                       category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                        '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                        '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                        '60,000-69,999', '70,000-79,999', '>=80,000']},
+                       title="Distribution of Household Incomes in 2020<br><sup>You have selected " + str(race) +
                        " as race and " + str(state) + " as state.",
-                 template='plotly_white')
-    #fig.update_traces(pull=[0.05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                       template='plotly_white')
     fig.update_layout(yaxis_title="Count")
     fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
@@ -463,14 +498,17 @@ def update_pie(race, state):
 @callback(
     Output('graph8-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def childcare_pie1(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def childcare_pie1(race, state, singlehead):
     global percent_inHome
     percent_inHome = 16.4
     filters['race'] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff1 = dff[
         ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare']]
     dff1 = dff1.replace(np.nan, 0)
@@ -518,13 +556,16 @@ def childcare_pie1(race, state):
 @callback(
     Output('graph9-content', 'figure'),
     Input('race', 'value'),
-    Input('state', 'value'))
-def childcare_pie2(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def childcare_pie2(race, state, singlehead):
     global percent_inHome
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     dff1 = dff[
         ['CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool',
          'CH1_FamFriendCare']]
@@ -576,10 +617,13 @@ def childcare_pie2(race, state):
 @callback(
     Output('graph2-content', 'figure'),
     Input('map-dropdown', 'value'),
-    Input('race', 'value'))
-def display_choropleth(variable, race):
+    Input('race', 'value'),
+    Input('singlehead', 'value'))
+def display_choropleth(variable, race, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
         rows = dff.shape[0]
