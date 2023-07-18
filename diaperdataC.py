@@ -84,21 +84,20 @@ df.loc[(df['State'] == 'UT'), 'State_2020_Median'] = 87915
 df.loc[(df['State'] == 'WA'), 'State_2020_Median'] = 85157
 df.loc[(df['State'] == 'WY'), 'State_2020_Median'] = 68506
 
+df.loc[(df['NumAdults'] == 1), 'Single Household'] = 'Yes'
+df.loc[(df['NumAdults'] != 1), 'Single Household'] = 'No'
+singlehead = ['Yes', 'No']
+
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 
-df['Income_2019'] = df['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                              ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                               '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                               '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-df['Income_2020'] = df['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                              ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                               '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                               '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+
+
+
 filters = {"race": "",
-           "region": "", "state": ""}
+           "region": "", "state": "", 'singlehead': ""}
 
 global percent_inHome
 
@@ -161,26 +160,25 @@ app.layout = html.Div(
                     clearable=True,
                     className="dropdown"
                 ),
+                html.Br(),
+                html.Label(['Select if Single Head of Household (optional):'],
+                           style={'font-weight': 'bold', "text-align": "center"}),
+                html.Br(),
+                dcc.Dropdown(id='singlehead',
+                             options=singlehead,
+                             placeholder="Select if Single Head of Household",
+                             clearable=True,
+                             searchable=False,
+                             className="dropdown",
+                             style={"width": "65%"},
+                             optionHeight=40
+                             ),
             ],
         ),
         html.Div(
             children=[
                 html.Br(),
                 dcc.Graph(id='map-content'),
-                # html.Div(
-                #     children=[
-                #         html.Br(),
-                #         html.Label(['Select Region:'], className='label'),
-                #         html.Br(),
-                #         dcc.Dropdown(
-                #             options=regions,
-                #             id='region',
-                #             placeholder="Select Region",
-                #             clearable=True,
-                #             className="dropdown"
-                #         ),
-                #     ]
-                # ),
                 dcc.Graph(id='preterm-content'),
                 html.Div(
                     children=[
@@ -227,6 +225,7 @@ def update_map_dropdown(optionslctd):
                    {'label': 'Median Income of Households Relative to their State\'s 2020 Median Income',
                     "value": 'Income_2020_2'}]
         value = "Income_2019"
+
     elif optionslctd == "Children-value":
         options = [{"label": 'Average Number of Children in Diapers (per household)', "value": 'NumKidsDiapers'},
                    {"label": 'Average Number of Children in Childcare (per household)', "value": 'AnyCareforCHILD1_C'}]
@@ -241,22 +240,25 @@ def update_map_dropdown(optionslctd):
    Output('map-content', 'figure'),
    [Input('map-dropdown', 'value'),
     Input('race', 'value'),
-    Input('state', 'value')])
-def display_choropleth(variable, race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def display_choropleth(variable, race, state, singlehead):
     filters["race"] = race if race else ""
     filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
     dff = pd.DataFrame()
-    dff['State'] = df['State']
 
-    if 'race' in filters or 'state' in filters:
-        dff = df
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[['Race', 'State', str(variable), 'Single Household']]
         if filters['race']:
-            dff = dff[dff['Race'] == filters['race']]
+            dff = dff.loc[dff['Race'] == filters['race']]
         if filters['state']:
-            dff = dff[dff['State'] == filters['state']]
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
 
-    dff[variable] = df[variable]
-    print(dff)
+    dff[variable] = df[str(variable)]
+
     if variable == "NumKidsDiapers":
         nrows = dff.shape[0]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
@@ -306,17 +308,61 @@ def display_choropleth(variable, race, state):
         )])
         return fig
 
-    if str(variable) == "Income_2020":
-        #dff = dff[['State', str(variable)]]
+    if variable == "Income_2019":
         nrows = dff.shape[0]
-        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].round().to_frame().reset_index()
-        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
+        dff['Income_2019'] = dff['Income_2019'].replace(['<=15,999', '<=15,999', '16,'
+                                                                               '000-19,999',
+                                                       '20,000-24,999',
+                                                       '25,000-29,999', '30,000-34,999',
+                                                       '35,000-39,999', '40,000-44,999',
+                                                       '45,000-49,999', '50,000-59,999',
+                                                       '60,000-69,999', '70,000-79,999', '>=80,000'],
+                                                      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].apply(
+            lambda x: round(x)).to_frame().reset_index()
+
+        dff['Income_2019'] = dff['Income_2019'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '<=15,999', '16,'
+                                                                                 '000-19,999',
+                                                         '20,000-24,999',
                                                          '25,000-29,999', '30,000-34,999',
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
+        fig = px.choropleth(dff, locations='State',
+                            locationmode='USA-states',
+                            color='Income_2019',
+                            color_discrete_sequence=px.colors.qualitative.Prism,
+                            category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,'
+                                                                                                           '999',
+                                                             '30,000-34,999', '35,000-39,999', '40,000-44,999',
+                                                             '45,000-49,999', '50,000-59,999', '60,000-69,999',
+                                                             '70,000-79,999', '>=80,000']},
+                            labels={"Income_2019": "Income Range (in dollars)"},
+                            scope="usa",
+                            title="Average Household Income in 2019")
+        fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=-0.19,
+            xref='paper',
+            yref='paper',
+            text=f'Filters match to {nrows} responses',
+            showarrow=False
+        )])
+        return fig
 
+    if variable == "Income_2020":
+        nrows = dff.shape[0]
+        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].apply(
+            lambda x: round(x)).to_frame().reset_index()
+        dff['Income_2020'] = dff['Income_2020'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '<=15,999', '16,'
+                                                                                 '000-19,999',
+                                                         '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999',
+                                                         '35,000-39,999', '40,000-44,999',
+                                                         '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
         fig = px.choropleth(dff, locations='State',
                             locationmode='USA-states',
                             color='Income_2020',
@@ -339,37 +385,6 @@ def display_choropleth(variable, race, state):
         )])
         return fig
 
-    if str(variable) == "Income_2019":
-        #dff = dff[['State', str(variable)]]
-        nrows = dff.shape[0]
-        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
-        dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
-
-        fig = px.choropleth(dff, locations='State',
-                            locationmode='USA-states',
-                            color='Income_2019',
-                            color_discrete_sequence=px.colors.qualitative.Prism,
-                            category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                           '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                           '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                           '60,000-69,999', '70,000-79,999', '>=80,000']},
-                            labels={"Income_2019": "Income Range (in dollars)"},
-                            scope="usa",
-                            title="Average Household Income in 2019")
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
-        return fig
 
     if str(variable) == "Ad1CurrentWork":
         dff = dff[['State', 'Ad1CurrentWork', 'Ad2CurrentWork']]
@@ -419,7 +434,7 @@ def display_choropleth(variable, race, state):
                           locationmode="USA-states",
                           color='Percentage of Households',
                           labels={"Percentage of Households": "Percentage of Households"},
-                          title='Percentage of households with one or more adult in education or job training',
+                          title='Percentage of Households with One or More Adult in Education or Job Training',
                           scope="usa",
                           hover_data=['State', 'Percentage of Households'],
                           color_continuous_scale='ice_r')
