@@ -91,7 +91,7 @@ global percent_inHome
 states = df["State"].sort_values().unique()
 regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
-         'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
+         'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not To Share']
 singlehead = ['Yes', 'No']
 
 filters = {"race": "",
@@ -419,7 +419,7 @@ def update_pie(race, state, singlehead):
 def update_pie(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["state"] = state if race else ""
+    filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
