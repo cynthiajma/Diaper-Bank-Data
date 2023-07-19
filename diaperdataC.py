@@ -259,7 +259,10 @@ def display_choropleth(variable, race, state, singlehead):
     dff[variable] = df[str(variable)]
 
     if variable == "NumKidsDiapers":
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
@@ -283,7 +286,10 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff[['State', str(variable)]]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True)\
             .to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
@@ -308,7 +314,10 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if variable == "Income_2019":
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff['Income_2019'] = dff['Income_2019'].replace(['<=15,999', '<=15,999', '16,'
                                                                                '000-19,999',
                                                        '20,000-24,999',
@@ -351,7 +360,10 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if variable == "Income_2020":
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].apply(
             lambda x: round(x)).to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -390,7 +402,10 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
         dff = dff.replace(np.nan, 0)
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
         dff.loc[(dff['Sum'] >= 1), '1+ Adult Working'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), '1+ Adult Working'] = 'No'
@@ -425,7 +440,10 @@ def display_choropleth(variable, race, state, singlehead):
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
         dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff[['State', 'Education or Job Training']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Education or Job Training'] == 'Yes']
@@ -455,7 +473,10 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff.replace(2, 0)
         dff = dff.replace(99, 0)
         dff['Sum'] = dff['AnyCareforCHILD1_C'] + dff['AnyCareforCHILD2_C']
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff.groupby('State').mean(numeric_only=True).reset_index()
         dff = dff[['State', 'Sum']]
         fig=px.choropleth(dff,
@@ -478,7 +499,10 @@ def display_choropleth(variable, race, state, singlehead):
 
     if str(variable) == "Income_2020_2":
         dff['State_2020_Median'] = df['State_2020_Median']
-        nrows = dff.shape[0]
+        if dff.notna().any().any():
+            nrows = 0
+        else:
+            nrows = dff.shape[0]
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
         dff['Income_2020_2'] = dff['Income_2020_2'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                             [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999,
