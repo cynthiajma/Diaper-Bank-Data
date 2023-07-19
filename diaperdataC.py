@@ -387,16 +387,16 @@ def display_choropleth(variable, race, state, singlehead):
     if variable == "Ad1CurrentWork":
         dff['Ad1CurrentWork'] = df['Ad1CurrentWork']
         dff['Ad2CurrentWork'] = df['Ad2CurrentWork']
-        dff = dff.dropna(subset=['Ad1CurrentWork', 'Ad2CurrentWork'])
+        dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
+        dff = dff.replace(np.nan, 0)
+        nrows = dff.shape[0]
         dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
         dff.loc[(dff['Sum'] >= 1), '1+ Adult Working'] = 'Yes'
-        dff.loc[(dff['Sum'] < 1), '1+ Adult Working'] = 'No'
-        nrows = dff.shape[0]
+        dff.loc[(dff['Sum'] == 0), '1+ Adult Working'] = 'No'
         dff = dff[['State', '1+ Adult Working']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['1+ Adult Working'] == 'Yes']
-        dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         fig=px.choropleth(dff, locations='State',
                           locationmode="USA-states",
@@ -419,8 +419,9 @@ def display_choropleth(variable, race, state, singlehead):
     if str(variable) == "Ad1_School":
         dff['Ad1_School'] = df['Ad1_School']
         dff['Ad2_School'] = df['Ad2_School']
-        dff = dff.dropna(subset=['Ad1_School', 'Ad2_School'])
+        dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
+        dff = dff.replace(np.nan, 0)
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
         dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
@@ -428,7 +429,6 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff[['State', 'Education or Job Training']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Education or Job Training'] == 'Yes']
-        dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         fig=px.choropleth(dff, locations='State',
                           locationmode="USA-states",
@@ -490,7 +490,7 @@ def display_choropleth(variable, race, state, singlehead):
                           locations='State',
                           locationmode="USA-states",
                           color_continuous_scale='ice_r',
-                          color = 'Percent of State Median',
+                          color='Percent of State Median',
                           labels={"Percent of State Median": '% of state median income'},
                           title='Median income of households relative to their state\'s 2020 median income',
                           scope="usa")
