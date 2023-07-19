@@ -256,8 +256,6 @@ def display_choropleth(variable, race, state, singlehead):
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
 
-    dff[variable] = df[str(variable)]
-
     if variable == "NumKidsDiapers":
         if dff['Race'].isnull().values.any():
             nrows = 0
@@ -484,7 +482,7 @@ def display_choropleth(variable, race, state, singlehead):
                           color_continuous_scale='ice_r',
                           color='Sum',
                           labels={"Sum": '# of Children'},
-                          title='Average number of children in childcare (per household)',
+                          title='Average Number of Children in Childcare (per Household)',
                           scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
@@ -515,7 +513,7 @@ def display_choropleth(variable, race, state, singlehead):
                           color_continuous_scale='ice_r',
                           color='Percent of State Median',
                           labels={"Percent of State Median": '% of state median income'},
-                          title='Median income of households relative to their state\'s 2020 median income',
+                          title='Median Income of Households Relative to Their State\'s 2020 Median Income',
                           scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
@@ -531,21 +529,31 @@ def display_choropleth(variable, race, state, singlehead):
 @callback(
    Output('transport-content', 'figure'),
    [Input('race', 'value'),
-    Input('state', 'value')])
-def update_transport_graph(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_transport_graph(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[['Race', 'State', 'Single Household', 'DB_Transport']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
     dff = dff.sort_values('DB_Transport')
-    title = "How "
+    title = 'How Diaper Bank Recipients Access Diaper Products'
     if race is not None:
-        title += f"{race} "
-    title += 'Diaper Bank Recipients Access Diaper Products'
+        title += f"<br><sup> You have selected {race} as race "
     if state is not None:
-        title += f' in {state}'
+        title += f'and {state} as state. '
+    if singlehead is not None:
+        title += f'Single Household: {singlehead}'
 
     fig = px.histogram(dff, x="DB_Transport",
                        labels={
@@ -561,15 +569,24 @@ def update_transport_graph(race, state):
 @callback(
    Output('transport-pie-content', 'figure'),
    [Input('race', 'value'),
-   Input('state', 'value')]
+    Input('state', 'value'),
+    Input('singlehead', 'value')]
 )
-def update_transport_pie(race, state):
+def update_transport_pie(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
-    dff = dff.loc[(dff['CensusRegion']) == filters["region"]] if filters["region"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[['Race', 'State', 'Single Household', 'DB_Transport']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
     dff = dff.dropna()
     fig = px.pie(dff, names="DB_Transport",
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation", "Taxi/Ride",
@@ -592,17 +609,27 @@ def update_transport_pie(race, state):
 @callback(
    Output('preterm-content', 'figure'),
    [Input('race', 'value'),
-   Input('state', 'value')])
-def update_preterm(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_preterm(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
-    dff = dff[
-        ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
-         'Race']]
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[['Race', 'State', 'Single Household', 'CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+    if dff['Race'].isnull().values.any():
+        nrows = 0
+    else:
+        nrows = dff.shape[0]
     dff = dff.dropna(how='all')
-    rows = dff.shape[0]
     dfff = dff.replace(np.nan, 0)
     dfff = dfff.replace(2, 1)
     dfff['Total Children'] = dfff[
@@ -631,14 +658,14 @@ def update_preterm(race, state):
                          'sumPreterm': 'Total Preterm',
                          'sumTerm': 'Total Term'},
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
-                       f"{race} as race and {state} as state.",
+                       f"{race} as race and {state} as state. Single Household: {singlehead}.",
                  barmode='stack')
     fig.update_layout(annotations=[dict(
                       x=0.5,
                       y=-0.25,
                       xref='paper',
                       yref='paper',
-                      text=f'Filters matched to {rows} responses.',
+                      text=f'Filters matched to {nrows} responses.',
                       showarrow=False
                       )])
     return fig
@@ -647,16 +674,26 @@ def update_preterm(race, state):
 @callback(
    Output('illness-content', 'figure'),
    [Input('race', 'value'),
-   Input('state', 'value')])
-def update_illness(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_illness(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
-    dff = dff[
-        ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore',
+             'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
          'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
          'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
     dff = dff.replace(2, 0)
     dff1 = dff[
         ['CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore', 'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
@@ -671,25 +708,36 @@ def update_illness(race, state):
     rows = dff1.shape[0] + dff2.shape[0]
     dff2['CH2BeforeSum'] = dff2[['CH2HaveRashBefore', 'CH2HaveSevRashBefore', 'CH2HaveUTIBefore']].sum(axis=1)
     dff2['CH2AfterSum'] = dff2[['CH2HaveRashAfter', 'CH2HaveSevRashAfter', 'CH2HaveUTIAfter']].sum(axis=1)
-    dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
-    dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
-    dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
-    dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
+    if dff1.shape[0] != 0:
+        dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
+        dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
+    if dff2.shape[0] != 0:
+        dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
+        dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
     dff1 = dff1.replace(np.nan, 0)
     dff2 = dff2.replace(np.nan, 0)
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
-    dff1 = dff1[['Outcome']]
-    dff2 = dff2[['Outcome']]
-    dff1 = dff1.value_counts()
-    dff2 = dff2.value_counts()
-    dff = dff1 + dff2
+    if dff1.shape[0] != 0:
+        dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+        dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+        dff1.loc[
+            (dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+        dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    if dff2.shape[0] != 0:
+        dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+        dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+        dff2.loc[
+            (dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+        dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    if (dff1.shape[0] != 0) & (dff2.shape[0] != 0):
+        dff1 = dff1[['Outcome']]
+        dff2 = dff2[['Outcome']]
+        dff1 = dff1.value_counts()
+        dff2 = dff2.value_counts()
+        dff = dff1 + dff2
+    elif dff1.shape[0] == 0:
+        dff = dff2.value_counts()
+    elif dff2.shape[0] == 0:
+        dff = dff1.value_counts()
     dff = dff.to_frame('Number of Children')
     dff = dff.reset_index()
     dff['Outcome'] = dff['Outcome'].astype('str')
@@ -698,8 +746,9 @@ def update_illness(race, state):
                  labels={"Outcome": "Outcome"},
                  template='plotly_white',
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Distribution of diaper related illnesses among children after receiving diapers"
-                       f"<br><sup>You have selected {race} as race and {state} as state.",
+                 title=f"Distribution of Diaper Related Illnesses among Children after Receiving Diapers"
+                       f"<br><sup>You have selected {race} as race, {state} as state, and {singlehead} for single "
+                       f"head household."
                  )
     fig.update_layout(annotations=[dict(
         x=0.5,
@@ -715,16 +764,34 @@ def update_illness(race, state):
 @callback(
     Output('childcare1-content', 'figure'),
     [Input('race', 'value'),
-    Input('state', 'value')]
+     Input('state', 'value'),
+     Input('singlehead', 'value')]
 )
-def childcare_pie1(race, state):
+def childcare_pie1(race, state, singlehead):
     global percent_inHome
-    percent_inHome = 16.4
+    percent_inHome = 27.8
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
-    nrows = 'not sure'
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome'
+                , 'CH1_Preschool', 'CH1_FamFriendCare',
+         'CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare',
+         'NoChildCare']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+    if dff['Race'].isnull().values.any():
+        nrows = 0
+    else:
+        nrows = dff.shape[0]
+
     outsidehomech_all = dff[
         ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare',
          'CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare',
@@ -760,6 +827,7 @@ def childcare_pie1(race, state):
     outsidehome['count'].iloc[0] = num
     percent_inHome = round((outsidehome['count'].iloc[1] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[
         1])) * 100, 1)
+    print(percent_inHome)
     fig = px.pie(outsidehome, names='Type of Childcare', values='count',
                  category_orders={"Type of Childcare": ['Outside of Home', 'Not Outside of Home']},
                  labels={'Type of Childcare': 'Childcare Type'},
@@ -780,14 +848,28 @@ def childcare_pie1(race, state):
 @callback(
     Output('childcare2-content', 'figure'),
     [Input('race', 'value'),
-    Input('state', 'value')]
+     Input('state', 'value'),
+     Input('singlehead', 'value')]
 )
-def childcare_pie2(race, state):
+def childcare_pie2(race, state, singlehead):
     global percent_inHome
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter',
+             'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare', 'CH2ChildCare_DiapersRequired_C',
+             'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome',
+                          'CH2_Preschool', 'CH2_FamFriendCare']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
     senddiapersch1 = dff[
         ['CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool',
          'CH1_FamFriendCare']]
@@ -806,7 +888,8 @@ def childcare_pie2(race, state):
     senddiapersch2 = senddiapersch2.dropna(subset=['CH2ChildCare_DiapersRequired_C'])
     senddiapersch2 = senddiapersch2.replace(np.nan, 0)
     nrows += senddiapersch2.shape[0]
-    senddiapersch2['Outside'] = senddiapersch2['CH2_FamFriendCare'] + senddiapersch2['CH2_ChildCareCenter'] + senddiapersch2['CH2_FamilyChildCareHome'] + senddiapersch2['CH2_Preschool']
+    senddiapersch2['Outside'] = senddiapersch2['CH2_FamFriendCare'] + senddiapersch2['CH2_ChildCareCenter'] \
+                                + senddiapersch2['CH2_FamilyChildCareHome'] + senddiapersch2['CH2_Preschool']
     senddiapersch2.loc[(senddiapersch2['Outside'] > 0), 'Outside'] = 1.0
     senddiapersch2 = senddiapersch2.loc[(senddiapersch2['Outside'] == 1)]
     senddiapersch2 = senddiapersch2['CH2ChildCare_DiapersRequired_C'].value_counts()
@@ -843,12 +926,24 @@ def childcare_pie2(race, state):
 @callback(
    Output('income2019-content', 'figure'),
    [Input('race', 'value'),
-   Input('state', 'value')])
-def update_income2019(race, state):
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_income2019(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'Income_2019']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -862,8 +957,8 @@ def update_income2019(race, state):
                                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title=f"Distribution of Household Incomes in 2019<br><sup>You have selected {race} as race and"
-                       f" {state} as state.")
+                 title=f"Distribution of Household Incomes in 2019<br><sup>You have selected {race} as race, "
+                       f" {state} as state, and {singlehead} for single head of household.")
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -880,12 +975,27 @@ def update_income2019(race, state):
 @callback(
    Output('income2020-content', 'figure'),
    [Input('race', 'value'),
-   Input('state', 'value')])
-def update_income2020(race, state):
+   Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_income2020(race, state, singlehead):
     filters["race"] = race if race else ""
-    filters["state"] = state if state else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    dff = dff.loc[(dff['State']) == filters["state"]] if filters["state"] else dff
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'Income_2020']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+    dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                    ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2020']).shape[0]
     dff = dff['Income_2020'].value_counts()
     dff = dff.to_frame('Count').reset_index()
