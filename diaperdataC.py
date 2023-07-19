@@ -259,7 +259,7 @@ def display_choropleth(variable, race, state, singlehead):
     dff[variable] = df[str(variable)]
 
     if variable == "NumKidsDiapers":
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -283,10 +283,9 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if variable == "NumAdults":
-        dff = dff[['State', str(variable)]]
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -314,7 +313,7 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if variable == "Income_2019":
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -360,7 +359,7 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if variable == "Income_2020":
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -402,7 +401,7 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
         dff = dff.replace(np.nan, 0)
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -440,7 +439,7 @@ def display_choropleth(variable, race, state, singlehead):
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
         dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -473,7 +472,7 @@ def display_choropleth(variable, race, state, singlehead):
         dff = dff.replace(2, 0)
         dff = dff.replace(99, 0)
         dff['Sum'] = dff['AnyCareforCHILD1_C'] + dff['AnyCareforCHILD2_C']
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
@@ -499,7 +498,7 @@ def display_choropleth(variable, race, state, singlehead):
 
     if str(variable) == "Income_2020_2":
         dff['State_2020_Median'] = df['State_2020_Median']
-        if dff.notna().any().any():
+        if dff['Race'].isnull().values.any():
             nrows = 0
         else:
             nrows = dff.shape[0]
