@@ -626,12 +626,15 @@ def childcare_pie2(race, state, singlehead):
     Output('graph2-content', 'figure'),
     [Input('map-dropdown', 'value'),
      Input('race', 'value'),
-     Input('singlehead', 'value')])
-def display_choropleth(variable, race, singlehead):
+     Input('singlehead', 'value'),
+     Input('state', 'value')])
+def display_choropleth(variable, race, singlehead, state):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
         rows = dff.shape[0]
@@ -641,7 +644,8 @@ def display_choropleth(variable, race, singlehead):
                             color='NumKidsDiapers',
                             labels={"NumKidsDiapers": "# of Children"},
                             title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa",
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
@@ -668,7 +672,8 @@ def display_choropleth(variable, race, singlehead):
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with a Single Head of Household<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -711,7 +716,8 @@ def display_choropleth(variable, race, singlehead):
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
                             title="Average Household Income in 2020<br><sup>You have selected "
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.")
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -750,7 +756,8 @@ def display_choropleth(variable, race, singlehead):
                             labels={"Income_2019": "Income Range (in dollars)"},
                             scope="usa",
                             title="Average Household Income in 2019<br><sup>You have selected "
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.")
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -778,7 +785,8 @@ def display_choropleth(variable, race, singlehead):
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with One or More Working Adult<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -810,7 +818,8 @@ def display_choropleth(variable, race, singlehead):
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with One or More Adult in Education or Job Training'
                             '<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -839,7 +848,8 @@ def display_choropleth(variable, race, singlehead):
                             color='Sum',
                             labels={"Sum": '# of Children'},
                             title='Average Number of Children in Childcare (per household)<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
@@ -875,7 +885,8 @@ def display_choropleth(variable, race, singlehead):
                             labels={"Percent of State Median": '% of state median income'},
                             title='Median Income of Households Relative to their State\'s 2020 Median Income'
                                   '<br><sup>You have selected '
-                            + str(race) + " as race and " + str(singlehead) + " for single head household.",
+                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                            " for single head household.",
                             scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
