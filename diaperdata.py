@@ -372,38 +372,49 @@ def update_pie(race, state, singlehead):
     rows = dff1.shape[0] + dff2.shape[0]
     dff2['CH2BeforeSum'] = dff2[['CH2HaveRashBefore', 'CH2HaveSevRashBefore', 'CH2HaveUTIBefore']].sum(axis=1)
     dff2['CH2AfterSum'] = dff2[['CH2HaveRashAfter', 'CH2HaveSevRashAfter', 'CH2HaveUTIAfter']].sum(axis=1)
-    dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
-    dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
-    dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
-    dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
+    if dff1.shape[0] != 0:
+        dff1.loc[(dff1['CH1BeforeSum'] > 0), 'Ch1BeforeSum'] = 1.0
+        dff1.loc[(dff1['CH1AfterSum'] > 0), 'Ch1AfterSum'] = 1.0
+    if dff2.shape[0] != 0:
+        dff2.loc[(dff2['CH2BeforeSum'] > 0), 'Ch2BeforeSum'] = 1.0
+        dff2.loc[(dff2['CH2AfterSum'] > 0), 'Ch2AfterSum'] = 1.0
     dff1 = dff1.replace(np.nan, 0)
     dff2 = dff2.replace(np.nan, 0)
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
-    dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
-    dff1 = dff1[['Outcome']]
-    dff2 = dff2[['Outcome']]
-    dff1 = dff1.value_counts()
-    dff2 = dff2.value_counts()
-    dff = dff1 + dff2
+    if dff1.shape[0] != 0:
+        dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+        dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+        dff1.loc[
+            (dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+        dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    if dff2.shape[0] != 0:
+        dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+        dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
+        dff2.loc[
+            (dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
+        dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
+    if (dff1.shape[0] != 0) & (dff2.shape[0] != 0):
+        dff1 = dff1[['Outcome']]
+        dff2 = dff2[['Outcome']]
+        dff1 = dff1.value_counts()
+        dff2 = dff2.value_counts()
+        dff = dff1 + dff2
+    elif dff1.shape[0] == 0:
+        dff = dff2.value_counts()
+    elif dff2.shape[0] == 0:
+        dff = dff1.value_counts()
     dff = dff.to_frame('Number of Children')
     dff = dff.reset_index()
     dff['Outcome'] = dff['Outcome'].astype('str')
     dff['Number of Children'] = dff['Number of Children'].astype(float).fillna(0).astype(int)
     fig = px.pie(dff, names="Outcome", values="Number of Children",
-                 labels={"Outcome": "Outcome"},
-                 template='plotly_white',
-                 color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Distribution of diaper related illnesses among children after receiving diapers"
-                       "<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head household.",
-                 )
+           labels={"Outcome": "Outcome"},
+           template='plotly_white',
+           color_discrete_sequence=px.colors.sequential.RdBu_r,
+           title="Distribution of diaper related illnesses among children after receiving diapers"
+                 "<br><sup>You have selected "
+                 + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                 + " for single head household.",
+           )
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
