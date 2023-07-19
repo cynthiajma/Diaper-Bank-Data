@@ -649,7 +649,7 @@ def display_choropleth(variable, race, singlehead, state):
     if str(variable) == "NumKidsDiapers":
         dff = dff[['State', str(variable)]]
         rows = dff.shape[0]
-        dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
+        dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='NumKidsDiapers',
@@ -708,7 +708,7 @@ def display_choropleth(variable, race, singlehead, state):
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'],
                                                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        dff = dff.groupby(['State']).mean(numeric_only=True)
+        dff = dff.groupby(['State']).median(numeric_only=True)
         dff = dff['Income_2020'].round().to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
@@ -726,7 +726,7 @@ def display_choropleth(variable, race, singlehead, state):
                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Average Household Income in 2020<br><sup>You have selected "
+                            title="Median Household Income in 2020<br><sup>You have selected "
                             + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
                             " for single head household.")
         fig.update_layout(annotations=[dict(
@@ -749,7 +749,7 @@ def display_choropleth(variable, race, singlehead, state):
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'],
                                                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
+        dff = dff.groupby(['State']).median(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
         dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                          '25,000-29,999', '30,000-34,999',
@@ -766,7 +766,7 @@ def display_choropleth(variable, race, singlehead, state):
                                                              '60,000-69,999', '70,000-79,999', '>=80,000']},
                             labels={"Income_2019": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Average Household Income in 2019<br><sup>You have selected "
+                            title="Median Household Income in 2019<br><sup>You have selected "
                             + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
                             " for single head household.")
         fig.update_layout(annotations=[dict(
