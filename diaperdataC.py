@@ -323,7 +323,7 @@ def display_choropleth(variable, race, state, singlehead):
                                                        '45,000-49,999', '50,000-59,999',
                                                        '60,000-69,999', '70,000-79,999', '>=80,000'],
                                                       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].apply(
+        dff = dff.groupby(['State']).median(numeric_only=True)['Income_2019'].apply(
             lambda x: round(x)).to_frame().reset_index()
 
         dff['Income_2019'] = dff['Income_2019'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -345,7 +345,7 @@ def display_choropleth(variable, race, state, singlehead):
                                                              '70,000-79,999', '>=80,000']},
                             labels={"Income_2019": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Average Household Income in 2019")
+                            title="Median Household Income in 2019")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -361,7 +361,7 @@ def display_choropleth(variable, race, state, singlehead):
             nrows = 0
         else:
             nrows = dff.shape[0]
-        dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2020'].apply(
+        dff = dff.groupby(['State']).median(numeric_only=True)['Income_2020'].apply(
             lambda x: round(x)).to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '<=15,999', '16,'
@@ -382,7 +382,7 @@ def display_choropleth(variable, race, state, singlehead):
                                                            '70,000-79,999', '>=80,000']},
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Average Household Income in 2020")
+                            title="Median Household Income in 2020")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
