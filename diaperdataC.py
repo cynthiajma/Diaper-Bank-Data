@@ -385,14 +385,14 @@ def display_choropleth(variable, race, state, singlehead):
         )])
         return fig
 
-
-    if str(variable) == "Ad1CurrentWork":
-        dff = dff[['State', 'Ad1CurrentWork', 'Ad2CurrentWork']]
+    if variable == "Ad1CurrentWork":
+        dff['Ad1CurrentWork'] = df['Ad1CurrentWork']
+        dff['Ad2CurrentWork'] = df['Ad2CurrentWork']
         dff = dff.dropna(subset=['Ad1CurrentWork', 'Ad2CurrentWork'])
         dff = dff.replace(2, 0)
         dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
-        dff.loc[(dff['Sum'] > 1), '1+ Adult Working'] = 'Yes'
-        dff.loc[(dff['Sum'] <= 1), '1+ Adult Working'] = 'No'
+        dff.loc[(dff['Sum'] >= 1), '1+ Adult Working'] = 'Yes'
+        dff.loc[(dff['Sum'] < 1), '1+ Adult Working'] = 'No'
         nrows = dff.shape[0]
         dff = dff[['State', '1+ Adult Working']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
@@ -403,7 +403,7 @@ def display_choropleth(variable, race, state, singlehead):
                           locationmode="USA-states",
                           color='Percentage of Households',
                           labels={"Percentage of Households": "Percentage of Households"},
-                          title='Percentage of households with one or more working adult',
+                          title='Percentage of Households with One or More Working Adult',
                           scope="usa",
                           hover_data=['State', 'Percentage of Households'],
                           color_continuous_scale='ice_r')
@@ -418,7 +418,8 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if str(variable) == "Ad1_School":
-        dff = dff[['State', 'Ad1_School', 'Ad2_School']]
+        dff['Ad1_School'] = df['Ad1_School']
+        dff['Ad2_School'] = df['Ad2_School']
         dff = dff.dropna(subset=['Ad1_School', 'Ad2_School'])
         dff = dff.replace(2, 0)
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
