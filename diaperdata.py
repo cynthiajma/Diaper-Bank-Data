@@ -691,7 +691,7 @@ def display_choropleth(variable, race, singlehead):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).mean(numeric_only=True)
         dff = dff['Income_2020'].round().to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -731,7 +731,7 @@ def display_choropleth(variable, race, singlehead):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).mean(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
         dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
@@ -762,16 +762,16 @@ def display_choropleth(variable, race, singlehead):
         return fig
     if str(variable) == "Ad1CurrentWork":
         dff = dff[['State', 'Ad1CurrentWork', 'Ad2CurrentWork']]
-        dff = dff.dropna(subset=['Ad1CurrentWork', 'Ad2CurrentWork'])
+        dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
-        dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
-        dff.loc[(dff['Sum'] > 1), '1+ Adult Working'] = 'Yes'
-        dff.loc[(dff['Sum'] <= 1), '1+ Adult Working'] = 'No'
+        dff = dff.replace(np.nan, 0)
         rows = dff.shape[0]
+        dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
+        dff.loc[(dff['Sum'] >= 1), '1+ Adult Working'] = 'Yes'
+        dff.loc[(dff['Sum'] == 0), '1+ Adult Working'] = 'No'
         dff = dff[['State', '1+ Adult Working']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['1+ Adult Working'] == 'Yes']
-        dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
@@ -793,8 +793,9 @@ def display_choropleth(variable, race, singlehead):
         return fig
     if str(variable) == "Ad1_School":
         dff = dff[['State', 'Ad1_School', 'Ad2_School']]
-        dff = dff.dropna(subset=['Ad1_School', 'Ad2_School'])
+        dff = dff.dropna(how='all')
         dff = dff.replace(2, 0)
+        dff = dff.replace(np.nan, 0)
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
         dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
@@ -802,14 +803,13 @@ def display_choropleth(variable, race, singlehead):
         dff = dff[['State', 'Education or Job Training']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Education or Job Training'] == 'Yes']
-        dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with One or More Adult in Education or Job Training'
-                                  '<br><sup>You have selected '
+                            '<br><sup>You have selected '
                             + str(race) + " as race and " + str(singlehead) + " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
@@ -860,7 +860,7 @@ def display_choropleth(variable, race, singlehead):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'],
-        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999, 59999,
