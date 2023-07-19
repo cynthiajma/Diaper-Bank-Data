@@ -93,8 +93,7 @@ regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 
-
-
+df['Income_2020_2'] = df['Income_2020']
 
 filters = {"race": "",
            "region": "", "state": "", 'singlehead': ""}
@@ -450,7 +449,8 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if str(variable) == "AnyCareforCHILD1_C":
-        dff = dff[['State', 'AnyCareforCHILD1_C', 'AnyCareforCHILD2_C']]
+        dff['AnyCareforCHILD1_C'] = df['AnyCareforCHILD1_C']
+        dff['AnyCareforCHILD2_C'] = df['AnyCareforCHILD2_C']
         dff = dff.loc[(dff["AnyCareforCHILD1_C"] != 99) | (dff["AnyCareforCHILD2_C"] != 99)]
         dff = dff.replace(2, 0)
         dff = dff.replace(99, 0)
@@ -477,19 +477,20 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
 
     if str(variable) == "Income_2020_2":
-        dff = dff[['State', 'Income_2020', 'State_2020_Median']]
+        dff['State_2020_Median'] = df['State_2020_Median']
         nrows = dff.shape[0]
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
-        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999, 59999,
-                                                         69999, 79999, 89999])
-        dff['Proportion of State Median'] = dff['Income_2020'] / dff['State_2020_Median']
+        dff['Income_2020_2'] = dff['Income_2020_2'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                            [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999,
+                                                             59999,
+                                                             69999, 79999, 89999])
+        dff['Proportion of State Median'] = dff['Income_2020_2'] / dff['State_2020_Median']
         dff['Percent of State Median'] = dff['Proportion of State Median'] * 100
         fig=px.choropleth(dff,
                           locations='State',
                           locationmode="USA-states",
                           color_continuous_scale='ice_r',
-                          color='Percent of State Median',
+                          color = 'Percent of State Median',
                           labels={"Percent of State Median": '% of state median income'},
                           title='Median income of households relative to their state\'s 2020 median income',
                           scope="usa")
