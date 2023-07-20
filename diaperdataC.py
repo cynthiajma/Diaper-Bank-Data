@@ -1002,14 +1002,17 @@ def update_income2019(race, state, singlehead):
     filters['state'] = state if state else ""
     filters['singlehead'] = singlehead if singlehead else ""
     dff = pd.DataFrame()
+    acsincome_df = acsincome.copy()
 
     if 'race' in filters or 'state' in filters or 'singlehead' in filters:
         dff = df[
             ['Race', 'State', 'Single Household', 'Income_2019']]
         if filters['race']:
             dff = dff.loc[dff['Race'] == filters['race']]
+            acsincome_df = acsincome.loc[acsincome['Race'] == filters['race']]
         if filters['state']:
             dff = dff.loc[dff['State'] == filters['state']]
+            acsincome_df = acsincome.loc[acsincome['State'] == filters['state']]
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
 
@@ -1017,11 +1020,20 @@ def update_income2019(race, state, singlehead):
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+
     rows = dff.dropna(subset=['Income_2019']).shape[0]
+
+
     dff = dff['Income_2019'].value_counts(normalize=True)
     dff = dff.to_frame('Count').reset_index()
     dff['Percentage'] = dff['Count'] * 100
-    fig = px.histogram(dff, x='Income_2019', y='Percentage', barmode='group',
+
+    # Calculate percentage for acsincome_df
+    test = acsincome_df.groupby('variable').sum()
+    test['Percentage'] = test['value'] / test['value'].sum() * 100
+    test = test.reset_index()
+
+    fig = px.histogram(dff, x='Income_2019', y='Percentage', barmode='overlay',
                  labels={"Income_2019": "Income Range (in dollars)"},
                  category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
@@ -1029,6 +1041,8 @@ def update_income2019(race, state, singlehead):
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
                  title=f"Distribution of Household Incomes in 2019<br><sup>You have selected {race} as race, "
                        f"{state} as state, and {singlehead} for single head of household.")
+
+    fig.add_bar(x=test['variable'], y=test['Percentage'], name='National Income Median', opacity=0.5)
     fig.update_layout(yaxis_title="Percentage", annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -1037,9 +1051,12 @@ def update_income2019(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False,
     )])
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_traces(marker_color='#86bce8')
-    y_axis_range = [0, 40]
+    fig.update_traces(marker_color='#86bce8', selector=dict(type='histogram', name='Diaper Bank Households'))
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%",
+                      selector=dict(type='bar', name='Diaper Bank Households'))
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%",
+                      selector=dict(type='bar', name='National Income Median'))
+    y_axis_range = [0, 100]
     fig.update_yaxes(range=y_axis_range)
 
     return fig
@@ -1068,7 +1085,6 @@ def update_income2020(race, state, singlehead):
             acsincome_df = acsincome.loc[acsincome['State'] == filters['state']]
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-        #acsincome_df = acsincome.loc[(acsincome['State'] == filters['state']) & (acsincome['Race'] == filters['race'])]
 
     #Convert 'Income_2020' to income ranges.
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
