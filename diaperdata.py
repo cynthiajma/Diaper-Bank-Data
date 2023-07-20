@@ -523,10 +523,12 @@ def update_pie(race, state, singlehead):
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
     filters["race"] = race if race else ""
-    acs = acsincome.loc[(df['Race']) == filters["race"]] if filters["race"] else acsincome
+    acs = acsincome.loc[(acsincome['Race']) == filters["race"]] if filters["race"] else acsincome
     filters["state"] = state if state else ""
     acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
 
+    print(acs)
+    print(dff)
     rows = dff.shape[0] + acs.shape[0]
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
@@ -535,7 +537,7 @@ def update_pie(race, state, singlehead):
     dff = dff['Income_2019'].value_counts(normalize=True)
     dff = dff.to_frame('Proportion').rename_axis('Income Range').reset_index()
     dff['Percentage'] = dff['Proportion'] * 100
-    acs = acs.groupby('variable').sum()
+    acs = acs.groupby('variable').sum(numeric_only=True)
     acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
     acs = acs.rename_axis('Income Range').reset_index()
     acs['Type'] = 'National Data'
@@ -585,7 +587,7 @@ def update_pie(race, state, singlehead):
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
     filters["race"] = race if race else ""
-    acs = acsincome.loc[(df['Race']) == filters["race"]] if filters["race"] else acsincome
+    acs = acsincome.loc[(acsincome['Race']) == filters["race"]] if filters["race"] else acsincome
     filters["state"] = state if state else ""
     acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
 
@@ -597,7 +599,7 @@ def update_pie(race, state, singlehead):
     dff = dff['Income_2020'].value_counts(normalize=True)
     dff = dff.to_frame('Proportion').rename_axis('Income Range').reset_index()
     dff['Percentage'] = dff['Proportion'] * 100
-    acs = acs.groupby('variable').sum()
+    acs = acs.groupby('variable').sum(numeric_only=True)
     acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
     acs = acs.rename_axis('Income Range').reset_index()
     acs['Type'] = 'National Data'
