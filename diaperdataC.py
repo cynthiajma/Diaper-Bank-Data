@@ -7,6 +7,8 @@ import plotly.io as pio
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
+income_df = pd.read_csv("ACS_5year_2021_income.csv", encoding="latin-1")
+
 df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                                    24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
                                              'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS',
@@ -827,7 +829,6 @@ def childcare_pie1(race, state, singlehead):
     outsidehome['count'].iloc[0] = num
     percent_inHome = round((outsidehome['count'].iloc[1] / (outsidehome['count'].iloc[0] + outsidehome['count'].iloc[
         1])) * 100, 1)
-    print(percent_inHome)
     fig = px.pie(outsidehome, names='Type of Childcare', values='count',
                  category_orders={"Type of Childcare": ['Outside of Home', 'Not Outside of Home']},
                  labels={'Type of Childcare': 'Childcare Type'},
@@ -949,24 +950,27 @@ def update_income2019(race, state, singlehead):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2019']).shape[0]
-    dff = dff['Income_2019'].value_counts()
+    dff = dff['Income_2019'].value_counts(normalize=True)
     dff = dff.to_frame('Count').reset_index()
-    fig = px.histogram(dff, x='Income_2019', y='Count', barmode='group',
+    dff['Percentage'] = dff['Count'] * 100
+    print(dff[:5])
+    fig = px.histogram(dff, x='Income_2019', y='Percentage', barmode='group',
                  labels={"Income_2019": "Income Range (in dollars)"},
                  category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
                  title=f"Distribution of Household Incomes in 2019<br><sup>You have selected {race} as race, "
-                       f" {state} as state, and {singlehead} for single head of household.")
-    fig.update_layout(annotations=[dict(
+                       f"{state} as state, and {singlehead} for single head of household.")
+    fig.update_layout(yaxis_title="Percentage", annotations=[dict(
         x=0.5,
         y=-0.25,
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
-        showarrow=False
+        showarrow=False,
     )])
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
     fig.update_traces(marker_color='#86bce8')
 
     return fig
@@ -997,25 +1001,27 @@ def update_income2020(race, state, singlehead):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2020']).shape[0]
-    dff = dff['Income_2020'].value_counts()
+    dff = dff['Income_2020'].value_counts(normalize=True)
     dff = dff.to_frame('Count').reset_index()
-    fig = px.histogram(dff, x='Income_2020', y='Count', barmode='group',
-                 labels={"Income_2020": "Income Range (in dollars)"},
-                 category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+    dff['Percentage'] = dff['Count'] * 100
+    fig = px.histogram(dff, x='Income_2020', y='Percentage', barmode='group',
+                       labels={"Income_2020": "Income Range (in dollars)"},
+                       category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                   '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                   '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                   '60,000-69,999', '70,000-79,999', '>=80,000']},
-                 title=f"Distribution of Household Incomes in 2020<br><sup>You have selected {race} as race and"
-                       f" {state} as state.")
-    fig.update_layout(annotations=[dict(
+                       title=f"Distribution of Household Incomes in 2020<br><sup>You have selected {race} as race, "
+                             f"{state} as state, and {singlehead} for single head of household.")
+    fig.update_layout(yaxis_title="Percentage", annotations=[dict(
                       x=0.5,
                       y=-0.25,
                       xref='paper',
                       yref='paper',
                       text=f'Filters matched to {rows} responses.',
-                      showarrow=False
+                      showarrow=False,
                       )])
     fig.update_traces(marker_color='#86bce8')
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
     return fig
 
 
