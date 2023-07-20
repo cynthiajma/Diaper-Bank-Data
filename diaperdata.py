@@ -407,14 +407,14 @@ def update_pie(race, state, singlehead):
     dff['Outcome'] = dff['Outcome'].astype('str')
     dff['Number of Children'] = dff['Number of Children'].astype(float).fillna(0).astype(int)
     fig = px.pie(dff, names="Outcome", values="Number of Children",
-           labels={"Outcome": "Outcome"},
-           template='plotly_white',
-           color_discrete_sequence=px.colors.sequential.RdBu_r,
-           title="Distribution of diaper related illnesses among children after receiving diapers"
+                 labels={"Outcome": "Outcome"},
+                 template='plotly_white',
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title="Distribution of diaper related illnesses among children after receiving diapers"
                  "<br><sup>You have selected "
                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                  + " for single head household.",
-           )
+                 )
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -443,11 +443,12 @@ def update_pie(race, state, singlehead):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2019']).shape[0]
-    dff = dff['Income_2019'].value_counts()
-    dff = dff.to_frame('Count').reset_index()
-    fig = px.histogram(dff, x='Income_2019', y='Count',
+    dff = dff['Income_2019'].value_counts(normalize=True)
+    dff = dff.to_frame('Proportion').reset_index()
+    dff['Percentage'] = dff['Proportion'] * 100
+    fig = px.histogram(dff, x='Income_2019', y='Percentage',
                        labels={"Income_2019": "Income Range (in dollars)",
-                               "sum of Count": "Count"},
+                               "sum of Percentage": "Percentage"},
                        category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
@@ -456,7 +457,7 @@ def update_pie(race, state, singlehead):
                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                              + " for single head household.",
                        template='plotly_white')
-    fig.update_layout(yaxis_title="Count")
+    fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
         x=0.5,
@@ -486,11 +487,12 @@ def update_pie(race, state, singlehead):
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
     rows = dff.dropna(subset=['Income_2020']).shape[0]
-    dff = dff['Income_2020'].value_counts()
-    dff = dff.to_frame('Count').reset_index()
-    fig = px.histogram(dff, x='Income_2020', y='Count',
+    dff = dff['Income_2020'].value_counts(normalize=True)
+    dff = dff.to_frame('Proportion').reset_index()
+    dff['Percentage'] = dff['Proportion'] * 100
+    fig = px.histogram(dff, x='Income_2020', y='Percentage',
                        labels={"Income_2020": "Income Range (in dollars)",
-                               "sum of Count": "Count"},
+                               "sum of Percentage": "Percentage"},
                        category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
@@ -499,7 +501,7 @@ def update_pie(race, state, singlehead):
                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                              + " for single head household.",
                        template='plotly_white')
-    fig.update_layout(yaxis_title="Count")
+    fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(marker_color='#86bce8')
     fig.update_layout(annotations=[dict(
         x=0.5,
