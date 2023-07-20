@@ -4,6 +4,89 @@ import pandas as pd
 import numpy as np
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
+acsincome = pd.read_csv("ACS_5year_2021_income.csv")
+
+acsincome.loc[(acsincome['State'] == 'Alabama'), 'State'] = 'AL'
+acsincome.loc[(acsincome['State'] == 'Alaska'), 'State'] = 'AK'
+acsincome.loc[(acsincome['State'] == 'Arizona'), 'State'] = 'AZ'
+acsincome.loc[(acsincome['State'] == 'Arkansas'), 'State'] = 'AR'
+acsincome.loc[(acsincome['State'] == 'California'), 'State'] = 'CA'
+acsincome.loc[(acsincome['State'] == 'Colorado'), 'State'] = 'CO'
+acsincome.loc[(acsincome['State'] == 'Connecticut'), 'State'] = 'CT'
+acsincome.loc[(acsincome['State'] == 'Delaware'), 'State'] = 'DE'
+acsincome.loc[(acsincome['State'] == 'District of Columbia'), 'State'] = 'DC'
+acsincome.loc[(acsincome['State'] == 'Florida'), 'State'] = 'FL'
+acsincome.loc[(acsincome['State'] == 'Georgia'), 'State'] = 'GA'
+acsincome.loc[(acsincome['State'] == 'Hawaii'), 'State'] = 'HI'
+acsincome.loc[(acsincome['State'] == 'Idaho'), 'State'] = 'ID'
+acsincome.loc[(acsincome['State'] == 'Illinois'), 'State'] = 'IL'
+acsincome.loc[(acsincome['State'] == 'Indiana'), 'State'] = 'IN'
+acsincome.loc[(acsincome['State'] == 'Iowa'), 'State'] = 'IA'
+acsincome.loc[(acsincome['State'] == 'Kansas'), 'State'] = 'KS'
+acsincome.loc[(acsincome['State'] == 'Kentucky'), 'State'] = 'KY'
+acsincome.loc[(acsincome['State'] == 'Louisiana'), 'State'] = 'LA'
+acsincome.loc[(acsincome['State'] == 'Maine'), 'State'] = 'ME'
+acsincome.loc[(acsincome['State'] == 'Maryland'), 'State'] = 'MD'
+acsincome.loc[(acsincome['State'] == 'Massachusetts'), 'State'] = 'MA'
+acsincome.loc[(acsincome['State'] == 'Michigan'), 'State'] = 'MI'
+acsincome.loc[(acsincome['State'] == 'Minnesota'), 'State'] = 'MN'
+acsincome.loc[(acsincome['State'] == 'Mississippi'), 'State'] = 'MS'
+acsincome.loc[(acsincome['State'] == 'Missouri'), 'State'] = 'MO'
+acsincome.loc[(acsincome['State'] == 'Montana'), 'State'] = 'MT'
+acsincome.loc[(acsincome['State'] == 'Nebraska'), 'State'] = 'NE'
+acsincome.loc[(acsincome['State'] == 'Nevada'), 'State'] = 'NV'
+acsincome.loc[(acsincome['State'] == 'New Hampshire'), 'State'] = 'NH'
+acsincome.loc[(acsincome['State'] == 'New Jersey'), 'State'] = 'NJ'
+acsincome.loc[(acsincome['State'] == 'New Mexico'), 'State'] = 'NM'
+acsincome.loc[(acsincome['State'] == 'New York'), 'State'] = 'NY'
+acsincome.loc[(acsincome['State'] == 'North Carolina'), 'State'] = 'NC'
+acsincome.loc[(acsincome['State'] == 'North Dakota'), 'State'] = 'ND'
+acsincome.loc[(acsincome['State'] == 'Ohio'), 'State'] = 'OH'
+acsincome.loc[(acsincome['State'] == 'Oklahoma'), 'State'] = 'OK'
+acsincome.loc[(acsincome['State'] == 'Oregon'), 'State'] = 'OR'
+acsincome.loc[(acsincome['State'] == 'Pennsylvania'), 'State'] = 'PA'
+acsincome.loc[(acsincome['State'] == 'Rhode Island'), 'State'] = 'RI'
+acsincome.loc[(acsincome['State'] == 'South Carolina'), 'State'] = 'SC'
+acsincome.loc[(acsincome['State'] == 'South Dakota'), 'State'] = 'SD'
+acsincome.loc[(acsincome['State'] == 'Tennessee'), 'State'] = 'TN'
+acsincome.loc[(acsincome['State'] == 'Texas'), 'State'] = 'TX'
+acsincome.loc[(acsincome['State'] == 'Utah'), 'State'] = 'UT'
+acsincome.loc[(acsincome['State'] == 'Vermont'), 'State'] = 'VT'
+acsincome.loc[(acsincome['State'] == 'Virginia'), 'State'] = 'VA'
+acsincome.loc[(acsincome['State'] == 'Washington'), 'State'] = 'WA'
+acsincome.loc[(acsincome['State'] == 'West Virginia'), 'State'] = 'WV'
+acsincome.loc[(acsincome['State'] == 'Wisconsin'), 'State'] = 'WI'
+acsincome.loc[(acsincome['State'] == 'Wyoming'), 'State'] = 'WY'
+
+acsincome = acsincome.loc[acsincome["Race"] != 'ALL']
+acsincome = acsincome.loc[acsincome["Race"] != 'WHITE']
+acsincome = acsincome.loc[acsincome["Race"] != 'SOME OTHER RACE']
+acsincome = acsincome.loc[acsincome["State"] != 'United States']
+
+acsincome.loc[(acsincome['Race'] == 'BLACK OR AFRICAN AMERICAN'), 'Race'] = 'Black'
+acsincome.loc[(acsincome['Race'] == 'AMERICAN INDIAN AND ALASKA NATIVE'), 'Race'] = 'American Indian or Alaskan Native'
+acsincome.loc[(acsincome['Race'] == 'ASIAN'), 'Race'] = 'Asian'
+acsincome.loc[(acsincome['Race'] == 'NATIVE HAWAIIAN AND OTHER PACIFIC ISLANDER'), 'Race'] = 'Native Hawaiian or Pacific Islander'
+acsincome.loc[(acsincome['Race'] == 'TWO OR MORE RACES'), 'Race'] = 'Multiracial'
+acsincome.loc[(acsincome['Race'] == 'WHITE, NOT HISPANIC OR LATINO'), 'Race'] = 'White'
+acsincome.loc[(acsincome['Race'] == 'HISPANIC OR LATINO'), 'Race'] = 'Hispanic'
+
+acsincome = pd.melt(acsincome, id_vars=['State', 'Race'], value_vars=["<16k", "16-20k", "20-25k", "25-30k", "30-35k",
+                                                                      "35-40k", "40-45k", "45-50k", "50-60k", "60-70k",
+                                                                      "70-80k", "80k+"])
+
+acsincome.loc[(acsincome['variable'] == '<16k'), 'variable'] = '<=15,999'
+acsincome.loc[(acsincome['variable'] == '16-20k'), 'variable'] = '16,000-19,999'
+acsincome.loc[(acsincome['variable'] == '20-25k'), 'variable'] = '20,000-24,999'
+acsincome.loc[(acsincome['variable'] == '25-30k'), 'variable'] = '25,000-29,999'
+acsincome.loc[(acsincome['variable'] == '30-35k'), 'variable'] = '30,000-34,999'
+acsincome.loc[(acsincome['variable'] == '35-40k'), 'variable'] = '35,000-39,999'
+acsincome.loc[(acsincome['variable'] == '40-45k'), 'variable'] = '40,000-44,999'
+acsincome.loc[(acsincome['variable'] == '45-50k'), 'variable'] = '45,000-49,999'
+acsincome.loc[(acsincome['variable'] == '50-60k'), 'variable'] = '50,000-59,999'
+acsincome.loc[(acsincome['variable'] == '60-70k'), 'variable'] = '60,000-69,999'
+acsincome.loc[(acsincome['variable'] == '70-80k'), 'variable'] = '70,000-79,999'
+acsincome.loc[(acsincome['variable'] == '80k+'), 'variable'] = '>=80,000'
 
 df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                                    24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
@@ -240,7 +323,7 @@ def update_graph(state, race, singlehead):
                            "DB_Transport": "Method",
                            "count": "Count"},
                        template='plotly_white',
-                       title="How Diaper Bank Recipients Access their Diaper Bank Products<br><sup>You have selected "
+                       title="How Diaper Bank Recipients Access Diaper Bank Products<br><sup>You have selected "
                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                              + " for single head household.",
                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
@@ -438,27 +521,45 @@ def update_pie(race, state, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+
+    filters["race"] = race if race else ""
+    acs = acsincome.loc[(df['Race']) == filters["race"]] if filters["race"] else acsincome
+    filters["state"] = state if state else ""
+    acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
+
+    rows = dff.shape[0] + acs.shape[0]
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-    rows = dff.dropna(subset=['Income_2019']).shape[0]
     dff = dff['Income_2019'].value_counts(normalize=True)
-    dff = dff.to_frame('Proportion').reset_index()
+    dff = dff.to_frame('Proportion').rename_axis('Income Range').reset_index()
     dff['Percentage'] = dff['Proportion'] * 100
-    fig = px.histogram(dff, x='Income_2019', y='Percentage',
-                       labels={"Income_2019": "Income Range (in dollars)",
-                               "sum of Percentage": "Percentage"},
-                       category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                        '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                        '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                        '60,000-69,999', '70,000-79,999', '>=80,000']},
+    acs = acs.groupby('variable').sum()
+    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
+    acs = acs.rename_axis('Income Range').reset_index()
+    acs['Type'] = 'National Data'
+    dff['Type'] = 'Diaper Bank Recipient'
+
+    dff = dff[['Income Range', 'Percentage', 'Type']]
+    acs = acs[['Income Range', 'Percentage', 'Type']]
+
+    acsdff = pd.concat([acs, dff])
+
+    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                       labels={"Income Range": "Income Range (in dollars)"},
+                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
                        title="Distribution of Household Incomes in 2019<br><sup>You have selected "
                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                              + " for single head household.",
                        template='plotly_white')
     fig.update_layout(yaxis_title="Percentage")
-    fig.update_traces(marker_color='#86bce8')
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+    fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -482,27 +583,45 @@ def update_pie(race, state, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+
+    filters["race"] = race if race else ""
+    acs = acsincome.loc[(df['Race']) == filters["race"]] if filters["race"] else acsincome
+    filters["state"] = state if state else ""
+    acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
+
+    rows = dff.shape[0] + acs.shape[0]
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-    rows = dff.dropna(subset=['Income_2020']).shape[0]
     dff = dff['Income_2020'].value_counts(normalize=True)
-    dff = dff.to_frame('Proportion').reset_index()
+    dff = dff.to_frame('Proportion').rename_axis('Income Range').reset_index()
     dff['Percentage'] = dff['Proportion'] * 100
-    fig = px.histogram(dff, x='Income_2020', y='Percentage',
-                       labels={"Income_2020": "Income Range (in dollars)",
-                               "sum of Percentage": "Percentage"},
-                       category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                        '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                        '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                        '60,000-69,999', '70,000-79,999', '>=80,000']},
+    acs = acs.groupby('variable').sum()
+    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
+    acs = acs.rename_axis('Income Range').reset_index()
+    acs['Type'] = 'National Data'
+    dff['Type'] = 'Diaper Bank Recipient'
+
+    dff = dff[['Income Range', 'Percentage', 'Type']]
+    acs = acs[['Income Range', 'Percentage', 'Type']]
+
+    acsdff = pd.concat([acs, dff])
+
+    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                       labels={"Income Range": "Income Range (in dollars)"},
+                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
                        title="Distribution of Household Incomes in 2020<br><sup>You have selected "
                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                              + " for single head household.",
                        template='plotly_white')
     fig.update_layout(yaxis_title="Percentage")
-    fig.update_traces(marker_color='#86bce8')
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+    fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
