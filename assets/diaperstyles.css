@@ -14,10 +14,12 @@
     font-weight: bold;
 }
 .dropdown{
-    width: 275px;
+    display: inline-block;
+    width: 200%;
     margin-top: 5px;
 }
-.all_filters{
+
+.all_filters {
     display: flex;
     justify-content: space-evenly;
     padding: 15px;
@@ -26,4 +28,25 @@
     margin-left: auto;
     margin-right: auto;
     margin-bottom: auto;
+}
+.part2-header{
+    padding: 15px;
+    background: #E4E0DF;
+    background-clip: border-box;
+}
+.preterm_graph{
+    display: inline-block;
+    width: 25%;
+}
+.illness_graph{
+    display: inline-block;
+    width: 25%;
+}
+.transport1{
+    display: inline-block;
+    width: 25%;
+}
+.transport2{
+    display: inline-block;
+    width: 25%;
 }
