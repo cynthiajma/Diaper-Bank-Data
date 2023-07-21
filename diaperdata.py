@@ -181,7 +181,7 @@ filters = {"race": "",
            "state": "",
            "singlehead": ""}
 
-external_stylesheets = ['assets/diaperstyles.css']
+external_stylesheets = ['assets/sarahstyles.css']
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
@@ -191,7 +191,7 @@ app.layout = html.Div(
                 html.H1(children="Diaper Bank Household Data", className="header-title"),
                 html.P(
                     children=(
-                        "Hover over on the map, or select filters to start exploring"
+                        "Hover over on the map, or select filters to start exploring."
                     ),
                     className="header-description",
                 ),
@@ -211,8 +211,8 @@ app.layout = html.Div(
                          placeholder="Select Category",
                          value="Adults-value",
                          clearable=False,
-                         className="dropdown",
                          searchable=False,
+                         className="dropdown",
                                  ),
                     ]),
 
@@ -534,8 +534,6 @@ def update_pie(race, state, singlehead):
     filters["state"] = state if state else ""
     acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
 
-    print(acs)
-    print(dff)
     rows = dff.shape[0] + acs.shape[0]
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',

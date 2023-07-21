@@ -1,12 +1,12 @@
 .header-title {
     color: #000000;
-    font-size: 30;
+    font-size: 50;
     text-align: center;
     margin-bottom: 20px;
 }
 .header-description{
     font-size: 20;
-    text-align: left;
+    text-align: center;
     margin-top: 8px;
     margin-bottom: 10px;
 }
@@ -14,7 +14,7 @@
     font-weight: bold;
 }
 .dropdown{
-    width: 275px;
+    width: 250 px;
     margin-top: 5px;
 }
 .all_filters{
