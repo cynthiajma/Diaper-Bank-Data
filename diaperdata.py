@@ -181,18 +181,29 @@ filters = {"race": "",
            "state": "",
            "singlehead": ""}
 
-app = Dash(__name__)
+external_stylesheets = ['assets/diaperstyles.css']
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
-app.layout = html.Div(children=[
-    html.Div([
-        html.H1(children='Diaper Bank Household Survey Results', style={'textAlign': 'left'}),
-        html.P(children='Exploring survey results from nationwide survey of diaper banks '
-                        'conducted by The National Diaper Bank Network from 2019 to 2021.'),
-        html.Label(['Select Category:'], style={'font-weight': 'bold', "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        html.Div([
-            dcc.Dropdown(id='variable-dropdown',
+app.layout = html.Div(
+    children=[
+        html.Div(
+            children=[
+                html.H1(children="Diaper Bank Household Data", className="header-title"),
+                html.P(
+                    children=(
+                        "Hover over on the map, or select filters to start exploring"
+                    ),
+                    className="header-description",
+                ),
+            ],
+            className="header",
+        ),
+        html.Div(
+            children=[
+                html.Div([
+                    html.Label(['Category'], className='label'),
+                    html.Br(),
+                    dcc.Dropdown(id='variable-dropdown',
                          options=[{'label': 'Adults', 'value': 'Adults-value'},
                                   {'label': 'Children', 'value': "Children-value"},
                                   {'label': 'Income', 'value': "Income-value"}
@@ -202,65 +213,63 @@ app.layout = html.Div(children=[
                          clearable=False,
                          className="dropdown",
                          searchable=False,
-                         style={"width": "65%"},
-                         optionHeight=40
-                         ),
-            html.Br(),
-            html.Label(["Select Variable:"], style={'font-weight': 'bold', "text-align": "center"}),
-            html.Br(),
-            html.Br(),
-            dcc.Dropdown(
-                id="map-dropdown",
-                options=[],
-                value=None,
-                clearable=False,
-                searchable=False,
-                style={"width": "65%"},
-                className="dropdown"),
-        ]),
-    ]),
-    html.Div([
-        html.Br(),
-        html.Label(['Select Race (optional):'], style={'font-weight': 'bold', "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(id='race',
-                     options=races,
-                     placeholder="Select Race",
-                     clearable=True,
-                     searchable=False,
-                     className="dropdown",
-                     style={"width": "65%"},
-                     optionHeight=40
+                                 ),
+                    ]),
+
+                    html.Div([
+                        html.Label(["Map Variable"], className='label'),
+                        html.Br(),
+                        dcc.Dropdown(
+                            id="map-dropdown",
+                            options=[],
+                            value=None,
+                            clearable=False,
+                            searchable=False,
+                            className="dropdown"
+                        ),
+                    ]),
+                    html.Div([
+                    html.Label(['Race'], className='label'),
+                    html.Br(),
+                    dcc.Dropdown(
+                        id='race',
+                        options=races,
+                        placeholder="Select Race",
+                        clearable=True,
+                        searchable=False,
+                        className="dropdown",
                      ),
-        html.Br(),
-        html.Label(['Select State (optional):'], style={'font-weight': 'bold', "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(id='state',
-                     options=states,
-                     placeholder="Select State",
-                     clearable=True,
-                     searchable=False,
-                     className="dropdown",
-                     style={"width": "65%"},
-                     optionHeight=40
+                ]),
+                html.Div([
+                    html.Label(['State'], className='label'),
+                    html.Br(),
+                    dcc.Dropdown(
+                        id='state',
+                        options=states,
+                        placeholder="Select State",
+                        clearable=True,
+                        searchable=False,
+                        className="dropdown"
                      ),
-        html.Br(),
-        html.Label(['Select if Single Head of Household (optional):'],
-                   style={'font-weight': 'bold', "text-align": "center"}),
-        html.Br(),
-        html.Br(),
-        dcc.Dropdown(id='singlehead',
-                     options=singleheaddict,
-                     placeholder="Select if Single Head of Household",
-                     clearable=True,
-                     searchable=False,
-                     className="dropdown",
-                     style={"width": "65%"},
-                     optionHeight=40
-                     ),
-        html.Br(),
+                    ]
+                ),
+                html.Div([
+                    html.Label(['Single Head of Household'],
+                                className='label'),
+                    html.Br(),
+                    dcc.Dropdown(
+                        id='singlehead',
+                        options=singleheaddict,
+                        placeholder="Select if Single Head of Household",
+                        clearable=True,
+                        searchable=False,
+                        className="dropdown"
+                        ),
+                    ]
+                )
+            ],
+            className='all_filters'
+        ),
         html.Div([
             dcc.Graph(id='graph2-content'),
             dcc.Graph(id='graph-content'),
@@ -272,8 +281,7 @@ app.layout = html.Div(children=[
             dcc.Graph(id='graph8-content'),
             dcc.Graph(id='graph9-content')
         ]),
-    ]),
-])
+    ])
 
 
 @callback(
@@ -282,9 +290,9 @@ app.layout = html.Div(children=[
     Input("variable-dropdown", "value"))
 def update_map_dropdown(optionslctd):
     if optionslctd == "Adults-value":
-        options = [{"label": 'Percentage of Households with a Single Head of Household', "value": 'NumAdults'},
-                   {"label": 'Percentage of Households with One or More Working Adult', "value": 'Ad1CurrentWork'},
-                   {"label": 'Percentage of Households with One or More Adult in Education or Job Training',
+        options = [{"label": 'Single Head of Household', "value": 'NumAdults'},
+                   {"label": 'One or More Working Adult', "value": 'Ad1CurrentWork'},
+                   {"label": 'One or More Adult in Education or Job Training',
                     "value": 'Ad1_School'}]
         value = "NumAdults"
     elif optionslctd == "Income-value":
