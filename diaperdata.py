@@ -66,7 +66,8 @@ acsincome = acsincome.loc[acsincome["State"] != 'United States']
 acsincome.loc[(acsincome['Race'] == 'BLACK OR AFRICAN AMERICAN'), 'Race'] = 'Black'
 acsincome.loc[(acsincome['Race'] == 'AMERICAN INDIAN AND ALASKA NATIVE'), 'Race'] = 'American Indian or Alaskan Native'
 acsincome.loc[(acsincome['Race'] == 'ASIAN'), 'Race'] = 'Asian'
-acsincome.loc[(acsincome['Race'] == 'NATIVE HAWAIIAN AND OTHER PACIFIC ISLANDER'), 'Race'] = 'Native Hawaiian or Pacific Islander'
+acsincome.loc[(acsincome['Race'] == 'NATIVE HAWAIIAN AND OTHER PACIFIC ISLANDER'), 'Race'] = \
+    'Native Hawaiian or Pacific Islander'
 acsincome.loc[(acsincome['Race'] == 'TWO OR MORE RACES'), 'Race'] = 'Multiracial'
 acsincome.loc[(acsincome['Race'] == 'WHITE, NOT HISPANIC OR LATINO'), 'Race'] = 'White'
 acsincome.loc[(acsincome['Race'] == 'HISPANIC OR LATINO'), 'Race'] = 'Hispanic'
@@ -559,7 +560,7 @@ def update_pie(race, state, singlehead):
     fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
     fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    #fig.update_traces(opacity=0.40)
+    fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -659,7 +660,7 @@ def childcare_pie1(race, state, singlehead):
 
     percent_inHome = round(
         (dff['Number of Households'].iloc[1] / (dff['Number of Households'].iloc[0] +
-                                              dff['Number of Households'].iloc[1])) * 100, 1)
+                                                dff['Number of Households'].iloc[1])) * 100, 1)
 
     fig = px.pie(dff, names="NoChildCare", values="Number of Households",
                  labels={'NoChildCare': 'Childcare Type'},
