@@ -264,17 +264,20 @@ app.layout = html.Div(
         ),
         html.Div(
             children=[
-                html.Br(),
                 dcc.Graph(id='map-content'),
-                dcc.Graph(id='preterm-content'),
+                html.H3(children='Additional Information', className='part2-header'),
+                html.Div([
+                    dcc.Graph(id='preterm-content', className='preterm_graph'),
+                    dcc.Graph(id='illness-content', className='illness_graph'),
+                    ], className='preterm_illness'
+                ),
                 html.Div(
                     children=[
-                        dcc.Graph(id='transport-content'),
-                        html.Br(),
-                        dcc.Graph(id='transport-pie-content')
-                    ],
+                        dcc.Graph(id='transport-content', className='transport1'),
+                        dcc.Graph(id='transport-pie-content', className='transport2')
+                    ], className='transport-graph'
                 ),
-                dcc.Graph(id='illness-content'),
+
                 html.Div(
                     children=[
                         dcc.Graph(id='childcare1-content', className='childgraph'),
