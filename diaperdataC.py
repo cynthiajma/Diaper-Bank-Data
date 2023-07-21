@@ -173,7 +173,8 @@ filters = {"race": "",
 
 global percent_inHome
 
-app = Dash(__name__)
+external_stylesheets = ['assets/diaperstyles.css']
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
     children=[
@@ -262,9 +263,9 @@ app.layout = html.Div(
                 dcc.Graph(id='illness-content'),
                 html.Div(
                     children=[
-                        dcc.Graph(id='childcare1-content'),
+                        dcc.Graph(id='childcare1-content', className='childgraph'),
                         html.Br(),
-                        dcc.Graph(id='childcare2-content')
+                        dcc.Graph(id='childcare2-content', className='childgraph')
                     ],
                 ),
                 html.Div(
