@@ -1,9 +1,29 @@
-header-title {
+.header-title {
     color: #000000;
     font-size: 30;
     text-align: center;
+    margin-bottom: 20px;
 }
 .header-description{
-
+    font-size: 20;
+    text-align: left;
+    margin-top: 8px;
+    margin-bottom: 10px;
 }
-
+.label{
+    font-weight: bold;
+}
+.dropdown{
+    width: 275px;
+    margin-top: 5px;
+}
+.all_filters{
+    display: flex;
+    justify-content: space-evenly;
+    padding: 15px;
+    background: #F7F3F2;
+    background-clip: border-box;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+}
