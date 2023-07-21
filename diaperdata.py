@@ -172,14 +172,12 @@ df.loc[(df['NumAdults'] != 1), 'Single Household'] = 'No'
 global percent_inHome
 
 states = df["State"].sort_values().unique()
-regions = df["CensusRegion"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not To Share']
 singleheaddict = ['Yes', 'No']
 
 filters = {"race": "",
            "state": "",
-           "region": "",
            "singlehead": ""}
 
 app = Dash(__name__)
@@ -316,7 +314,7 @@ def update_graph(state, race, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
+    dff = dff[["DB_Transport"]]
     dff = dff.sort_values('DB_Transport')
     fig = px.histogram(dff, x="DB_Transport",
                        labels={
@@ -347,7 +345,7 @@ def update_pie(state, race, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff = dff[["CensusRegion", "DB_Transport"]]
+    dff = dff[["DB_Transport"]]
     dff = dff.dropna()
     fig = px.pie(dff, names="DB_Transport",
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
@@ -561,7 +559,7 @@ def update_pie(race, state, singlehead):
     fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
     fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.40)
+    #fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.25,
@@ -642,53 +640,42 @@ def update_pie(race, state, singlehead):
     Input('singlehead', 'value'))
 def childcare_pie1(race, state, singlehead):
     global percent_inHome
-    percent_inHome = 16.4
+    percent_inHome = 24.7
     filters['race'] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff1 = dff[
-        ['CH1_EarlyHeadStart', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool', 'CH1_FamFriendCare']]
-    dff1 = dff1.replace(np.nan, 0)
-    dff1['Outside'] = dff1['CH1_EarlyHeadStart'] + dff1['CH1_ChildCareCenter'] + dff1['CH1_FamilyChildCareHome'] + dff1[
-        'CH1_Preschool'] + dff1['CH1_FamFriendCare']
-    dff1.loc[(dff1['Outside'] > 0), 'Outside'] = 1.0
-    nrows = dff1.shape[0]
-    dff1 = dff1['Outside'].value_counts()
-    dff2 = dff[
-        ['CH2_EarlyHeadStart', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool', 'CH2_FamFriendCare']]
-    dff2 = dff2.replace(np.nan, 0)
-    dff2['Outside'] = dff2['CH2_EarlyHeadStart'] + dff2['CH2_ChildCareCenter'] + dff2['CH2_FamilyChildCareHome'] + dff2[
-        'CH2_Preschool'] + dff2['CH2_FamFriendCare']
-    dff2.loc[(dff2['Outside'] > 0), 'Outside'] = 1.0
-    nrows += dff2.shape[0]
-    dff2 = dff2['Outside'].value_counts()
-    dff = dff1 + dff2
-    dff = dff.to_frame('Number of Children')
-    dff = dff.rename_axis('index').reset_index()
-    dff.loc[(dff['index'] == 1), 'Type of Childcare'] = 'Outside of home'
-    dff.loc[(dff['index'] == 0), 'Type of Childcare'] = 'Not outside of home'
-    dff = dff.drop(['index'], axis=1)
+
+    dff = dff[['NoChildCare']].dropna()
+    dff = dff.replace(np.nan, 0)
+    dff = dff.replace(1, 0)
+    dff = dff.replace(2, 0)
+    dff = dff.replace(0, 'No Outside Childcare')
+    dff = dff.replace(9, 'Outside Childcare')
+    rows = dff.shape[0]
+    dff = dff.value_counts().to_frame("Number of Households").reset_index()
+
     percent_inHome = round(
-        (dff['Number of Children'].iloc[1] / (dff['Number of Children'].iloc[0] +
-                                              dff['Number of Children'].iloc[1])) * 100, 1)
-    fig = px.pie(dff, names="Type of Childcare", values="Number of Children",
-                 labels={'Type of Childcare': 'Childcare Type'},
+        (dff['Number of Households'].iloc[1] / (dff['Number of Households'].iloc[0] +
+                                              dff['Number of Households'].iloc[1])) * 100, 1)
+
+    fig = px.pie(dff, names="NoChildCare", values="Number of Households",
+                 labels={'NoChildCare': 'Childcare Type'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Percent of Children in Outside Childcare<br><sup>You have selected "
+                 title="Percent of Households that use Outside Childcare<br><sup>You have selected "
                        + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                        + " for single head household.",
-                 category_orders={"Type of Childcare": ['Outside of home', 'Not outside of home']})
+                 category_orders={"NoChildCare": ['Outside Childcare', 'No Outside Childcare']})
     fig.update_traces(pull=[0.05, 0])
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,
         xref='paper',
         yref='paper',
-        text=f'Filters match to {nrows} responses (Child 1 and 2 were counted as different responses).',
+        text=f'Filters match to {rows} responses.',
         showarrow=False
     )])
     return fig
@@ -707,39 +694,27 @@ def childcare_pie2(race, state, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff1 = dff[
-        ['CH1ChildCare_DiapersRequired_C', 'CH1_ChildCareCenter', 'CH1_FamilyChildCareHome', 'CH1_Preschool',
-         'CH1_FamFriendCare']]
-    dff1 = dff1.dropna(how='all')
-    dff1 = dff1.dropna(subset=['CH1ChildCare_DiapersRequired_C'])
-    dff1 = dff1.replace(np.nan, 0)
-    nrows = dff1.shape[0]
-    dff1['Outside'] = dff1['CH1_FamFriendCare'] + dff1['CH1_ChildCareCenter'] + dff1['CH1_FamilyChildCareHome'] + dff1[
-        'CH1_Preschool']
-    dff1.loc[(dff1['Outside'] > 0), 'Outside'] = 1.0
-    dff1 = dff1.loc[(dff1['Outside'] == 1)]
-    dff1 = dff1['CH1ChildCare_DiapersRequired_C'].value_counts()
-    dff2 = dff[['CH2ChildCare_DiapersRequired_C', 'CH2_ChildCareCenter', 'CH2_FamilyChildCareHome', 'CH2_Preschool',
-                'CH2_FamFriendCare']]
-    dff2 = dff2.dropna(how='all')
-    dff2 = dff2.dropna(subset=['CH2ChildCare_DiapersRequired_C'])
-    dff2 = dff2.replace(np.nan, 0)
-    nrows += dff2.shape[0]
-    dff2['Outside'] = dff2['CH2_FamFriendCare'] + dff2['CH2_ChildCareCenter'] + dff2['CH2_FamilyChildCareHome'] + dff2[
-        'CH2_Preschool']
-    dff2.loc[(dff2['Outside'] > 0), 'Outside'] = 1.0
-    dff2 = dff2.loc[(dff2['Outside'] == 1)]
-    dff2 = dff2['CH2ChildCare_DiapersRequired_C'].value_counts()
-    dff = dff1 + dff2
-    dff = dff.to_frame().reset_index()
-    dff.loc[
-        (dff['CH1ChildCare_DiapersRequired_C'] == 1), 'Diaper'] = 'Need to send diapers'
-    dff.loc[
-        (dff['CH1ChildCare_DiapersRequired_C'] == 2), 'Diaper'] = 'No need to send diapers'
-    dff = dff.drop(['CH1ChildCare_DiapersRequired_C'], axis=1)
-    fig = px.pie(dff, names='Diaper', values='count',
-                 category_orders={"Diaper": ['Need to Send Diapers', 'Do Not Need to Send Diapers']},
-                 labels={'Diaper': 'Diaper Requirement'},
+    dff = dff[['NoChildCare', 'CH1ChildCare_DiapersRequired_C', 'CH2ChildCare_DiapersRequired_C']]
+
+    dff = dff.loc[(dff['NoChildCare'] == 9)]
+
+    dff.dropna(how='all')
+    dff = dff.replace(2, 0)
+    dff = dff.replace(np.nan, 0)
+
+    dff['Sum'] = dff['CH1ChildCare_DiapersRequired_C'] + dff['CH2ChildCare_DiapersRequired_C']
+
+    dff.loc[(dff['Sum'] >= 1), 'Diaper Required'] = 'Diapers Required'
+    dff.loc[(dff['Sum'] == 0), 'Diaper Required'] = 'No Diapers Required'
+
+    nrows = dff.shape[0]
+
+    dff = dff['Diaper Required'].value_counts().to_frame("Number of Households").rename_axis(
+        'Diaper Required').reset_index()
+
+    fig = px.pie(dff, names="Diaper Required", values="Number of Households",
+                 category_orders={"Diaper Required": ['Diapers Required', 'No Diapers Required']},
+                 labels={'Diaper Required': 'Diaper Requirement'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
                  title=f"Of the {percent_inHome}% that Use Childcare Outside of Home:<br><sup>You have selected "
