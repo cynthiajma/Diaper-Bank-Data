@@ -15,12 +15,15 @@
 }
 .dropdown{
     display: inline-block;
-    width: 200%;
+    width: 100%;
     margin-top: 5px;
 }
-
+.filter{
+    width: 18%;
+}
 .all_filters {
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
     padding: 15px;
     background: #F7F3F2;
@@ -36,17 +39,17 @@
 }
 .preterm_graph{
     display: inline-block;
-    width: 25%;
+    width: 50%;
 }
 .illness_graph{
     display: inline-block;
-    width: 25%;
+    width: 50%;
 }
 .transport1{
     display: inline-block;
-    width: 25%;
+    width: 50%;
 }
 .transport2{
     display: inline-block;
-    width: 25%;
+    width: 50%;
 }
