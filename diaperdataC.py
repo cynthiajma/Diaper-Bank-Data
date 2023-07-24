@@ -207,8 +207,8 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ]),
-
+                ],className='filter2',
+                ),
                 html.Div([
                     html.Label(["Map Variable"], className='label'),
                     html.Br(),
@@ -219,7 +219,10 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ]),
+                ],className='filter2')
+            ]),
+        ])
+
 
                 html.Div([
                     html.Label(["Race"], className='label'),
@@ -231,7 +234,8 @@ app.layout = html.Div(
                         clearable=True,
                         className="dropdown"
                     ),
-                ]),
+                ],className='filter',
+                ),
 
                 html.Div([
                     html.Label(["State"], className='label'),
@@ -243,7 +247,7 @@ app.layout = html.Div(
                         clearable=True,
                         className="dropdown"
                     ),
-                ]
+                ],className='filter',
                 ),
                 html.Div([
                     html.Label(['Single Head of Household'],
@@ -257,7 +261,7 @@ app.layout = html.Div(
                                  className="dropdown",
                                  optionHeight=40
                                  ),
-                    ]
+                    ], className='filter',
                 )
             ],
             className='all_filters'
