@@ -260,6 +260,7 @@ app.layout = html.Div(
                 ),
                 html.Br(),
                 html.H3(children="Choropleth", className='subheader-title'),
+                html.Br(),
                 html.Div(
                     children=[
                         html.Div([
@@ -290,30 +291,63 @@ app.layout = html.Div(
                         ], className='filter2')], className='map_filters'),
                 html.Div([
                     dcc.Graph(id='graph2-content'),
-                    html.H3(children="Additional Information", className='subheader2-title'),
+                    html.H3(children="Additional Visualizations", className='subheader2-title'),
                     html.H3(children="How Diaper Bank Recipients Access their Diaper Bank", className='small-title'),
+                    html.Div(id='display-selected-filtersTRANSPORT', className='smaller-title'),
                     dcc.Graph(id='graph-content', className='transport'),
                     dcc.Graph(id='graph3-content', className='transport'),
-                    dcc.Graph(id='graph4-content', className='preterm'),
-                    dcc.Graph(id='graph10-content', className='preterm'),
+                    html.Br(),
+                    html.H3(children="Childcare Use", className='small-title'),
+                    html.Div(id='display-selected-filtersCHILDCARE', className='smaller-title'),
                     dcc.Graph(id='graph8-content', className='childcare'),
                     dcc.Graph(id='graph9-content', className='childcare'),
+                    html.Br(),
+                    html.H3(children="Distribution of Income for Diaper Bank Recipients vs ACS 5-Year Survey",
+                            className='small-title'),
+                    html.Div(id='display-selected-filtersINCOME', className='smaller-title'),
                     dcc.Graph(id='graph6-content', className='income'),
                     dcc.Graph(id='graph7-content', className='income'),
                     html.Br(),
                     html.H3(children="Effect of Receiving Diapers on Various Diaper Illnesses",
                             className='small-title'),
-                    html.Div(id='display-selected-filters', className='smaller-title'),
+                    html.Div(id='display-selected-filtersILLNESS', className='smaller-title'),
                     dcc.Graph(id='DR-content', className="sankey"),
                     dcc.Graph(id='SevDR-content', className="sankey"),
                     dcc.Graph(id='UTI-content', className="sankey"),
+                    dcc.Graph(id='graph4-content', className='preterm'),
+                    dcc.Graph(id='graph10-content', className='preterm'),
                 ])
             ])
     ])
 
+@callback(
+    Output('display-selected-filtersTRANSPORT', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
 
 @callback(
-    Output('display-selected-filters', 'children'),
+    Output('display-selected-filtersILLNESS', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+
+
+@callback(
+    Output('display-selected-filtersINCOME', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+
+
+@callback(
+    Output('display-selected-filtersCHILDCARE', 'children'),
     Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value'))
@@ -367,9 +401,6 @@ def update_graph(state, race, singlehead):
                            "DB_Transport": "Method",
                            "count": "Count"},
                        template='plotly_white',
-                       title="<sup>You have selected "
-                             + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                             + " for single head household.",
                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
                                                          "Taxi/Ride Sharing App", "Walk", "Home Visit"
                                                          ]}
@@ -584,7 +615,7 @@ def update_pie(race, state, singlehead):
     acs = acs.groupby('variable').sum(numeric_only=True)
     acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
     acs = acs.rename_axis('Income Range').reset_index()
-    acs['Type'] = 'National Data'
+    acs['Type'] = 'ACS 5-Year Survey'
     dff['Type'] = 'Diaper Bank Recipient'
 
     dff = dff[['Income Range', 'Percentage', 'Type']]
@@ -598,9 +629,7 @@ def update_pie(race, state, singlehead):
                                                          '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                          '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="Distribution of Household Incomes in 2019<br><sup>You have selected "
-                             + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                             + " for single head household.",
+                       title="2019",
                        template='plotly_white')
     fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
@@ -608,7 +637,7 @@ def update_pie(race, state, singlehead):
     fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.3,
+        y=1,
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
@@ -646,7 +675,7 @@ def update_pie(race, state, singlehead):
     acs = acs.groupby('variable').sum(numeric_only=True)
     acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
     acs = acs.rename_axis('Income Range').reset_index()
-    acs['Type'] = 'National Data'
+    acs['Type'] = 'ACS 5-Year Survey'
     dff['Type'] = 'Diaper Bank Recipient'
 
     dff = dff[['Income Range', 'Percentage', 'Type']]
@@ -660,9 +689,7 @@ def update_pie(race, state, singlehead):
                                                          '25,000-29,999', '30,000-34,999', '35,000-39,999',
                                                          '40,000-44,999', '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="Distribution of Household Incomes in 2020<br><sup>You have selected "
-                             + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                             + " for single head household.",
+                       title="2020",
                        template='plotly_white')
     fig.update_layout(yaxis_title="Percentage")
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
@@ -670,7 +697,7 @@ def update_pie(race, state, singlehead):
     fig.update_traces(opacity=0.40)
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=1,
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
@@ -711,9 +738,7 @@ def childcare_pie1(race, state, singlehead):
                  labels={'NoChildCare': 'Childcare Type'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Percent of Households that use Outside Childcare<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head household.",
+                 title="Percent of Households that use Outside Childcare",
                  category_orders={"NoChildCare": ['Outside Childcare', 'No Outside Childcare']})
     fig.update_traces(pull=[0.05, 0])
     fig.update_layout(annotations=[dict(
@@ -763,9 +788,7 @@ def childcare_pie2(race, state, singlehead):
                  labels={'Diaper Required': 'Diaper Requirement'},
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title=f"Of the {percent_inHome}% that Use Childcare Outside of Home:<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head household.")
+                 title=f"Of the {percent_inHome}% that Use Childcare Outside of Home:")
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,

@@ -13,18 +13,18 @@
 .subheader2-title{
     color: #000000;
     font-size: 30;
-    text-align: left;
+    text-align: center;
     padding: 0.5%;
     background: #F7F3F2;
-    width: 50%;
+    width: 100%;
 }
 .subheader-title{
     color: #000000;
     font-size: 30;
-    text-align: left;
+    text-align: center;
     padding: 0.5%;
     background: #F7F3F2;
-    width: 50%;
+    width: 100%;
     display: block;
     margin-bottom: 0;
 }
@@ -61,7 +61,7 @@
 .map_filters{
     display: flex;
     width: 50%;
-    justify-content: start;
+    justify-content: center;
     padding: 0.5%;
     background: #F7F3F2;
 }
