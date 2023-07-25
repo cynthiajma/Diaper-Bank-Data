@@ -299,7 +299,7 @@ app.layout = html.Div(
                 html.Br(),
                 html.Div(
                     children=[
-                        html.H3(children='Effects of Diapers on Diaper-Related Illnesses', className='graph-title'),
+                        html.H2(children='Effects of Diapers on Diaper-Related Illnesses', className='graph-title'),
                         html.Div(id='display-selected-filters', className='smaller-title'),
                         dcc.Graph(id='DR-content', className='sankeygraphs'),
                         dcc.Graph(id='SevDR-content', className='sankeygraphs'),
@@ -1208,6 +1208,7 @@ def update_diaperillness(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
         )
     )])
     fig.update_layout(title_text='Diaper Rash')
@@ -1222,7 +1223,7 @@ def update_diaperillness(race, state, singlehead):
     fig.update_layout(
         title_font=dict(
             family='Montserrat',
-            size=21,
+            size=18,
             color='black'
         ))
     return fig
@@ -1290,6 +1291,7 @@ def update_rashillness(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
         )
     )])
     fig.update_layout(title_text='Severe Diaper Rash')
@@ -1304,10 +1306,11 @@ def update_rashillness(race, state, singlehead):
     fig.update_layout(
         title_font=dict(
             family='Montserrat',
-            size=21,
+            size=18,
             color='black'
         ))
     return fig
+
 
 @callback(
    Output('UTI-content', 'figure'),
@@ -1374,7 +1377,8 @@ def update_uti(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-        )
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
+        ),
     )])
     fig.update_layout(title_text='Urinary Tract Infections')
     fig.update_layout(annotations=[dict(
@@ -1388,8 +1392,8 @@ def update_uti(race, state, singlehead):
     fig.update_layout(
         title_font=dict(
             family='Montserrat',
-            size=21,
-            color='black'
+            size=18,
+            color='black',
         ))
     return fig
 
