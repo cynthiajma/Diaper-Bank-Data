@@ -508,13 +508,15 @@ def update_bar(race, state, singlehead):
 #     dff1 = dff1.replace(np.nan, 0)
 #     dff2 = dff2.replace(np.nan, 0)
 #     if dff1.shape[0] != 0:
-#         dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+#         dff1.loc[(dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] =
+#         'No more diaper related illness'
 #         dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
 #         dff1.loc[
 #             (dff1['Ch1BeforeSum'] == 1) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
 #         dff1.loc[(dff1['Ch1BeforeSum'] == 0) & (dff1['Ch1AfterSum'] == 1), 'Outcome'] = 'Got diaper related illness'
 #     if dff2.shape[0] != 0:
-#         dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No more diaper related illness'
+#         dff2.loc[(dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] =
+#         'No more diaper related illness'
 #         dff2.loc[(dff2['Ch2BeforeSum'] == 0) & (dff2['Ch2AfterSum'] == 0), 'Outcome'] = 'No diaper related illness'
 #         dff2.loc[
 #             (dff2['Ch2BeforeSum'] == 1) & (dff2['Ch2AfterSum'] == 1), 'Outcome'] = 'Still got diaper related illness'
@@ -813,13 +815,19 @@ def update_illness1(race, state, singlehead):
     dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
         dff2['NumbKidsUnaffected_DR'] + 1
 
+    total = dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum() + \
+        dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum() + \
+        dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2['NumbKidsNegativelyImpacted_DR'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2[
+        'NumbKidsPositivelyImpacted_DR'].sum()) / total * 100
+    unaffected = (dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum()) / total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2[
+        'NumbKidsNegativelyImpacted_DR'].sum()) / total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1,
-              'value': dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_DR'].sum() +
-              dff2['NumbKidsUnaffected_DR'].sum()},
-             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_DR'].sum() +
-              dff2['NumbKidsNegativelyImpacted_DR'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -881,13 +889,19 @@ def update_illness1(race, state, singlehead):
     dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
         dff2['NumbKidsUnaffected_SevDR'] + 1
 
+    total = dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum() + \
+        dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum() + \
+        dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2[
+        'NumbKidsPositivelyImpacted_SevDR'].sum()) / total * 100
+    unaffected = (dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum()) / total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2[
+        'NumbKidsNegativelyImpacted_SevDR'].sum()) / total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1,
-              'value': dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_SevDR'].sum() +
-              dff2['NumbKidsUnaffected_SevDR'].sum()},
-             {'source': 0, 'target': 3,
-              'value': dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -949,13 +963,17 @@ def update_illness2(race, state, singlehead):
     dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
         dff2['NumbKidsUnaffected_UTI'] + 1
 
+    total = dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2['NumbKidsPositivelyImpacted_UTI'].sum() + \
+        dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum() + \
+        dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2['NumbKidsNegativelyImpacted_UTI'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2['NumbKidsPositivelyImpacted_UTI'].sum())/total * 100
+    unaffected = (dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum())/total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2['NumbKidsNegativelyImpacted_UTI'].sum())/total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff1['NumbKidsPositivelyImpacted_UTI'].sum() +
-             dff2['NumbKidsPositivelyImpacted_UTI'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_UTI'].sum() +
-             dff2['NumbKidsUnaffected_UTI'].sum()},
-             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_UTI'].sum() +
-             dff2['NumbKidsNegativelyImpacted_UTI'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
