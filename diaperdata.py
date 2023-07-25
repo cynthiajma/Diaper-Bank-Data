@@ -824,19 +824,27 @@ def update_illness1(race, state, singlehead):
     negative = (dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2[
         'NumbKidsNegativelyImpacted_DR'].sum()) / total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
-            label=[node['label'] for node in nodes]
+            label=[node['label'] for node in nodes],
+            hovertemplate="%{value}%"
         ),
         link=dict(
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Diaper Rash')
@@ -848,6 +856,8 @@ def update_illness1(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
 
 
@@ -898,7 +908,13 @@ def update_illness1(race, state, singlehead):
     negative = (dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2[
         'NumbKidsNegativelyImpacted_SevDR'].sum()) / total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
@@ -911,6 +927,7 @@ def update_illness1(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Severe Diaper Rash')
@@ -922,6 +939,8 @@ def update_illness1(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
 
 
@@ -970,7 +989,13 @@ def update_illness2(race, state, singlehead):
     unaffected = (dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum())/total * 100
     negative = (dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2['NumbKidsNegativelyImpacted_UTI'].sum())/total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
@@ -983,6 +1008,7 @@ def update_illness2(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Urinary Tract Infection')
@@ -994,6 +1020,8 @@ def update_illness2(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
 
 
