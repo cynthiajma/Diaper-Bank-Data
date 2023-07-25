@@ -1192,13 +1192,20 @@ def update_diaperillness(race, state, singlehead):
         dff1['NumbKidsUnaffected_DR'] + 1
     dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
         dff2['NumbKidsUnaffected_DR'] + 1
+
+    total = dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum() + \
+            dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum() + \
+            dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2['NumbKidsNegativelyImpacted_DR'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2[
+        'NumbKidsPositivelyImpacted_DR'].sum()) / total * 100
+    unaffected = (dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum()) / total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2[
+        'NumbKidsNegativelyImpacted_DR'].sum()) / total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1,
-              'value': dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_DR'].sum() +
-                                                 dff2['NumbKidsUnaffected_DR'].sum()},
-             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_DR'].sum() +
-                                                 dff2['NumbKidsNegativelyImpacted_DR'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -1208,7 +1215,7 @@ def update_diaperillness(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Diaper Rash')
@@ -1275,13 +1282,20 @@ def update_rashillness(race, state, singlehead):
         dff1['NumbKidsUnaffected_SevDR'] + 1
     dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
         dff2['NumbKidsUnaffected_SevDR'] + 1
+
+    total = dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum() + \
+            dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum() + \
+            dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2[
+        'NumbKidsPositivelyImpacted_SevDR'].sum()) / total * 100
+    unaffected = (dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum()) / total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2[
+        'NumbKidsNegativelyImpacted_SevDR'].sum()) / total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1,
-              'value': dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_SevDR'].sum() +
-                                                 dff2['NumbKidsUnaffected_SevDR'].sum()},
-             {'source': 0, 'target': 3,
-              'value': dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -1291,7 +1305,7 @@ def update_rashillness(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Severe Diaper Rash')
@@ -1339,7 +1353,6 @@ def update_uti(race, state, singlehead):
     dff1 = dff[['CH1HaveUTIBefore', 'CH1HaveUTIAfter']].dropna(how='all')
     dff2 = dff[['CH2HaveUTIBefore', 'CH2HaveUTIAfter']].dropna(how='all')
     nrows = dff1.shape[0] + dff2.shape[0]
-
     dff1['NumbKidsPositivelyImpacted_UTI'] = 0
     dff2['NumbKidsPositivelyImpacted_UTI'] = 0
     dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
@@ -1361,13 +1374,19 @@ def update_uti(race, state, singlehead):
     dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
         dff2['NumbKidsUnaffected_UTI'] + 1
 
+    total = dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2['NumbKidsPositivelyImpacted_UTI'].sum() + \
+            dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum() + \
+            dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2['NumbKidsNegativelyImpacted_UTI'].sum()
+    positive = (dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2[
+        'NumbKidsPositivelyImpacted_UTI'].sum()) / total * 100
+    unaffected = (dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum()) / total * 100
+    negative = (dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2[
+        'NumbKidsNegativelyImpacted_UTI'].sum()) / total * 100
+
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff1['NumbKidsPositivelyImpacted_UTI'].sum() +
-                                                 dff2['NumbKidsPositivelyImpacted_UTI'].sum()},
-             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_UTI'].sum() +
-                                                 dff2['NumbKidsUnaffected_UTI'].sum()},
-             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_UTI'].sum() +
-                                                 dff2['NumbKidsNegativelyImpacted_UTI'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': positive},
+             {'source': 0, 'target': 2, 'value': unaffected},
+             {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -1377,7 +1396,7 @@ def update_uti(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}"
+            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
         ),
     )])
     fig.update_layout(title_text='Urinary Tract Infections')
