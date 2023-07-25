@@ -10,20 +10,69 @@
     margin-top: 8px;
     margin-bottom: 10px;
 }
+.subheader2-title{
+    color: #000000;
+    font-size: 30;
+    text-align: left;
+    padding: 0.5%;
+    background: #F7F3F2;
+    width: 50%;
+}
+.subheader-title{
+    color: #000000;
+    font-size: 30;
+    text-align: left;
+    padding: 0.5%;
+    background: #F7F3F2;
+    width: 50%;
+    display: block;
+    margin-bottom: 0;
+}
 .label{
     font-weight: bold;
 }
 .dropdown{
-    width: 250 px;
+    width:  100%;
     margin-top: 5px;
 }
 .all_filters{
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
-    padding: 15px;
+    padding: 0.5%;
     background: #F7F3F2;
-    background-clip: border-box;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: auto;
+}
+.filter{
+    width: 30%;
+}
+.filter2{
+    width: 100%;
+    margin-right: 2%;
+}
+.map_filters{
+    display: flex;
+    width: 50%;
+    justify-content: start;
+    padding: 0.5%;
+    background: #F7F3F2;
+}
+.transport{
+    display: inline-block;
+    width: 50%;
+}
+.preterm{
+    display: inline-block;
+    width: 50%;
+}
+.income{
+    display: inline-block;
+    width: 50%;
+}
+.childcare{
+    display: inline-block;
+    width: 50%;
+}
+.sankey{
+    display: inline-block;
+    width: 33%;
 }
