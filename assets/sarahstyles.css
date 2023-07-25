@@ -28,6 +28,15 @@
     display: block;
     margin-bottom: 0;
 }
+.small-title{
+    text-align: center;
+    font-weight: normal;
+}
+.smaller-title{
+    text-align: center;
+    font-weight: normal;
+    font-size: 20;
+}
 .label{
     font-weight: bold;
 }
