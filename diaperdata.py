@@ -3,7 +3,6 @@ import plotly.express as px
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-import plotly.io as pio
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 acsincome = pd.read_csv("ACS_5year_2021_income.csv")
@@ -204,96 +203,95 @@ app.layout = html.Div(
             children=[
                 html.Div([
                     html.Div([
-                    html.Label(['Race'], className='label'),
-                    html.Br(),
-                    dcc.Dropdown(
-                        id='race',
-                        options=races,
-                        placeholder="Select Race",
-                        clearable=True,
-                        searchable=False,
-                        className="dropdown",
-                     ),
-                    ], className='filter'
-                ),
-                html.Div([
-                    html.Label(['State'], className='label'),
-                    html.Br(),
-                    dcc.Dropdown(
-                        id='state',
-                        options=states,
-                        placeholder="Select State",
-                        clearable=True,
-                        searchable=False,
-                        className="dropdown"
-                     ),
-                    ], className='filter'
-                ),
-                html.Div([
-                    html.Label(['Single Head of Household'],
-                                className='label'),
-                    html.Br(),
-                    dcc.Dropdown(
-                        id='singlehead',
-                        options=singleheaddict,
-                        placeholder="Select if Single Head of Household",
-                        clearable=True,
-                        searchable=False,
-                        className="dropdown"
-                        ),
-                    ],  className='filter'
-                )
-            ],
-            className='all_filters'
-        ),
-        html.Br(),
-        html.H3(children="Choropleth", className='subheader-title'),
-        html.Div(
-            children=[
-                html.Div([
-                    html.Label(['Category'], className='label'),
-                    html.Br(),
-                    dcc.Dropdown(id='variable-dropdown',
-                            options=[{'label': 'Adults', 'value': 'Adults-value'},
-                                    {'label': 'Children', 'value': "Children-value"},
-                                    {'label': 'Income', 'value': "Income-value"}
-                                    ],
-                            placeholder="Select Category",
-                            value="Adults-value",
-                            clearable=False,
+                        html.Label(['Race'], className='label'),
+                        html.Br(),
+                        dcc.Dropdown(
+                            id='race',
+                            options=races,
+                            placeholder="Select Race",
+                            clearable=True,
                             searchable=False,
                             className="dropdown",
-                            )],
-                        className='filter2'),
-                html.Div([
-                    html.Label(["Map Variable"], className='label'),
-                    html.Br(),
-                    dcc.Dropdown(
-                        id="map-dropdown",
-                        options=[],
-                        value=None,
-                        clearable=False,
-                        searchable=False,
-                        className="dropdown"
+                        ),
+                    ], className='filter'
                     ),
-                ], className='filter2')], className='map_filters'),
-        html.Div([
-            dcc.Graph(id='graph2-content'),
-            html.H3(children="Additional Information", className='subheader2-title'),
-            dcc.Graph(id='graph-content', className='transport'),
-            dcc.Graph(id='graph3-content', className='transport'),
-            dcc.Graph(id='graph4-content', className='preterm'),
-            dcc.Graph(id='graph5-content', className='preterm'),
-            dcc.Graph(id='graph8-content', className='childcare'),
-            dcc.Graph(id='graph9-content', className='childcare'),
-            dcc.Graph(id='graph6-content', className='income'),
-            dcc.Graph(id='graph7-content', className='income'),
-            dcc.Graph(id='DR-content', className="sankey"),
-            dcc.Graph(id='SevDR-content', className="sankey"),
-            dcc.Graph(id='UTI-content', className="sankey"),
-
-        ])
-        ])
+                    html.Div([
+                        html.Label(['State'], className='label'),
+                        html.Br(),
+                        dcc.Dropdown(
+                            id='state',
+                            options=states,
+                            placeholder="Select State",
+                            clearable=True,
+                            searchable=False,
+                            className="dropdown"
+                        ),
+                    ], className='filter'
+                    ),
+                    html.Div([
+                        html.Label(['Single Head of Household'],
+                                   className='label'),
+                        html.Br(),
+                        dcc.Dropdown(
+                            id='singlehead',
+                            options=singleheaddict,
+                            placeholder="Select if Single Head of Household",
+                            clearable=True,
+                            searchable=False,
+                            className="dropdown"
+                        ),
+                    ], className='filter'
+                    )
+                ],
+                    className='all_filters'
+                ),
+                html.Br(),
+                html.H3(children="Choropleth", className='subheader-title'),
+                html.Div(
+                    children=[
+                        html.Div([
+                            html.Label(['Category'], className='label'),
+                            html.Br(),
+                            dcc.Dropdown(id='variable-dropdown',
+                                         options=[{'label': 'Adults', 'value': 'Adults-value'},
+                                                  {'label': 'Children', 'value': "Children-value"},
+                                                  {'label': 'Income', 'value': "Income-value"}
+                                                  ],
+                                         placeholder="Select Category",
+                                         value="Adults-value",
+                                         clearable=False,
+                                         searchable=False,
+                                         className="dropdown",
+                                         )],
+                            className='filter2'),
+                        html.Div([
+                            html.Label(["Map Variable"], className='label'),
+                            html.Br(),
+                            dcc.Dropdown(
+                                id="map-dropdown",
+                                options=[],
+                                value=None,
+                                clearable=False,
+                                searchable=False,
+                                className="dropdown"
+                            ),
+                        ], className='filter2')], className='map_filters'),
+                html.Div([
+                    dcc.Graph(id='graph2-content'),
+                    html.H3(children="Additional Information", className='subheader2-title'),
+                    dcc.Graph(id='graph-content', className='transport'),
+                    dcc.Graph(id='graph3-content', className='transport'),
+                    dcc.Graph(id='graph4-content', className='preterm'),
+                    dcc.Graph(id='graph5-content', className='preterm'),
+                    dcc.Graph(id='graph8-content', className='childcare'),
+                    dcc.Graph(id='graph9-content', className='childcare'),
+                    dcc.Graph(id='graph6-content', className='income'),
+                    dcc.Graph(id='graph7-content', className='income'),
+                    dcc.Graph(id='DR-content', className="sankey"),
+                    dcc.Graph(id='SevDR-content', className="sankey"),
+                    dcc.Graph(id='UTI-content', className="sankey"),
+                ])
+            ])
     ])
 
 
@@ -514,9 +512,9 @@ def update_pie(race, state, singlehead):
                  template='plotly_white',
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
                  title="Distribution of diaper related illnesses among children after receiving diapers"
-                 "<br><sup>You have selected "
-                 + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                 + " for single head household.",
+                       "<br><sup>You have selected "
+                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                       + " for single head household.",
                  )
     fig.update_layout(annotations=[dict(
         x=0.5,
@@ -752,10 +750,10 @@ def childcare_pie2(race, state, singlehead):
 
 
 @callback(
-   Output('DR-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
+    Output('DR-content', 'figure'),
+    [Input('race', 'value'),
+     Input('state', 'value'),
+     Input('singlehead', 'value')])
 def update_illness1(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
@@ -764,22 +762,38 @@ def update_illness1(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
-    dff['NumbKidsPositivelyImpacted_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore']) == 1) & (dff['CH1HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = dff['NumbKidsPositivelyImpacted_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore']) == 1) & (dff['CH2HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = dff['NumbKidsPositivelyImpacted_DR'] + 1
+    dff1 = dff[['CH1HaveRashBefore', 'CH1HaveRashAfter']].dropna(how='all')
+    dff2 = dff[['CH2HaveRashBefore', 'CH2HaveRashAfter']].dropna(how='all')
+    rows = dff1.shape[0] + dff2.shape[0]
 
-    dff['NumbKidsNegativelyImpacted_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore']) == 2) & (dff['CH1HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = dff['NumbKidsNegativelyImpacted_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore']) == 2) & (dff['CH2HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = dff['NumbKidsNegativelyImpacted_DR'] + 1
+    dff1['NumbKidsPositivelyImpacted_DR'] = 0
+    dff2['NumbKidsPositivelyImpacted_DR'] = 0
+    dff1.loc[((dff1['CH1HaveRashBefore']) == 1) & (dff1['CH1HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = \
+        dff1['NumbKidsPositivelyImpacted_DR'] + 1
+    dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = \
+        dff2['NumbKidsPositivelyImpacted_DR'] + 1
 
-    dff['NumbKidsUnaffected_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore'])) == 1 & (dff['CH1HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = dff['NumbKidsUnaffected_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore'])) == 1 & (dff['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = dff['NumbKidsUnaffected_DR'] + 1
+    dff1['NumbKidsNegativelyImpacted_DR'] = 0
+    dff2['NumbKidsNegativelyImpacted_DR'] = 0
+    dff1.loc[((dff1['CH1HaveRashBefore']) == 2) & (dff1['CH1HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = \
+        dff1['NumbKidsNegativelyImpacted_DR'] + 1
+    dff2.loc[((dff2['CH2HaveRashBefore']) == 2) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = \
+        dff2['NumbKidsNegativelyImpacted_DR'] + 1
+
+    dff1['NumbKidsUnaffected_DR'] = 0
+    dff2['NumbKidsUnaffected_DR'] = 0
+    dff1.loc[((dff1['CH1HaveRashBefore']) == 1) & (dff1['CH1HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
+        dff1['NumbKidsUnaffected_DR'] + 1
+    dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
+        dff2['NumbKidsUnaffected_DR'] + 1
 
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff['NumbKidsPositivelyImpacted_DR'].sum()}
-        , {'source': 0, 'target': 2, 'value': dff['NumbKidsUnaffected_DR'].sum()}
-        , {'source': 0, 'target': 3, 'value': dff['NumbKidsNegativelyImpacted_DR'].sum()}]
+    links = [{'source': 0, 'target': 1,
+              'value': dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum()},
+             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_DR'].sum() +
+                                                 dff2['NumbKidsUnaffected_DR'].sum()},
+             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_DR'].sum() +
+                                                 dff2['NumbKidsNegativelyImpacted_DR'].sum()}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -794,18 +808,20 @@ def update_illness1(race, state, singlehead):
     fig.update_layout(title_text='Effect of Diapers on Diaper Rash')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
     return fig
 
+
 @callback(
-   Output('SevDR-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
+    Output('SevDR-content', 'figure'),
+    [Input('race', 'value'),
+     Input('state', 'value'),
+     Input('singlehead', 'value')])
 def update_illness1(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
@@ -814,22 +830,38 @@ def update_illness1(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
-    dff['NumbKidsPositivelyImpacted_SevDR'] = 0
-    dff.loc[((dff['CH1HaveSevRashBefore']) == 1) & (dff['CH1HaveSevRashAfter'] == 2), 'NumbKidsPositivelyImpacted_SevDR'] = dff['NumbKidsPositivelyImpacted_SevDR'] + 1
-    dff.loc[((dff['CH2HaveSevRashBefore']) == 1) & (dff['CH2HaveSevRashAfter'] == 2), 'NumbKidsPositivelyImpacted_SevDR'] = dff['NumbKidsPositivelyImpacted_SevDR'] + 1
+    dff1 = dff[['CH1HaveSevRashBefore', 'CH1HaveSevRashAfter']].dropna(how='all')
+    dff2 = dff[['CH2HaveSevRashBefore', 'CH2HaveSevRashAfter']].dropna(how='all')
+    rows = dff1.shape[0] + dff2.shape[0]
 
-    dff['NumbKidsNegativelyImpacted_SevDR'] = 0
-    dff.loc[((dff['CH1HaveSevRashBefore']) == 2) & (dff['CH1HaveSevRashAfter'] == 1), 'NumbKidsNegativelyImpacted_SevDR'] = dff['NumbKidsNegativelyImpacted_SevDR'] + 1
-    dff.loc[((dff['CH2HaveSevRashBefore']) == 2) & (dff['CH2HaveSevRashAfter'] == 1), 'NumbKidsNegativelyImpacted_SevDR'] = dff['NumbKidsNegativelyImpacted_SevDR'] + 1
+    dff1['NumbKidsPositivelyImpacted_SevDR'] = 0
+    dff2['NumbKidsPositivelyImpacted_SevDR'] = 0
+    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 1) & (dff1['CH1HaveSevRashAfter'] == 2),
+    'NumbKidsPositivelyImpacted_SevDR'] = dff1['NumbKidsPositivelyImpacted_SevDR'] + 1
+    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 2),
+    'NumbKidsPositivelyImpacted_SevDR'] = dff2['NumbKidsPositivelyImpacted_SevDR'] + 1
 
-    dff['NumbKidsUnaffected_SevDR'] = 0
-    dff.loc[((dff['CH1HaveSevRashBefore'])) == 1 & (dff['CH1HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = dff['NumbKidsUnaffected_SevDR'] + 1
-    dff.loc[((dff['CH2HaveSevRashBefore'])) == 1 & (dff['CH2HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = dff['NumbKidsUnaffected_SevDR'] + 1
+    dff1['NumbKidsNegativelyImpacted_SevDR'] = 0
+    dff2['NumbKidsNegativelyImpacted_SevDR'] = 0
+    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 2) & (dff1['CH1HaveSevRashAfter'] == 1),
+    'NumbKidsNegativelyImpacted_SevDR'] = dff1['NumbKidsNegativelyImpacted_SevDR'] + 1
+    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 2) & (dff2['CH2HaveSevRashAfter'] == 1),
+    'NumbKidsNegativelyImpacted_SevDR'] = dff2['NumbKidsNegativelyImpacted_SevDR'] + 1
+
+    dff1['NumbKidsUnaffected_SevDR'] = 0
+    dff2['NumbKidsUnaffected_SevDR'] = 0
+    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 1) & (dff1['CH1HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
+        dff1['NumbKidsUnaffected_SevDR'] + 1
+    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
+        dff2['NumbKidsUnaffected_SevDR'] + 1
 
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff['NumbKidsPositivelyImpacted_SevDR'].sum()}
-        , {'source': 0, 'target': 2, 'value': dff['NumbKidsUnaffected_SevDR'].sum()}
-        , {'source': 0, 'target': 3, 'value': dff['NumbKidsNegativelyImpacted_SevDR'].sum()}]
+    links = [{'source': 0, 'target': 1,
+              'value': dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum()},
+             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_SevDR'].sum() +
+                                                 dff2['NumbKidsUnaffected_SevDR'].sum()},
+             {'source': 0, 'target': 3,
+              'value': dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -844,18 +876,20 @@ def update_illness1(race, state, singlehead):
     fig.update_layout(title_text='Effect of Diapers on Severe Diaper Rash')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
     return fig
 
+
 @callback(
-   Output('UTI-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
+    Output('UTI-content', 'figure'),
+    [Input('race', 'value'),
+     Input('state', 'value'),
+     Input('singlehead', 'value')])
 def update_illness2(race, state, singlehead):
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
@@ -864,22 +898,38 @@ def update_illness2(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
-    dff['NumbKidsPositivelyImpacted_UTI'] = 0
-    dff.loc[((dff['CH1HaveUTIBefore']) == 1) & (dff['CH1HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = dff['NumbKidsPositivelyImpacted_UTI'] + 1
-    dff.loc[((dff['CH2HaveUTIBefore']) == 1) & (dff['CH2HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = dff['NumbKidsPositivelyImpacted_UTI'] + 1
+    dff1 = dff[['CH1HaveUTIBefore', 'CH1HaveUTIAfter']].dropna(how='all')
+    dff2 = dff[['CH2HaveUTIBefore', 'CH2HaveUTIAfter']].dropna(how='all')
+    rows = dff1.shape[0] + dff2.shape[0]
 
-    dff['NumbKidsNegativelyImpacted_UTI'] = 0
-    dff.loc[((dff['CH1HaveUTIBefore']) == 2) & (dff['CH1HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = dff['NumbKidsNegativelyImpacted_UTI'] + 1
-    dff.loc[((dff['CH2HaveUTIBefore']) == 2) & (dff['CH2HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = dff['NumbKidsNegativelyImpacted_UTI'] + 1
+    dff1['NumbKidsPositivelyImpacted_UTI'] = 0
+    dff2['NumbKidsPositivelyImpacted_UTI'] = 0
+    dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
+        dff1['NumbKidsPositivelyImpacted_UTI'] + 1
+    dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
+        dff2['NumbKidsPositivelyImpacted_UTI'] + 1
 
-    dff['NumbKidsUnaffected_UTI'] = 0
-    dff.loc[((dff['CH1HaveUTIBefore'])) == 1 & (dff['CH1HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = dff['NumbKidsUnaffected_UTI'] + 1
-    dff.loc[((dff['CH2HaveUTIBefore'])) == 1 & (dff['CH2HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = dff['NumbKidsUnaffected_UTI'] + 1
+    dff1['NumbKidsNegativelyImpacted_UTI'] = 0
+    dff2['NumbKidsNegativelyImpacted_UTI'] = 0
+    dff1.loc[((dff1['CH1HaveUTIBefore']) == 2) & (dff1['CH1HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = \
+        dff1['NumbKidsNegativelyImpacted_UTI'] + 1
+    dff2.loc[((dff2['CH2HaveUTIBefore']) == 2) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = \
+        dff2['NumbKidsNegativelyImpacted_UTI'] + 1
+
+    dff1['NumbKidsUnaffected_UTI'] = 0
+    dff2['NumbKidsUnaffected_UTI'] = 0
+    dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
+        dff1['NumbKidsUnaffected_UTI'] + 1
+    dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
+        dff2['NumbKidsUnaffected_UTI'] + 1
 
     nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff['NumbKidsPositivelyImpacted_UTI'].sum()}
-        , {'source': 0, 'target': 2, 'value': dff['NumbKidsUnaffected_UTI'].sum()}
-        , {'source': 0, 'target': 3, 'value': dff['NumbKidsNegativelyImpacted_UTI'].sum()}]
+    links = [{'source': 0, 'target': 1, 'value': dff1['NumbKidsPositivelyImpacted_UTI'].sum() +
+                                                 dff2['NumbKidsPositivelyImpacted_UTI'].sum()},
+             {'source': 0, 'target': 2, 'value': dff1['NumbKidsUnaffected_UTI'].sum() +
+                                                 dff2['NumbKidsUnaffected_UTI'].sum()},
+             {'source': 0, 'target': 3, 'value': dff1['NumbKidsNegativelyImpacted_UTI'].sum() +
+                                                 dff2['NumbKidsNegativelyImpacted_UTI'].sum()}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
@@ -894,9 +944,10 @@ def update_illness2(race, state, singlehead):
     fig.update_layout(title_text='Effect of Diapers on UTIs')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
     return fig
@@ -924,8 +975,8 @@ def display_choropleth(variable, race, singlehead, state):
                             color='NumKidsDiapers',
                             labels={"NumKidsDiapers": "# of Children"},
                             title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa",
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
@@ -952,8 +1003,8 @@ def display_choropleth(variable, race, singlehead, state):
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with a Single Head of Household<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -971,12 +1022,12 @@ def display_choropleth(variable, race, singlehead, state):
         rows = dff.shape[0]
         dff.dropna(subset=['Income_2020'])
         dff['Income_2020'] = dff['Income_2020'].replace(
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'],
-                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            ['<=15,999', '16,000-19,999', '20,000-24,999',
+             '25,000-29,999', '30,000-34,999',
+             '35,000-39,999', '40,000-44,999',
+             '45,000-49,999', '50,000-59,999',
+             '60,000-69,999', '70,000-79,999', '>=80,000'],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).median(numeric_only=True)
         dff = dff['Income_2020'].round().to_frame().reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -996,8 +1047,8 @@ def display_choropleth(variable, race, singlehead, state):
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
                             title="Median Household Income in 2020<br><sup>You have selected "
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.")
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -1012,12 +1063,12 @@ def display_choropleth(variable, race, singlehead, state):
         rows = dff.shape[0]
         dff = dff.dropna(subset=['Income_2019'])
         dff['Income_2019'] = dff['Income_2019'].replace(
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'],
-                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            ['<=15,999', '16,000-19,999', '20,000-24,999',
+             '25,000-29,999', '30,000-34,999',
+             '35,000-39,999', '40,000-44,999',
+             '45,000-49,999', '50,000-59,999',
+             '60,000-69,999', '70,000-79,999', '>=80,000'],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).median(numeric_only=True)['Income_2019'].round().to_frame().reset_index()
         dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '16,000-19,999', '20,000-24,999',
@@ -1036,8 +1087,8 @@ def display_choropleth(variable, race, singlehead, state):
                             labels={"Income_2019": "Income Range (in dollars)"},
                             scope="usa",
                             title="Median Household Income in 2019<br><sup>You have selected "
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.")
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.")
         fig.update_layout(annotations=[dict(
             x=0.5,
             y=-0.19,
@@ -1065,8 +1116,8 @@ def display_choropleth(variable, race, singlehead, state):
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with One or More Working Adult<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -1097,9 +1148,9 @@ def display_choropleth(variable, race, singlehead, state):
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
                             title='Percentage of Households with One or More Adult in Education or Job Training'
-                            '<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  '<br><sup>You have selected '
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
@@ -1128,8 +1179,8 @@ def display_choropleth(variable, race, singlehead, state):
                             color='Sum',
                             labels={"Sum": '# of Children'},
                             title='Average Number of Children in Childcare (per household)<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
@@ -1145,12 +1196,12 @@ def display_choropleth(variable, race, singlehead, state):
         rows = dff.shape[0]
         dff.dropna(subset=['Income_2020'])
         dff['Income_2020'] = dff['Income_2020'].replace(
-                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'],
-                                                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+            ['<=15,999', '16,000-19,999', '20,000-24,999',
+             '25,000-29,999', '30,000-34,999',
+             '35,000-39,999', '40,000-44,999',
+             '45,000-49,999', '50,000-59,999',
+             '60,000-69,999', '70,000-79,999', '>=80,000'],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
         dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999, 59999,
@@ -1165,8 +1216,8 @@ def display_choropleth(variable, race, singlehead, state):
                             labels={"Percent of State Median": '% of state median income'},
                             title='Median Income of Households Relative to their State\'s 2020 Median Income'
                                   '<br><sup>You have selected '
-                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                            " for single head household.",
+                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                  " for single head household.",
                             scope="usa")
         fig.update_layout(annotations=[dict(
             x=0.5,
