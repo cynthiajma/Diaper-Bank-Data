@@ -314,11 +314,13 @@ app.layout = html.Div(
                     dcc.Graph(id='DR-content', className="sankey"),
                     dcc.Graph(id='SevDR-content', className="sankey"),
                     dcc.Graph(id='UTI-content', className="sankey"),
+                    html.Br(),
                     dcc.Graph(id='graph4-content', className='preterm'),
                     dcc.Graph(id='graph10-content', className='preterm'),
                 ])
             ])
     ])
+
 
 @callback(
     Output('display-selected-filtersTRANSPORT', 'children'),
@@ -327,6 +329,7 @@ app.layout = html.Div(
     Input('singlehead', 'value'))
 def set_display_children(race, state, singlehead):
     return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+
 
 @callback(
     Output('display-selected-filtersILLNESS', 'children'),
