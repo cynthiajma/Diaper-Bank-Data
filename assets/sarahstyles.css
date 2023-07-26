@@ -61,7 +61,7 @@
 .map_filters{
     display: flex;
     width: 50%;
-    justify-content: center;
+    justify-content: start;
     padding: 0.5%;
     background: #F7F3F2;
 }
