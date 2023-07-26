@@ -122,7 +122,6 @@ df.loc[(df['DB_Transport'] == 2), 'DB_Transport'] = 'Public Transportation'
 df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
 df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
-df.loc[(df['PartnerAgencyType'] == "HOMEVISIT"), 'DB_Transport'] = 'Home Visit'
 
 df.loc[(df['Race_PreferNoShare'] == 1), 'Race'] = 'Prefer Not To Share'
 df.loc[(df['Race_AIAN'] == 1), 'Race'] = 'American Indian or Alaskan Native'
@@ -294,8 +293,7 @@ app.layout = html.Div(
                     html.H3(children="Additional Visualizations", className='subheader2-title'),
                     html.H3(children="How Diaper Bank Recipients Access their Diaper Bank", className='small-title'),
                     html.Div(id='display-selected-filtersTRANSPORT', className='smaller-title'),
-                    dcc.Graph(id='graph-content', className='transport'),
-                    dcc.Graph(id='graph3-content', className='transport'),
+                    dcc.Graph(id='graph3-content'),
                     html.Br(),
                     html.H3(children="Childcare Use", className='small-title'),
                     html.Div(id='display-selected-filtersCHILDCARE', className='smaller-title'),
@@ -385,32 +383,32 @@ def update_map_dropdown(optionslctd):
     return options, value
 
 
-@callback(
-    Output('graph-content', 'figure'),
-    Input('state', 'value'),
-    Input('race', 'value'),
-    Input('singlehead', 'value'))
-def update_graph(state, race, singlehead):
-    filters["race"] = race if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["state"] = state if state else ""
-    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
-    filters["singlehead"] = singlehead if singlehead else ""
-    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff = dff[["DB_Transport"]]
-    dff = dff.sort_values('DB_Transport')
-    fig = px.histogram(dff, x="DB_Transport",
-                       labels={
-                           "DB_Transport": "Method",
-                           "count": "Count"},
-                       template='plotly_white',
-                       category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
-                                                         "Taxi/Ride Sharing App", "Walk", "Home Visit"
-                                                         ]}
-                       )
-    fig.update_layout(yaxis_title="Count")
-    fig.update_traces(marker_color='#86bce8')
-    return fig
+# @callback(
+#     Output('graph-content', 'figure'),
+#     Input('state', 'value'),
+#     Input('race', 'value'),
+#     Input('singlehead', 'value'))
+# def update_graph(state, race, singlehead):
+#     filters["race"] = race if race else ""
+#     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+#     filters["state"] = state if state else ""
+#     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+#     filters["singlehead"] = singlehead if singlehead else ""
+#     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+#     dff = dff[["DB_Transport"]]
+#     dff = dff.sort_values('DB_Transport')
+#     fig = px.histogram(dff, x="DB_Transport",
+#                        labels={
+#                            "DB_Transport": "Method",
+#                            "count": "Count"},
+#                        template='plotly_white',
+#                        category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+#                                                          "Taxi/Ride Sharing App", "Walk", "Home Visit"
+#                                                          ]}
+#                        )
+#     fig.update_layout(yaxis_title="Count")
+#     fig.update_traces(marker_color='#86bce8')
+#     return fig
 
 
 @callback(
@@ -425,8 +423,10 @@ def update_pie(state, race, singlehead):
     dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff = dff[["DB_Transport"]]
-    dff = dff.dropna()
+
+    dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
+    dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
+    dff = dff.dropna(subset=['DB_Transport'])
     fig = px.pie(dff, names="DB_Transport",
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
                                                    "Taxi/Ride Sharing App", "Walk", "Home Visit"
