@@ -1,8 +1,10 @@
+
 .header-title {
     color: #000000;
     font-size: 30;
     text-align: center;
     margin-bottom: 20px;
+    font-family: "Montserrat";
 }
 .header-description{
     font-size: 20;
@@ -27,42 +29,65 @@
     width:100%;
     margin-right: 2%;
 }
+.mapHeader{
+    display: block;
+    margin-bottom:0;
+    background: #F7F3F2;
+    width: 50%;
+    padding: 0.5%;
+}
 .filtersRow2{
     display: flex;
     width: 50%;
     justify-content: start;
     padding: 0.5%;
-    background: #E4E0DF;
+    background: #F7F3F2;
 }
 .filtersRow1 {
     display: flex;
     width: 100%;
     justify-content: space-evenly;
     padding: 10px;
-    background: #F7F3F2;
-    background-clip: border-box;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: auto;
+    background: #E4E0DF;
 }
 .part2-header{
     padding: 15px;
     background: #E4E0DF;
-    background-clip: border-box;
+}
+.graph-title{
+    text-align:center;
+    margin-bottom:0;
+    font-weight: normal;
+    font-size: 24px;
+}
+.subtitle{
+    text-align: center;
+    font-weight:normal;
+    font-size: 14px;
 }
 .preterm_graph{
     display: inline-block;
     width: 50%;
+    height: 80%;
 }
 .illness_graph{
     display: inline-block;
     width: 50%;
+    height: 80%;
 }
-.transport1{
+.childgraph{
     display: inline-block;
     width: 50%;
+    height: 80%;
 }
-.transport2{
+.incomegraphs{
     display: inline-block;
     width: 50%;
+    height: 80%;
 }
+.sankeygraphs{
+    display: inline-block;
+    width: 33.3%;
+    height: 60%;
+}
+
