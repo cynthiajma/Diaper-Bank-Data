@@ -296,8 +296,7 @@ app.layout = html.Div(
                         html.H3(children="How Diaper Bank Recipients Access Diaper Bank Products",
                                 className='graph-title'),
                         html.Div(id='display-selected-filtersTRANSPORT', className='subtitle'),
-                        dcc.Graph(id='transport-content', className='transport1'),
-                        dcc.Graph(id='transport-pie-content', className='transport2')
+                        dcc.Graph(id='transport-pie-content')
                     ],
                 ),
                 html.Br(),
@@ -703,7 +702,34 @@ def display_choropleth(variable, race, state, singlehead):
     Input('singlehead', 'value')]
 )
 def update_transport_pie(race, state, singlehead):
-    
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+
+    dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
+    dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
+    dff = dff.dropna(subset=['DB_Transport'])
+    fig = px.pie(dff, names="DB_Transport",
+                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+                                                   "Taxi/Ride Sharing App", "Walk", "Home Visit"
+                                                   ]},
+                 labels={"DB_Transport": "Method"},
+                 template='plotly_white',
+                 color_discrete_sequence=px.colors.sequential.RdBu_r
+                 )
+    rows = dff.shape[0]
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=-0.19,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {rows} responses.',
+        showarrow=False
+    )])
+    return fig
 
 
 @callback(
