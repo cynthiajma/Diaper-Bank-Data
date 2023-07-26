@@ -272,53 +272,91 @@ app.layout = html.Div(
         html.Div(
             children=[
                 dcc.Graph(id='map-content'),
-                html.H3(children='Additional Information', className='part2-header'),
-                html.H3(children="How Diaper Bank Recipients Access their Diaper Bank", className='graph-title'),
+                html.H3(children='Additional Visualizations', className='part2-header'),
+                html.Br(),
                 html.Div(
                     children=[
+                        html.H3(children="How Diaper Bank Recipients Access Diaper Bank Products",
+                                className='smaller-title'),
+                        html.Div(id='display-selected-filtersTRANSPORT', className='smaller-title'),
                         dcc.Graph(id='transport-content', className='transport1'),
                         dcc.Graph(id='transport-pie-content', className='transport2')
                     ],
                 ),
-                html.Div([
-                    dcc.Graph(id='preterm-content', className='preterm_graph'),
-                    dcc.Graph(id='illness-content', className='illness_graph'),
-                    ], className='preterm_illness'),
-                html.Div(
-                    children=[
-                        dcc.Graph(id='childcare1-content', className='childgraph'),
-                        dcc.Graph(id='childcare2-content', className='childgraph')
-                    ],
-                ),
-                html.Div(
-                    children=[
-                        dcc.Graph(id='income2019-content', className='incomegraphs'),
-                        dcc.Graph(id='income2020-content', className='incomegraphs')
-                    ],
-                ),
                 html.Br(),
-                html.Div(
-                    children=[
-                        html.H2(children='Effects of Diapers on Diaper-Related Illnesses', className='graph-title'),
-                        html.Div(id='display-selected-filters', className='smaller-title'),
-                        dcc.Graph(id='DR-content', className='sankeygraphs'),
-                        dcc.Graph(id='SevDR-content', className='sankeygraphs'),
-                        dcc.Graph(id='UTI-content', className='sankeygraphs')
-                    ]
-                )
-            ],
-        ),
+                html.Div([
+                    html.Div(
+                        children=[
+                            html.H3(children="Childcare Use", className='small-title'),
+                            html.Div(id='display-selected-filtersCHILDCARE', className='smaller-title'),
+                            dcc.Graph(id='childcare1-content', className='childgraph'),
+                            dcc.Graph(id='childcare2-content', className='childgraph')
+                        ],
+                    ),
+                    html.Div(
+                        children=[
+                            html.H3(children="Distribution of Income for Diaper Bank Recipients vs ACS 5-Year Survey",
+                            className='small-title'),
+                            html.Div(id='display-selected-filtersINCOME', className='smaller-title'),
+                            dcc.Graph(id='income2019-content', className='incomegraphs'),
+                            dcc.Graph(id='income2020-content', className='incomegraphs')
+                        ],
+                    ),
+                    html.Br(),
+                    html.Div(
+                        children=[
+                            html.H3(children="Effect of Receiving Diapers on Various Diaper Illnesses",
+                                    className='small-title'),
+                            html.Div(id='display-selected-filtersILLNESS', className='smaller-title'),
+                            dcc.Graph(id='DR-content', className='sankeygraphs'),
+                            dcc.Graph(id='SevDR-content', className='sankeygraphs'),
+                            dcc.Graph(id='UTI-content', className='sankeygraphs')
+                        ]
+                    ),
+                    html.Div(
+                        children=[
+                            dcc.Graph(id='preterm-content', className='preterm_graph'),
+                            dcc.Graph(id='education-content', className='preterm'),
+                        ], className='preterm_illness'
+                    ),
+                ]),
+        ]),
     ],
 )
 
 @callback(
-    Output('display-selected-filters', 'children'),
+    Output('display-selected-filtersTRANSPORT', 'children'),
     Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value'))
 def set_display_children(race, state, singlehead):
     return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
 
+@callback(
+    Output('display-selected-filtersILLNESS', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+
+
+@callback(
+    Output('display-selected-filtersINCOME', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+
+
+@callback(
+    Output('display-selected-filtersCHILDCARE', 'children'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def set_display_children(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
 
 @callback(
     Output("map-dropdown", "options"),
@@ -792,79 +830,6 @@ def update_preterm(race, state, singlehead):
         ))
     return fig
 
-
-@callback(
-   Output('illness-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_illness(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore',
-             'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
-         'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
-         'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-    dff['NumbKidsPositivelyImpacted_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore']) == 1) & (dff['CH1HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = dff[
-                                                                                                                       'NumbKidsPositivelyImpacted_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore']) == 1) & (dff['CH2HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = dff[
-                                                                                                                       'NumbKidsPositivelyImpacted_DR'] + 1
-
-    dff['NumbKidsNegativelyImpacted_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore']) == 2) & (dff['CH1HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = dff[
-                                                                                                                       'NumbKidsNegativelyImpacted_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore']) == 2) & (dff['CH2HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = dff[
-                                                                                                                       'NumbKidsNegativelyImpacted_DR'] + 1
-
-    dff['NumbKidsUnaffected_DR'] = 0
-    dff.loc[((dff['CH1HaveRashBefore'])) == 1 & (dff['CH1HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = dff[
-                                                                                                               'NumbKidsUnaffected_DR'] + 1
-    dff.loc[((dff['CH2HaveRashBefore'])) == 1 & (dff['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = dff[
-                                                                                                               'NumbKidsUnaffected_DR'] + 1
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
-    links = [{'source': 0, 'target': 1, 'value': dff['NumbKidsPositivelyImpacted_DR'].sum()}
-        , {'source': 0, 'target': 2, 'value': dff['NumbKidsUnaffected_DR'].sum()}
-        , {'source': 0, 'target': 3, 'value': dff['NumbKidsNegativelyImpacted_DR'].sum()}]
-
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            label=[node['label'] for node in nodes]
-        ),
-        link=dict(
-            source=[link['source'] for link in links],
-            target=[link['target'] for link in links],
-            value=[link['value'] for link in links],
-        )
-    )])
-    fig.update_layout(title_text='Effect of Diapers on Diaper Rash')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.25,
-        xref='paper',
-        yref='paper',
-        showarrow=False
-    )])
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    return fig
-
-
 @callback(
     Output('childcare1-content', 'figure'),
     [Input('race', 'value'),
@@ -1170,7 +1135,7 @@ def update_diaperillness(race, state, singlehead):
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
     dff1 = dff[['CH1HaveRashBefore', 'CH1HaveRashAfter']].dropna(how='all')
     dff2 = dff[['CH2HaveRashBefore', 'CH2HaveRashAfter']].dropna(how='all')
-    nrows = dff1.shape[0] + dff2.shape[0]
+    rows = dff1.shape[0] + dff2.shape[0]
 
     dff1['NumbKidsPositivelyImpacted_DR'] = 0
     dff2['NumbKidsPositivelyImpacted_DR'] = 0
@@ -1202,39 +1167,41 @@ def update_diaperillness(race, state, singlehead):
     negative = (dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2[
         'NumbKidsNegativelyImpacted_DR'].sum()) / total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
 
     fig = go.Figure(data=[go.Sankey(
         node=dict(
-            label=[node['label'] for node in nodes]
+            label=[node['label'] for node in nodes],
+            hovertemplate="%{value}%"
         ),
         link=dict(
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Diaper Rash')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {nrows} responses.',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=18,
-            color='black'
-        ))
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
-
 
 @callback(
    Output('SevDR-content', 'figure'),
@@ -1260,7 +1227,7 @@ def update_rashillness(race, state, singlehead):
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
     dff1 = dff[['CH1HaveSevRashBefore', 'CH1HaveSevRashAfter']].dropna(how='all')
     dff2 = dff[['CH2HaveSevRashBefore', 'CH2HaveSevRashAfter']].dropna(how='all')
-    nrows = dff1.shape[0] + dff2.shape[0]
+    rows = dff1.shape[0] + dff2.shape[0]
 
     dff1['NumbKidsPositivelyImpacted_SevDR'] = 0
     dff2['NumbKidsPositivelyImpacted_SevDR'] = 0
@@ -1292,7 +1259,13 @@ def update_rashillness(race, state, singlehead):
     negative = (dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2[
         'NumbKidsNegativelyImpacted_SevDR'].sum()) / total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
@@ -1305,24 +1278,20 @@ def update_rashillness(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
         )
     )])
     fig.update_layout(title_text='Severe Diaper Rash')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {nrows} responses.',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=18,
-            color='black'
-        ))
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
 
 
@@ -1352,7 +1321,7 @@ def update_uti(race, state, singlehead):
 
     dff1 = dff[['CH1HaveUTIBefore', 'CH1HaveUTIAfter']].dropna(how='all')
     dff2 = dff[['CH2HaveUTIBefore', 'CH2HaveUTIAfter']].dropna(how='all')
-    nrows = dff1.shape[0] + dff2.shape[0]
+    rows = dff1.shape[0] + dff2.shape[0]
     dff1['NumbKidsPositivelyImpacted_UTI'] = 0
     dff2['NumbKidsPositivelyImpacted_UTI'] = 0
     dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
@@ -1383,7 +1352,13 @@ def update_uti(race, state, singlehead):
     negative = (dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2[
         'NumbKidsNegativelyImpacted_UTI'].sum()) / total * 100
 
-    nodes = [{'label': ''}, {'label': 'Positively Impacted'}, {'label': 'Unaffected'}, {'label': 'Negatively Impacted'}]
+    positive = round(positive, 2)
+    unaffected = round(unaffected, 2)
+    negative = round(negative, 2)
+
+    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
+             {'label': 'Unaffected: ' + str(unaffected) + '%'},
+             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
     links = [{'source': 0, 'target': 1, 'value': positive},
              {'source': 0, 'target': 2, 'value': unaffected},
              {'source': 0, 'target': 3, 'value': negative}]
@@ -1396,26 +1371,61 @@ def update_uti(race, state, singlehead):
             source=[link['source'] for link in links],
             target=[link['target'] for link in links],
             value=[link['value'] for link in links],
-            hovertemplate="Target: %{target.label}<br>Percent of Children: %{value}%"
-        ),
+            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
+        )
     )])
-    fig.update_layout(title_text='Urinary Tract Infections')
+    fig.update_layout(title_text='Urinary Tract Infection')
     fig.update_layout(annotations=[dict(
         x=0.5,
-        y=-0.25,
+        y=-0.19,
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {nrows} responses.',
+        text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=18,
-            color='black',
-        ))
+    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
+    fig.update_layout(hovermode=False)
     return fig
 
+@callback(
+    Output('education-content', 'figure'),
+    Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value'))
+def update_education(race, state, singlehead):
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+
+    dff1 = dff[['Ad1_School', 'Ad1_EduType']]
+    dff2 = dff[['Ad2_School', 'Ad2_EduType']]
+    dff1 = dff1.loc[(dff1['Ad1_School']) == 1]
+    dff2 = dff2.loc[(dff2['Ad2_School']) == 1]
+    dff1 = dff1.dropna(subset=['Ad1_EduType'])
+    dff2 = dff2.dropna(subset=['Ad2_EduType'])
+    rows = dff1.shape[0] + dff2.shape[0]
+    dff = dff1['Ad1_EduType'].value_counts() + dff2['Ad2_EduType'].value_counts()
+    dff = dff.to_frame('Number of Adults').rename_axis('Education Type').reset_index()
+    fig = px.pie(dff, names="Education Type", values="Number of Adults",
+                 template="plotly_white",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r,
+                 title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
+                       + str(state) + " as state, and " + str(singlehead) + " for single head household.",
+                 category_orders={
+                     "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
+                                        'Graduate degree', 'Enrolled in a job-training/non-degree program']})
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=-0.19,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {rows} responses.',
+        showarrow=False
+    )])
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8060)
