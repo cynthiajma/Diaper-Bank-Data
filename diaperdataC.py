@@ -137,13 +137,13 @@ df.loc[(df['Ad1_EduType'] == 2), 'Ad1_EduType'] = 'GED'
 df.loc[(df['Ad1_EduType'] == 3), 'Ad1_EduType'] = 'Associate\'s/2-year'
 df.loc[(df['Ad1_EduType'] == 4), 'Ad1_EduType'] = 'Bachelor\'s/4-year'
 df.loc[(df['Ad1_EduType'] == 5), 'Ad1_EduType'] = 'Graduate Degree'
-df.loc[(df['Ad1_EduType'] == 6), 'Ad1_EduType'] = 'Enrolled in a job-training/non-degree program'
+df.loc[(df['Ad1_EduType'] == 6), 'Ad1_EduType'] = 'Enrolled in a Job-Training/Non-Degree Program'
 df.loc[(df['Ad2_EduType'] == 1), 'Ad2_EduType'] = 'High School'
 df.loc[(df['Ad2_EduType'] == 2), 'Ad2_EduType'] = 'GED'
 df.loc[(df['Ad2_EduType'] == 3), 'Ad2_EduType'] = 'Associate\'s/2-year'
 df.loc[(df['Ad2_EduType'] == 4), 'Ad2_EduType'] = 'Bachelor\'s/4-year'
 df.loc[(df['Ad2_EduType'] == 5), 'Ad2_EduType'] = 'Graduate Degree'
-df.loc[(df['Ad2_EduType'] == 6), 'Ad2_EduType'] = 'Enrolled in a job-training/non-degree program'
+df.loc[(df['Ad2_EduType'] == 6), 'Ad2_EduType'] = 'Enrolled in a Job-Training/Non-Degree Program'
 
 #Assigning 2020 state median information from FRED data
 df.loc[(df['State'] == 'AL'), 'State_2020_Median'] = 57243
@@ -301,14 +301,6 @@ app.layout = html.Div(
                 ),
                 html.Br(),
                 html.Div([
-                    html.Div(
-                        children=[
-                            html.H3(children="Childcare Use", className='graph-title'),
-                            html.Div(id='display-selected-filtersCHILDCARE', className='subtitle'),
-                            dcc.Graph(id='childcare1-content', className='childgraph'),
-                            dcc.Graph(id='childcare2-content', className='childgraph')
-                        ],
-                    ),
                     html.Br(),
                     html.Div(
                         children=[
@@ -320,16 +312,6 @@ app.layout = html.Div(
                         ],
                     ),
                     html.Br(),
-                    html.Div(
-                        children=[
-                            html.H3(children="Effect of Receiving Diapers on Various Diaper Illnesses",
-                                    className='graph-title'),
-                            html.Div(id='display-selected-filtersILLNESS', className='subtitle'),
-                            dcc.Graph(id='DR-content', className='sankeygraphs'),
-                            dcc.Graph(id='SevDR-content', className='sankeygraphs'),
-                            dcc.Graph(id='UTI-content', className='sankeygraphs')
-                        ]
-                    ),
                     html.Div(
                         children=[
                             dcc.Graph(id='preterm-content', className='preterm_graph'),
@@ -347,15 +329,7 @@ app.layout = html.Div(
     Input('state', 'value'),
     Input('singlehead', 'value'))
 def set_display_children(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
-
-@callback(
-    Output('display-selected-filtersILLNESS', 'children'),
-    Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value'))
-def set_display_children(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household.'
 
 
 @callback(
@@ -364,16 +338,8 @@ def set_display_children(race, state, singlehead):
     Input('state', 'value'),
     Input('singlehead', 'value'))
 def set_display_children(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household.'
 
-
-@callback(
-    Output('display-selected-filtersCHILDCARE', 'children'),
-    Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value'))
-def set_display_children(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head household.'
 
 @callback(
     Output("map-dropdown", "options"),
@@ -733,6 +699,186 @@ def update_transport_pie(race, state, singlehead):
 
 
 @callback(
+   Output('income2019-content', 'figure'),
+   [Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_income2019(race, state, singlehead):
+    filters["race"] = race if race else ""
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+    acs = acsincome.copy()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'Income_2019']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+            acs = acs.loc[acsincome['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+            acs = acs.loc[acsincome['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
+    rows = dff.dropna(subset=['Income_2019']).shape[0]
+    dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                    ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+
+    dff = dff['Income_2019'].value_counts(normalize=True)
+    dff = dff.to_frame('Count').rename_axis('Income Range').reset_index()
+    dff['Percentage'] = dff['Count'] * 100
+    acs = acs.groupby('variable').sum()
+    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
+    acs = acs.rename_axis('Income Range').reset_index()
+    acs['Type'] = 'ACS 5-Year Survey'
+    dff['Type'] = 'Diaper Bank Recipients'
+
+    dff = dff[['Income Range', 'Percentage', 'Type']]
+    acs = acs[['Income Range', 'Percentage', 'Type']]
+
+    acsdff = pd.concat([acs, dff])
+
+    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                       labels={"Income Range": "Income Range ($)"},
+                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
+                       title="2019",
+                       template='plotly_white',
+                       color_discrete_map={
+                           "Diaper Bank Recipients": "#e81e36",
+                           "ACS 5-Year Survey": "#86bce8"})
+    fig.update_layout(
+        title_font=dict(
+            family='Montserrat',
+            size=21,
+            color='black'
+        ))
+    fig.update_layout(
+        yaxis=dict(title='Percentage %',
+                   title_font=dict(
+                       family='Montserrat',
+                       size=16,
+                       color='black'))
+    )
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+    fig.update_traces(opacity=0.75)
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=1,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {rows} responses.',
+        showarrow=False,
+    )])
+    fig.update_layout(
+        title_font=dict(
+            family='Merriweather',
+            size=21,
+            color='black'
+        ))
+    fig.update_layout(title_x=0.5)
+    return fig
+
+
+
+@callback(
+   Output('income2020-content', 'figure'),
+   [Input('race', 'value'),
+   Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_income2020(race, state, singlehead):
+    filters["race"] = race if race else ""
+    filters['state'] = state if state else ""
+    filters['singlehead'] = singlehead if singlehead else ""
+    dff = pd.DataFrame()
+    acs = acsincome.copy()
+
+    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
+        dff = df[
+            ['Race', 'State', 'Single Household', 'Income_2020']]
+        if filters['race']:
+            dff = dff.loc[dff['Race'] == filters['race']]
+            acs = acs.loc[acs['Race'] == filters['race']]
+        if filters['state']:
+            dff = dff.loc[dff['State'] == filters['state']]
+            acs = acs.loc[acs['State'] == filters['state']]
+        if filters['singlehead']:
+            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
+    #Convert 'Income_2020' to income ranges.
+    dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                    ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
+                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
+                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+    rows = dff.dropna(subset=['Income_2020']).shape[0]
+
+    #Calculate percentage for distribution
+    dff = dff['Income_2020'].value_counts(normalize=True)
+    dff = dff.to_frame('Count').rename_axis('Income Range').reset_index()
+    dff['Percentage'] = dff['Count'] * 100
+    acs = acs.groupby('variable').sum()
+    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
+    acs = acs.rename_axis('Income Range').reset_index()
+    acs['Type'] = 'ACS 5-Year Survey'
+    dff['Type'] = 'Diaper Bank Recipients'
+
+    dff = dff[['Income Range', 'Percentage', 'Type']]
+    acs = acs[['Income Range', 'Percentage', 'Type']]
+
+    acsdff = pd.concat([acs, dff])
+
+    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                       labels={"Income Range": "Income Range ($)"},
+                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
+                       title="2020",
+                       template='plotly_white',
+                       color_discrete_map={
+                           "Diaper Bank Recipients": "#e81e36",
+                           "ACS 5-Year Survey": "#86bce8"})
+    fig.update_layout(
+        title_font=dict(
+            family='Montserrat',
+            size=21,
+            color='black'
+        ))
+    fig.update_layout(
+        yaxis=dict(title='Percentage %',
+                   title_font=dict(
+                       family='Montserrat',
+                       size=16,
+                       color='black')))
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+    fig.update_traces(opacity=0.75)
+    fig.update_layout(annotations=[dict(
+        x=0.5,
+        y=1,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {rows} responses.',
+        showarrow=False
+    )])
+    fig.update_layout(
+        title_font=dict(
+            family='Merriweather',
+            size=21,
+            color='black'
+        ))
+    fig.update_layout(title_x=0.5)
+    return fig
+
+
+@callback(
    Output('preterm-content', 'figure'),
    [Input('race', 'value'),
     Input('state', 'value'),
@@ -784,7 +930,7 @@ def update_preterm(race, state, singlehead):
                          'sumPreterm': 'Total Preterm',
                          'sumTerm': 'Total Term'},
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
-                       f"{race} as race and {state} as state. Single Household: {singlehead}.",
+                       f"{race} as race, {state} as state, and {singlehead} for single head of household.",
                  barmode='stack')
     fig.update_layout(annotations=[dict(
                       x=0.5,
@@ -796,564 +942,13 @@ def update_preterm(race, state, singlehead):
                       )])
     fig.update_layout(
         title_font=dict(
-            family='Montserrat',
+            family='Merriweather',
             size=21,
             color='black'
         ))
+    fig.update_layout(title_x=0.5)
     return fig
 
-@callback(
-    Output('childcare1-content', 'figure'),
-    [Input('race', 'value'),
-     Input('state', 'value'),
-     Input('singlehead', 'value')]
-)
-def childcare_pie1(race, state, singlehead):
-    global percent_inHome
-    percent_inHome = 24.7
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'NoChildCare']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
-    dff = dff[['NoChildCare']].dropna()
-    dff = dff.replace(np.nan, 0)
-    dff = dff.replace(1, 0)
-    dff = dff.replace(2, 0)
-    dff = dff.replace(0, 'No Outside Childcare')
-    dff = dff.replace(9, 'Outside Childcare')
-    nrows = dff.shape[0]
-    dff = dff.value_counts().to_frame("Number of Households").reset_index()
-
-    percent_inHome = round(
-        (dff['Number of Households'].iloc[1] / (dff['Number of Households'].iloc[0] +
-                                                dff['Number of Households'].iloc[1])) * 100, 1)
-
-    fig = px.pie(dff, names="NoChildCare", values="Number of Households",
-                 labels={'NoChildCare': 'Childcare Type'},
-                 template="plotly_white",
-                 color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="Percent of Households that use Outside Childcare<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head household.",
-                 category_orders={"NoChildCare": ['Outside Childcare', 'No Outside Childcare']})
-    fig.update_traces(pull=[0.05, 0])
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters match to {nrows} responses.',
-        showarrow=False
-    )])
-    return fig
-
-@callback(
-    Output('childcare2-content', 'figure'),
-    [Input('race', 'value'),
-     Input('state', 'value'),
-     Input('singlehead', 'value')]
-)
-def childcare_pie2(race, state, singlehead):
-    global percent_inHome
-    filters["race"] = race if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["state"] = state if state else ""
-    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
-    filters["singlehead"] = singlehead if singlehead else ""
-    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-    dff = dff[['NoChildCare', 'CH1ChildCare_DiapersRequired_C', 'CH2ChildCare_DiapersRequired_C']]
-
-    dff = dff.loc[(dff['NoChildCare'] == 9)]
-
-    dff.dropna(how='all')
-    dff = dff.replace(2, 0)
-    dff = dff.replace(np.nan, 0)
-
-    dff['Sum'] = dff['CH1ChildCare_DiapersRequired_C'] + dff['CH2ChildCare_DiapersRequired_C']
-
-    dff.loc[(dff['Sum'] >= 1), 'Diaper Required'] = 'Diapers Required'
-    dff.loc[(dff['Sum'] == 0), 'Diaper Required'] = 'No Diapers Required'
-
-    nrows = dff.shape[0]
-
-    dff = dff['Diaper Required'].value_counts().to_frame("Number of Households").rename_axis(
-        'Diaper Required').reset_index()
-
-    fig = px.pie(dff, names="Diaper Required", values="Number of Households",
-                 category_orders={"Diaper Required": ['Diapers Required', 'No Diapers Required']},
-                 labels={'Diaper Required': 'Diaper Requirement'},
-                 template="plotly_white",
-                 color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title=f"Of the {percent_inHome}% that Use Childcare Outside of Home:<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head household.")
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters match to {nrows} responses.',
-        showarrow=False,
-    )])
-    return fig
-
-@callback(
-   Output('income2019-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_income2019(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-    acs = acsincome.copy()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'Income_2019']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-            acs = acs.loc[acsincome['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-            acs = acs.loc[acsincome['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
-    rows = dff.dropna(subset=['Income_2019']).shape[0]
-    dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                    ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-
-    dff = dff['Income_2019'].value_counts(normalize=True)
-    dff = dff.to_frame('Count').rename_axis('Income Range').reset_index()
-    dff['Percentage'] = dff['Count'] * 100
-    acs = acs.groupby('variable').sum()
-    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
-    acs = acs.rename_axis('Income Range').reset_index()
-    acs['Type'] = 'ACS 5-Year Survey'
-    dff['Type'] = 'Diaper Bank Recipients'
-
-    dff = dff[['Income Range', 'Percentage', 'Type']]
-    acs = acs[['Income Range', 'Percentage', 'Type']]
-
-    acsdff = pd.concat([acs, dff])
-
-    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
-                       labels={"Income Range": "Income Range (in dollars)"},
-                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="2019",
-                       template='plotly_white')
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(
-        yaxis=dict(title='Percentage',
-                   title_font=dict(
-                       family='Montserrat',
-                       size=16,
-                       color='black'))
-    )
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.40)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False,
-    )])
-    return fig
-
-
-@callback(
-   Output('income2020-content', 'figure'),
-   [Input('race', 'value'),
-   Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_income2020(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-    acs = acsincome.copy()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'Income_2020']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-            acs = acs.loc[acs['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-            acs = acs.loc[acs['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
-    #Convert 'Income_2020' to income ranges.
-    dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                    ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-    rows = dff.dropna(subset=['Income_2020']).shape[0]
-
-    #Calculate percentage for distribution
-    dff = dff['Income_2020'].value_counts(normalize=True)
-    dff = dff.to_frame('Count').rename_axis('Income Range').reset_index()
-    dff['Percentage'] = dff['Count'] * 100
-    acs = acs.groupby('variable').sum()
-    acs['Percentage'] = acs['value'] / acs['value'].sum() * 100
-    acs = acs.rename_axis('Income Range').reset_index()
-    acs['Type'] = 'ACS 5-Year Survey'
-    dff['Type'] = 'Diaper Bank Recipients'
-
-    dff = dff[['Income Range', 'Percentage', 'Type']]
-    acs = acs[['Income Range', 'Percentage', 'Type']]
-
-    acsdff = pd.concat([acs, dff])
-
-    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
-                       labels={"Income Range": "Income Range (in dollars)"},
-                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="2020",
-                       template='plotly_white')
-    fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(
-        yaxis=dict(title='Percentage',
-                   title_font=dict(
-                       family='Montserrat',
-                       size=16,
-                       color='black')))
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.40)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False
-    )])
-    return fig
-
-@callback(
-   Output('DR-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_diaperillness(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore',
-             'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
-             'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
-             'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-    dff1 = dff[['CH1HaveRashBefore', 'CH1HaveRashAfter']].dropna(how='all')
-    dff2 = dff[['CH2HaveRashBefore', 'CH2HaveRashAfter']].dropna(how='all')
-    rows = dff1.shape[0] + dff2.shape[0]
-
-    dff1['NumbKidsPositivelyImpacted_DR'] = 0
-    dff2['NumbKidsPositivelyImpacted_DR'] = 0
-    dff1.loc[((dff1['CH1HaveRashBefore']) == 1) & (dff1['CH1HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = \
-        dff1['NumbKidsPositivelyImpacted_DR'] + 1
-    dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 2), 'NumbKidsPositivelyImpacted_DR'] = \
-        dff2['NumbKidsPositivelyImpacted_DR'] + 1
-
-    dff1['NumbKidsNegativelyImpacted_DR'] = 0
-    dff2['NumbKidsNegativelyImpacted_DR'] = 0
-    dff1.loc[((dff1['CH1HaveRashBefore']) == 2) & (dff1['CH1HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = \
-        dff1['NumbKidsNegativelyImpacted_DR'] + 1
-    dff2.loc[((dff2['CH2HaveRashBefore']) == 2) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsNegativelyImpacted_DR'] = \
-        dff2['NumbKidsNegativelyImpacted_DR'] + 1
-
-    dff1['NumbKidsUnaffected_DR'] = 0
-    dff2['NumbKidsUnaffected_DR'] = 0
-    dff1.loc[((dff1['CH1HaveRashBefore']) == 1) & (dff1['CH1HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
-        dff1['NumbKidsUnaffected_DR'] + 1
-    dff2.loc[((dff2['CH2HaveRashBefore']) == 1) & (dff2['CH2HaveRashAfter'] == 1), 'NumbKidsUnaffected_DR'] = \
-        dff2['NumbKidsUnaffected_DR'] + 1
-
-    total = dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2['NumbKidsPositivelyImpacted_DR'].sum() + \
-            dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum() + \
-            dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2['NumbKidsNegativelyImpacted_DR'].sum()
-    positive = (dff1['NumbKidsPositivelyImpacted_DR'].sum() + dff2[
-        'NumbKidsPositivelyImpacted_DR'].sum()) / total * 100
-    unaffected = (dff1['NumbKidsUnaffected_DR'].sum() + dff2['NumbKidsUnaffected_DR'].sum()) / total * 100
-    negative = (dff1['NumbKidsNegativelyImpacted_DR'].sum() + dff2[
-        'NumbKidsNegativelyImpacted_DR'].sum()) / total * 100
-
-    positive = round(positive, 2)
-    unaffected = round(unaffected, 2)
-    negative = round(negative, 2)
-
-    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
-             {'label': 'Unaffected: ' + str(unaffected) + '%'},
-             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
-    links = [{'source': 0, 'target': 1, 'value': positive},
-             {'source': 0, 'target': 2, 'value': unaffected},
-             {'source': 0, 'target': 3, 'value': negative}]
-
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            label=[node['label'] for node in nodes],
-            hovertemplate="%{value}%"
-        ),
-        link=dict(
-            source=[link['source'] for link in links],
-            target=[link['target'] for link in links],
-            value=[link['value'] for link in links],
-            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
-        )
-    )])
-    fig.update_layout(title_text='Diaper Rash')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False
-    )])
-    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
-    fig.update_layout(hovermode=False)
-    return fig
-
-@callback(
-   Output('SevDR-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_rashillness(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore',
-             'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
-             'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
-             'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-    dff1 = dff[['CH1HaveSevRashBefore', 'CH1HaveSevRashAfter']].dropna(how='all')
-    dff2 = dff[['CH2HaveSevRashBefore', 'CH2HaveSevRashAfter']].dropna(how='all')
-    rows = dff1.shape[0] + dff2.shape[0]
-
-    dff1['NumbKidsPositivelyImpacted_SevDR'] = 0
-    dff2['NumbKidsPositivelyImpacted_SevDR'] = 0
-    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 1) & (dff1['CH1HaveSevRashAfter'] == 2),
-             'NumbKidsPositivelyImpacted_SevDR'] = dff1['NumbKidsPositivelyImpacted_SevDR'] + 1
-    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 2),
-             'NumbKidsPositivelyImpacted_SevDR'] = dff2['NumbKidsPositivelyImpacted_SevDR'] + 1
-
-    dff1['NumbKidsNegativelyImpacted_SevDR'] = 0
-    dff2['NumbKidsNegativelyImpacted_SevDR'] = 0
-    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 2) & (dff1['CH1HaveSevRashAfter'] == 1),
-             'NumbKidsNegativelyImpacted_SevDR'] = dff1['NumbKidsNegativelyImpacted_SevDR'] + 1
-    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 2) & (dff2['CH2HaveSevRashAfter'] == 1),
-             'NumbKidsNegativelyImpacted_SevDR'] = dff2['NumbKidsNegativelyImpacted_SevDR'] + 1
-
-    dff1['NumbKidsUnaffected_SevDR'] = 0
-    dff2['NumbKidsUnaffected_SevDR'] = 0
-    dff1.loc[((dff1['CH1HaveSevRashBefore']) == 1) & (dff1['CH1HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
-        dff1['NumbKidsUnaffected_SevDR'] + 1
-    dff2.loc[((dff2['CH2HaveSevRashBefore']) == 1) & (dff2['CH2HaveSevRashAfter'] == 1), 'NumbKidsUnaffected_SevDR'] = \
-        dff2['NumbKidsUnaffected_SevDR'] + 1
-
-    total = dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2['NumbKidsPositivelyImpacted_SevDR'].sum() + \
-            dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum() + \
-            dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2['NumbKidsNegativelyImpacted_SevDR'].sum()
-    positive = (dff1['NumbKidsPositivelyImpacted_SevDR'].sum() + dff2[
-        'NumbKidsPositivelyImpacted_SevDR'].sum()) / total * 100
-    unaffected = (dff1['NumbKidsUnaffected_SevDR'].sum() + dff2['NumbKidsUnaffected_SevDR'].sum()) / total * 100
-    negative = (dff1['NumbKidsNegativelyImpacted_SevDR'].sum() + dff2[
-        'NumbKidsNegativelyImpacted_SevDR'].sum()) / total * 100
-
-    positive = round(positive, 2)
-    unaffected = round(unaffected, 2)
-    negative = round(negative, 2)
-
-    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
-             {'label': 'Unaffected: ' + str(unaffected) + '%'},
-             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
-    links = [{'source': 0, 'target': 1, 'value': positive},
-             {'source': 0, 'target': 2, 'value': unaffected},
-             {'source': 0, 'target': 3, 'value': negative}]
-
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            label=[node['label'] for node in nodes]
-        ),
-        link=dict(
-            source=[link['source'] for link in links],
-            target=[link['target'] for link in links],
-            value=[link['value'] for link in links],
-            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
-        )
-    )])
-    fig.update_layout(title_text='Severe Diaper Rash')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False
-    )])
-    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
-    fig.update_layout(hovermode=False)
-    return fig
-
-
-@callback(
-   Output('UTI-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')])
-def update_uti(race, state, singlehead):
-    filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'CH1HaveRashBefore', 'CH1HaveRashAfter', 'CH1HaveSevRashBefore',
-             'CH1HaveSevRashAfter', 'CH1HaveUTIBefore',
-             'CH1HaveUTIAfter', 'CH2HaveRashBefore', 'CH2HaveRashAfter', 'CH2HaveSevRashBefore', 'CH2HaveSevRashAfter',
-             'CH2HaveUTIBefore', 'CH2HaveUTIAfter']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
-    dff1 = dff[['CH1HaveUTIBefore', 'CH1HaveUTIAfter']].dropna(how='all')
-    dff2 = dff[['CH2HaveUTIBefore', 'CH2HaveUTIAfter']].dropna(how='all')
-    rows = dff1.shape[0] + dff2.shape[0]
-    dff1['NumbKidsPositivelyImpacted_UTI'] = 0
-    dff2['NumbKidsPositivelyImpacted_UTI'] = 0
-    dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
-        dff1['NumbKidsPositivelyImpacted_UTI'] + 1
-    dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 2), 'NumbKidsPositivelyImpacted_UTI'] = \
-        dff2['NumbKidsPositivelyImpacted_UTI'] + 1
-
-    dff1['NumbKidsNegativelyImpacted_UTI'] = 0
-    dff2['NumbKidsNegativelyImpacted_UTI'] = 0
-    dff1.loc[((dff1['CH1HaveUTIBefore']) == 2) & (dff1['CH1HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = \
-        dff1['NumbKidsNegativelyImpacted_UTI'] + 1
-    dff2.loc[((dff2['CH2HaveUTIBefore']) == 2) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsNegativelyImpacted_UTI'] = \
-        dff2['NumbKidsNegativelyImpacted_UTI'] + 1
-
-    dff1['NumbKidsUnaffected_UTI'] = 0
-    dff2['NumbKidsUnaffected_UTI'] = 0
-    dff1.loc[((dff1['CH1HaveUTIBefore']) == 1) & (dff1['CH1HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
-        dff1['NumbKidsUnaffected_UTI'] + 1
-    dff2.loc[((dff2['CH2HaveUTIBefore']) == 1) & (dff2['CH2HaveUTIAfter'] == 1), 'NumbKidsUnaffected_UTI'] = \
-        dff2['NumbKidsUnaffected_UTI'] + 1
-
-    total = dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2['NumbKidsPositivelyImpacted_UTI'].sum() + \
-            dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum() + \
-            dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2['NumbKidsNegativelyImpacted_UTI'].sum()
-    positive = (dff1['NumbKidsPositivelyImpacted_UTI'].sum() + dff2[
-        'NumbKidsPositivelyImpacted_UTI'].sum()) / total * 100
-    unaffected = (dff1['NumbKidsUnaffected_UTI'].sum() + dff2['NumbKidsUnaffected_UTI'].sum()) / total * 100
-    negative = (dff1['NumbKidsNegativelyImpacted_UTI'].sum() + dff2[
-        'NumbKidsNegativelyImpacted_UTI'].sum()) / total * 100
-
-    positive = round(positive, 2)
-    unaffected = round(unaffected, 2)
-    negative = round(negative, 2)
-
-    nodes = [{'label': ''}, {'label': 'Positively Impacted: ' + str(positive) + '%'},
-             {'label': 'Unaffected: ' + str(unaffected) + '%'},
-             {'label': 'Negatively Impacted: ' + str(negative) + '%'}]
-    links = [{'source': 0, 'target': 1, 'value': positive},
-             {'source': 0, 'target': 2, 'value': unaffected},
-             {'source': 0, 'target': 3, 'value': negative}]
-
-    fig = go.Figure(data=[go.Sankey(
-        node=dict(
-            label=[node['label'] for node in nodes]
-        ),
-        link=dict(
-            source=[link['source'] for link in links],
-            target=[link['target'] for link in links],
-            value=[link['value'] for link in links],
-            hovertemplate="Effect: %{target.label}<br>Percent of Children: %{value}%"
-        )
-    )])
-    fig.update_layout(title_text='Urinary Tract Infection')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False
-    )])
-    fig.update_traces(node_color=['#000000', '#86bce8', '#d6d6d2', '#e81e36'])
-    fig.update_layout(hovermode=False)
-    return fig
 
 @callback(
     Output('education-content', 'figure'),
@@ -1381,10 +976,10 @@ def update_education(race, state, singlehead):
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
                  title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
-                       + str(state) + " as state, and " + str(singlehead) + " for single head household.",
+                       + str(state) + " as state, and " + str(singlehead) + " for single head of household.",
                  category_orders={
                      "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
-                                        'Graduate degree', 'Enrolled in a job-training/non-degree program']})
+                                        'Graduate degree', 'Enrolled in a Job-Training/Non-Degree Program']})
     fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,
@@ -1393,6 +988,13 @@ def update_education(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False
     )])
+    fig.update_layout(
+        title_font=dict(
+            family='Merriweather',
+            size=21,
+            color='black'
+        ))
+    fig.update_layout(title_x=0.5)
     return fig
 
 if __name__ == '__main__':
