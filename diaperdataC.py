@@ -328,8 +328,8 @@ app.layout = html.Div(
     Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value'))
-def set_display_children(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household.'
+def transport_subtitle(race, state, singlehead):
+    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household'
 
 
 @callback(
@@ -337,7 +337,7 @@ def set_display_children(race, state, singlehead):
     Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value'))
-def set_display_children(race, state, singlehead):
+def income_subtitle(race, state, singlehead):
     return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household.'
 
 
@@ -952,34 +952,33 @@ def update_income2019(race, state, singlehead):
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
     fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(title_x=0.5)
-    fig.update_layout(
         yaxis=dict(title='Percentage %',
                    title_font=dict(
                        family='Montserrat',
                        size=16,
-                       color='black'))
-    )
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.75)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        font=dict(
-            family="Montserrat",
-            size=12
+                       color='black')),
+        annotations=[dict(
+            x=0.5,
+            y=1,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            font=dict(
+                family="Montserrat",
+                size=12
+            ),
+            showarrow=False,
+        )],
+        barmode='overlay', bargap=0, bargroupgap=0,
+        title_font=dict(
+            family='Merriweather',
+            size=21,
+            color='black'
         ),
-        showarrow=False,
-    )])
+        title_x=0.5
+    )
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%",
+                      opacity=0.75)
 
     return fig
 
@@ -1047,29 +1046,28 @@ def update_income2020(race, state, singlehead):
                    title_font=dict(
                        family='Montserrat',
                        size=16,
-                       color='black')))
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.75)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        font=dict(
-            family="Montserrat",
-            size=12
-        ),
-        showarrow=False
-    )])
-    fig.update_layout(
+                       color='black')),
+        barmode='overlay', bargap=0, bargroupgap=0,
+        annotations=[dict(
+            x=0.5,
+            y=1,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            font=dict(
+                family="Montserrat",
+                size=12
+            ),
+            showarrow=False
+        )],
         title_font=dict(
             family='Merriweather',
             size=21,
             color='black'
-        ))
-    fig.update_layout(title_x=0.5)
+        ),
+        title_x=0.5
+    )
+    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%", opacity=0.75)
     return fig
 
 
