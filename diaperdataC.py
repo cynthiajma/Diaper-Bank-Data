@@ -400,18 +400,42 @@ def display_choropleth(variable, race, state, singlehead):
                             locationmode="USA-states",
                             color='NumKidsDiapers',
                             labels={"NumKidsDiapers": "# of Children"},
-                            title='Average Number of Children in Diapers (per Household)',
+                            title="Average Number of Children in Diapers (per Household)",
                             scope="usa",
                             hover_data=['State', 'NumKidsDiapers'],
                             color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if variable == "NumAdults":
@@ -430,18 +454,44 @@ def display_choropleth(variable, race, state, singlehead):
                             locationmode="USA-states",
                             color='Percentage of Households',
                             labels={"Percentage of Households": "% of Households"},
-                            title='Percentage of Households with a Single Head of Household',
+                            title="Percentage of Households with a Single Head of Household",
                             scope="usa",
                             hover_data=['State', 'Percentage of Households'],
                             color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
+
         return fig
 
     if variable == "Income_2019":
@@ -479,15 +529,39 @@ def display_choropleth(variable, race, state, singlehead):
                                                              '70,000-79,999', '>=80,000']},
                             labels={"Income_2019": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Median Household Income in 2019")
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+                            title='Median Household Income in 2019')
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if variable == "Income_2020":
@@ -516,15 +590,39 @@ def display_choropleth(variable, race, state, singlehead):
                                                            '70,000-79,999', '>=80,000']},
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
-                            title="Median Household Income in 2020")
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+                            title='Median Household Income in 2020')
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if variable == "Ad1CurrentWork":
@@ -552,14 +650,38 @@ def display_choropleth(variable, race, state, singlehead):
                           scope="usa",
                           hover_data=['State', 'Percentage of Households'],
                           color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if str(variable) == "Ad1_School":
@@ -587,14 +709,38 @@ def display_choropleth(variable, race, state, singlehead):
                           scope="usa",
                           hover_data=['State', 'Percentage of Households'],
                           color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if str(variable) == "AnyCareforCHILD1_C":
@@ -618,14 +764,38 @@ def display_choropleth(variable, race, state, singlehead):
                           labels={"Sum": '# of Children'},
                           title='Average Number of Children in Childcare (per Household)',
                           scope="usa")
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
     if str(variable) == "Income_2020_2":
@@ -649,14 +819,38 @@ def display_choropleth(variable, race, state, singlehead):
                           labels={"Percent of State Median": '% of state median income'},
                           title='Median Income of Households Relative to Their State\'s 2020 Median Income',
                           scope="usa")
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters match to {nrows} responses',
-            showarrow=False
-        )])
+        fig.update_layout(
+            annotations=[
+                dict(
+                    x=-0.004,
+                    y=1.17,
+                    text=f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household',
+                    font=dict(
+                        family="Montserrat",
+                        size=13
+                    ),
+                    showarrow=False
+                ),
+                dict(
+                    x=0.5,
+                    y=-0.19,
+                    xref='paper',
+                    yref='paper',
+                    text=f'Filters match to {nrows} responses',
+                    font=dict(
+                        family="Montserrat",
+                        size=12
+                    ),
+                    showarrow=False
+                )
+            ]
+        )
+        fig.update_layout(
+            title_font=dict(
+                family='Merriweather',
+                size=18,
+                color='black'
+            ))
         return fig
 
 
@@ -693,6 +887,10 @@ def update_transport_pie(race, state, singlehead):
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
+        font=dict(
+            family="Montserrat",
+            size=12
+        ),
         showarrow=False
     )])
     return fig
@@ -759,6 +957,7 @@ def update_income2019(race, state, singlehead):
             size=21,
             color='black'
         ))
+    fig.update_layout(title_x=0.5)
     fig.update_layout(
         yaxis=dict(title='Percentage %',
                    title_font=dict(
@@ -775,15 +974,13 @@ def update_income2019(race, state, singlehead):
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
+        font=dict(
+            family="Montserrat",
+            size=12
+        ),
         showarrow=False,
     )])
-    fig.update_layout(
-        title_font=dict(
-            family='Merriweather',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(title_x=0.5)
+
     return fig
 
 
@@ -846,12 +1043,6 @@ def update_income2020(race, state, singlehead):
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
     fig.update_layout(
-        title_font=dict(
-            family='Montserrat',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(
         yaxis=dict(title='Percentage %',
                    title_font=dict(
                        family='Montserrat',
@@ -866,6 +1057,10 @@ def update_income2020(race, state, singlehead):
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
+        font=dict(
+            family="Montserrat",
+            size=12
+        ),
         showarrow=False
     )])
     fig.update_layout(
@@ -929,17 +1124,22 @@ def update_preterm(race, state, singlehead):
                          "value": "Percent",
                          'sumPreterm': 'Total Preterm',
                          'sumTerm': 'Total Term'},
-                 title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup>You have selected "
+                 title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup><sup>You have "
+                       f"selected "
                        f"{race} as race, {state} as state, and {singlehead} for single head of household.",
                  barmode='stack')
     fig.update_layout(annotations=[dict(
-                      x=0.5,
-                      y=-0.25,
-                      xref='paper',
-                      yref='paper',
-                      text=f'Filters matched to {nrows} responses.',
-                      showarrow=False
-                      )])
+        x=0.5,
+        y=-0.25,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {nrows} responses.',
+        font=dict(
+            family="Montserrat",
+            size=12
+        ),
+        showarrow=False
+    )])
     fig.update_layout(
         title_font=dict(
             family='Merriweather',
@@ -975,7 +1175,7 @@ def update_education(race, state, singlehead):
     fig = px.pie(dff, names="Education Type", values="Number of Adults",
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
+                 title='Distribution of Education Type<br><sup><sup>You have selected ' + str(race) + " as race, "
                        + str(state) + " as state, and " + str(singlehead) + " for single head of household.",
                  category_orders={
                      "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
@@ -986,6 +1186,10 @@ def update_education(race, state, singlehead):
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
+        font=dict(
+            family="Montserrat",
+            size=12
+        ),
         showarrow=False
     )])
     fig.update_layout(
