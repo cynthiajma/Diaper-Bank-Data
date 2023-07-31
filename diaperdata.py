@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import base64
-from PIL import Image
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
@@ -433,27 +432,43 @@ def update_pie(state, race, singlehead):
     dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
     dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
     dff = dff.dropna(subset=['DB_Transport'])
-    fig = px.pie(dff, names="DB_Transport",
-                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
-                                                   "Taxi/Ride Sharing App", "Walk", "Home Visit"
-                                                   ]},
-                 labels={"DB_Transport": "Method"},
-                 template='plotly_white',
-                 color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title="How Diaper Bank Recipients Access Diaper Bank Products<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head of household."
-                 )
     rows = dff.shape[0]
-    fig.update_layout(annotations=[dict(
+    if rows > 10:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = px.pie(dff, names="DB_Transport",
+                     category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+                                                       "Taxi/Ride Sharing App", "Walk", "Home Visit"
+                                                       ]},
+                     labels={"DB_Transport": "Method"},
+                     template='plotly_white',
+                     color_discrete_sequence=px.colors.sequential.RdBu_r,
+                     title="How Diaper Bank Recipients Access Diaper Bank Products<br><sup>You have selected "
+                           + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                           + " for single head of household."
+                     )
+        fig.update_layout(annotations=[dict(
         x=0.5,
         y=-0.19,
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
         showarrow=False
-    )])
-    return fig
+        )])
+        return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                        title="How Diaper Bank Recipients Access Diaper Bank Products<br><sup>You have selected "
+                              + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                              + " for single head of household.")
+                        )
+        fig.update_layout(annotations=[dict(
+        xref='paper',
+        yref='paper',
+        text=f'Figure hidden due to filters matching to less than 10 responses.',
+        showarrow=False
+        )])
+        return fig
 
 
 @callback(
@@ -490,28 +505,45 @@ def update_bar(race, state, singlehead):
     dff['Term'] = 100 - dff['Preterm']
     dff = dff.drop(['Sum', 'Total Children'], axis=1)
     dff = dff.sort_values(by='Preterm')
-    fig = px.bar(dff, y='Race', x=['Preterm', 'Term'],
-                 template='plotly_white',
-                 color_discrete_map={
-                     "Preterm": "#e81e36",
-                     "Term": "#86bce8"},
-                 labels={"variable": "Preterm or Term",
-                         "value": "Percent"},
-                 title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity"
-                       "<br><sup>You have selected "
-                       + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
-                       + " for single head of household."
-                    ,
-                 barmode='stack')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.25,
+    if rows > 10:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = px.bar(dff, y='Race', x=['Preterm', 'Term'],
+                     template='plotly_white',
+                     color_discrete_map={
+                         "Preterm": "#e81e36",
+                         "Term": "#86bce8"},
+                     labels={"variable": "Preterm or Term",
+                             "value": "Percent"},
+                     title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity"
+                           "<br><sup>You have selected "
+                           + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                           + " for single head of household."
+                        ,
+                     barmode='stack')
+        fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=-0.25,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )])
+        return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                        title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity"
+                           "<br><sup>You have selected "
+                           + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
+                           + " for single head of household.")
+                        )
+        fig.update_layout(annotations=[dict(
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {rows} responses.',
+        text=f'Figure hidden due to filters matching to less than 10 responses.',
         showarrow=False
-    )])
-    return fig
+        )])
+        return fig
 
 
 # @callback(
@@ -636,31 +668,43 @@ def update_pie(race, state, singlehead):
     acs = acs[['Income Range', 'Percentage', 'Type']]
 
     acsdff = pd.concat([acs, dff])
-
-    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
-                       labels={"Income Range": "Income Range (in dollars)"},
-                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="2019",
-                       template='plotly_white',
-                       color_discrete_map={
-                           "Diaper Bank Recipient": "#e81e36",
-                           "ACS 5-Year Survey": "#86bce8"})
-    fig.update_layout(yaxis_title="Percentage")
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.75)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
+    if rows > 10:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                           labels={"Income Range": "Income Range (in dollars)"},
+                           category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                             '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                             '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                             '60,000-69,999', '70,000-79,999', '>=80,000']},
+                           title="2019",
+                           template='plotly_white',
+                           color_discrete_map={
+                               "Diaper Bank Recipient": "#e81e36",
+                               "ACS 5-Year Survey": "#86bce8"})
+        fig.update_layout(yaxis_title="Percentage")
+        fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+        fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+        fig.update_traces(opacity=0.75)
+        fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=1,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )])
+        return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white')
+                        )
+        fig.update_layout(annotations=[dict(
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {rows} responses.',
+        text=f'Figure hidden due to filters matching to less than 10 responses.',
         showarrow=False
-    )])
-    return fig
+        )])
+        return fig
 
 
 @callback(
@@ -700,30 +744,43 @@ def update_pie(race, state, singlehead):
 
     acsdff = pd.concat([acs, dff])
 
-    fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
-                       labels={"Income Range": "Income Range (in dollars)"},
-                       category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                         '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000']},
-                       title="2020",
-                       template='plotly_white',
-                       color_discrete_map={
-                           "Diaper Bank Recipient": "#e81e36",
-                           "ACS 5-Year Survey": "#86bce8"})
-    fig.update_layout(yaxis_title="Percentage")
-    fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
-    fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
-    fig.update_traces(opacity=0.75)
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=1,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        showarrow=False
-    )])
-    return fig
+    if rows > 10:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
+                           labels={"Income Range": "Income Range (in dollars)"},
+                           category_orders={"Income Range": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                             '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                             '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                             '60,000-69,999', '70,000-79,999', '>=80,000']},
+                           title="2020",
+                           template='plotly_white',
+                           color_discrete_map={
+                               "Diaper Bank Recipient": "#e81e36",
+                               "ACS 5-Year Survey": "#86bce8"})
+        fig.update_layout(yaxis_title="Percentage")
+        fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%")
+        fig.update_layout(barmode='overlay', bargap=0, bargroupgap=0)
+        fig.update_traces(opacity=0.75)
+        fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=1,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )])
+        return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white')
+                        )
+        fig.update_layout(annotations=[dict(
+            xref='paper',
+            yref='paper',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
+            showarrow=False
+        )])
+        return fig
 
 
 # @callback(
@@ -1090,24 +1147,39 @@ def update_pie(race, state, singlehead):
     rows = dff1.shape[0] + dff2.shape[0]
     dff = dff1['Ad1_EduType'].value_counts() + dff2['Ad2_EduType'].value_counts()
     dff = dff.to_frame('Number of Adults').rename_axis('Education Type').reset_index()
-    fig = px.pie(dff, names="Education Type", values="Number of Adults",
-                 template="plotly_white",
-                 color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
-                       + str(state) + " as state, and " + str(singlehead) + " for single head of household."
-                 ,
-                 category_orders={
-                     "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
-                                        'Graduate degree', 'Enrolled in a job-training/non-degree program']})
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
+    if rows > 10:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = px.pie(dff, names="Education Type", values="Number of Adults",
+                     template="plotly_white",
+                     color_discrete_sequence=px.colors.sequential.RdBu_r,
+                     title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
+                           + str(state) + " as state, and " + str(singlehead) + " for single head of household."
+                     ,
+                     category_orders={
+                         "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
+                                            'Graduate degree', 'Enrolled in a job-training/non-degree program']})
+        fig.update_layout(annotations=[dict(
+            x=0.5,
+            y=-0.19,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )])
+        return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                        title='Distribution of Education Type<br><sup>You have selected ' + str(race) + " as race, "
+                           + str(state) + " as state, and " + str(singlehead) + " for single head of household.")
+                        )
+        fig.update_layout(annotations=[dict(
         xref='paper',
         yref='paper',
-        text=f'Filters matched to {rows} responses.',
+        text=f'Figure hidden due to filters matching to less than 10 responses.',
         showarrow=False
-    )])
-    return fig
+        )])
+        return fig
 
 
 @callback(
@@ -1127,25 +1199,42 @@ def display_choropleth(variable, race, singlehead, state):
         dff = dff[['State', str(variable)]]
         rows = dff.shape[0]
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
-        fig = px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='NumKidsDiapers',
-                            labels={"NumKidsDiapers": "# of Children"},
-                            title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.",
-                            scope="usa",
-                            hover_data=['State', 'NumKidsDiapers'],
-                            color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters matched to {rows} responses.',
-            showarrow=False
-        )])
-        return fig
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode="USA-states",
+                                color='NumKidsDiapers',
+                                labels={"NumKidsDiapers": "# of Children"},
+                                title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.",
+                                scope="usa",
+                                hover_data=['State', 'NumKidsDiapers'],
+                                color_continuous_scale='ice_r')
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+        else:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = go.Figure(layout=dict(template='plotly_white',
+                                        title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                            )
+            fig.update_layout(annotations=[dict(
+                xref='paper',
+                yref='paper',
+                text=f'Figure hidden due to filters matching to less than 10 responses.',
+                showarrow=False
+            )])
+            return fig
+
     if str(variable) == "NumAdults":
         dff = dff[['State', 'Single Household']]
         rows = dff.shape[0]
@@ -1155,25 +1244,42 @@ def display_choropleth(variable, race, singlehead, state):
         dff = dff[['State', 'Proportion of Households']]
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
 
-        fig = px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='Percentage of Households',
-                            labels={"Percentage of Households": "% of Households"},
-                            title='Percentage of Households with a Single Head of Household<br><sup>You have selected '
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.",
-                            scope="usa",
-                            hover_data=['State', 'Percentage of Households'],
-                            color_continuous_scale='ice_r')
-        fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
-            xref='paper',
-            yref='paper',
-            text=f'Filters matched to {rows} responses.',
-            showarrow=False
-        )])
-        return fig
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode="USA-states",
+                                color='Percentage of Households',
+                                labels={"Percentage of Households": "% of Households"},
+                                title='Percentage of Households with a Single Head of Household<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.",
+                                scope="usa",
+                                hover_data=['State', 'Percentage of Households'],
+                                color_continuous_scale='ice_r')
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+        else:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = go.Figure(layout=dict(template='plotly_white',
+                                        title='Average Number of Children in Diapers (per household)<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                            )
+            fig.update_layout(annotations=[dict(
+                xref='paper',
+                yref='paper',
+                text=f'Figure hidden due to filters matching to less than 10 responses.',
+                showarrow=False
+            )])
+            return fig
+
     if str(variable) == 'Income_2020':
         dff = dff[['State', 'Income_2020']]
         rows = dff.shape[0]
@@ -1193,25 +1299,41 @@ def display_choropleth(variable, race, singlehead, state):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
-        fig = px.choropleth(dff, locations='State',
-                            locationmode='USA-states',
-                            color='Income_2020',
-                            color_discrete_sequence=px.colors.qualitative.Prism,
-                            category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                             '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                             '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                             '60,000-69,999', '70,000-79,999', '>=80,000']},
-                            labels={"Income_2020": "Income Range (in dollars)"},
-                            scope="usa",
-                            title="Median Household Income in 2020<br><sup>You have selected "
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.")
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode='USA-states',
+                                color='Income_2020',
+                                color_discrete_sequence=px.colors.qualitative.Prism,
+                                category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                                 '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                                 '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                                 '60,000-69,999', '70,000-79,999', '>=80,000']},
+                                labels={"Income_2020": "Income Range (in dollars)"},
+                                scope="usa",
+                                title="Median Household Income in 2020<br><sup>You have selected "
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                                    title="Median Household Income in 2020<br><sup>You have selected "
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                        )
         fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Filters matched to {rows} responses.',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
             showarrow=False
         )])
         return fig
@@ -1233,25 +1355,41 @@ def display_choropleth(variable, race, singlehead, state):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
-        fig = px.choropleth(dff, locations='State',
-                            locationmode='USA-states',
-                            color='Income_2019',
-                            color_discrete_sequence=px.colors.qualitative.Prism,
-                            category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
-                                                             '25,000-29,999', '30,000-34,999', '35,000-39,999',
-                                                             '40,000-44,999', '45,000-49,999', '50,000-59,999',
-                                                             '60,000-69,999', '70,000-79,999', '>=80,000']},
-                            labels={"Income_2019": "Income Range (in dollars)"},
-                            scope="usa",
-                            title="Median Household Income in 2019<br><sup>You have selected "
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.")
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode='USA-states',
+                                color='Income_2019',
+                                color_discrete_sequence=px.colors.qualitative.Prism,
+                                category_orders={"Income_2019": ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                                 '25,000-29,999', '30,000-34,999', '35,000-39,999',
+                                                                 '40,000-44,999', '45,000-49,999', '50,000-59,999',
+                                                                 '60,000-69,999', '70,000-79,999', '>=80,000']},
+                                labels={"Income_2019": "Income Range (in dollars)"},
+                                scope="usa",
+                                title="Median Household Income in 2019<br><sup>You have selected "
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                                    title="Median Household Income in 2019<br><sup>You have selected "
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                        )
         fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Filters matched to {rows} responses.',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
             showarrow=False
         )])
         return fig
@@ -1268,22 +1406,38 @@ def display_choropleth(variable, race, singlehead, state):
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['1+ Adult Working'] == 'Yes']
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-        fig = px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='Percentage of Households',
-                            labels={"Percentage of Households": "% of Households"},
-                            title='Percentage of Households with One or More Working Adult<br><sup>You have selected '
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.",
-                            scope="usa",
-                            hover_data=['State', 'Percentage of Households'],
-                            color_continuous_scale='ice_r')
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode="USA-states",
+                                color='Percentage of Households',
+                                labels={"Percentage of Households": "% of Households"},
+                                title='Percentage of Households with One or More Working Adult<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.",
+                                scope="usa",
+                                hover_data=['State', 'Percentage of Households'],
+                                color_continuous_scale='ice_r')
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                                    title='Percentage of Households with One or More Working Adult<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                        )
         fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Filters matched to {rows} responses.',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
             showarrow=False
         )])
         return fig
@@ -1300,23 +1454,40 @@ def display_choropleth(variable, race, singlehead, state):
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Education or Job Training'] == 'Yes']
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-        fig = px.choropleth(dff, locations='State',
-                            locationmode="USA-states",
-                            color='Percentage of Households',
-                            labels={"Percentage of Households": "% of Households"},
-                            title='Percentage of Households with One or More Adult in Education or Job Training'
-                                  '<br><sup>You have selected '
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.",
-                            scope="usa",
-                            hover_data=['State', 'Percentage of Households'],
-                            color_continuous_scale='ice_r')
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff, locations='State',
+                                locationmode="USA-states",
+                                color='Percentage of Households',
+                                labels={"Percentage of Households": "% of Households"},
+                                title='Percentage of Households with One or More Adult in Education or Job Training'
+                                      '<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.",
+                                scope="usa",
+                                hover_data=['State', 'Percentage of Households'],
+                                color_continuous_scale='ice_r')
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                                    title='Percentage of Households with One or More Adult in Education or Job Training'
+                                      '<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                        )
         fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Filters matched to {rows} responses.',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
             showarrow=False
         )])
         return fig
@@ -1365,26 +1536,43 @@ def display_choropleth(variable, race, singlehead, state):
                                                          69999, 79999, 89999])
         dff['Proportion of State Median'] = dff['Income_2020'] / dff['State_2020_Median']
         dff['Percent of State Median'] = dff['Proportion of State Median'] * 100
-        fig = px.choropleth(dff,
-                            locations='State',
-                            locationmode="USA-states",
-                            color_continuous_scale='ice_r',
-                            color='Percent of State Median',
-                            labels={"Percent of State Median": '% of state median income'},
-                            title='Median Income of Households Relative to their State\'s 2020 Median Income'
-                                  '<br><sup>You have selected '
-                                  + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
-                                  " for single head of household.",
-                            scope="usa")
+        if rows > 10:
+            fig = go.Figure(layout=dict(template='plotly'))
+            fig = px.choropleth(dff,
+                                locations='State',
+                                locationmode="USA-states",
+                                color_continuous_scale='ice_r',
+                                color='Percent of State Median',
+                                labels={"Percent of State Median": '% of state median income'},
+                                title='Median Income of Households Relative to their State\'s 2020 Median Income'
+                                      '<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.",
+                                scope="usa")
+            fig.update_layout(annotations=[dict(
+                x=0.5,
+                y=-0.19,
+                xref='paper',
+                yref='paper',
+                text=f'Filters matched to {rows} responses.',
+                showarrow=False
+            )])
+            fig.update_layout(title_x=0.5)
+            return fig
+    else:
+        fig = go.Figure(layout=dict(template='plotly'))
+        fig = go.Figure(layout=dict(template='plotly_white',
+                                    title='Median Income of Households Relative to their State\'s 2020 Median Income'
+                                      '<br><sup>You have selected '
+                                      + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead) +
+                                      " for single head of household.")
+                        )
         fig.update_layout(annotations=[dict(
-            x=0.5,
-            y=-0.19,
             xref='paper',
             yref='paper',
-            text=f'Filters matched to {rows} responses.',
+            text=f'Figure hidden due to filters matching to less than 10 responses.',
             showarrow=False
         )])
-        fig.update_layout(title_x=0.5)
         return fig
 
 
