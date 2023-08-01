@@ -312,7 +312,6 @@ app.layout = html.Div(
                     ),
                     html.Div(
                         children=[
-                            html.Div(id='display-selected-filtersTRANSPORT', className='subtitle'),
                             dcc.Graph(id='transport-pie-content', className='row3-graph'),
                             html.Img(src="assets/static.png", alt='Diaper Bank Household Statistics',
                                      className='row3-graph')
@@ -323,15 +322,6 @@ app.layout = html.Div(
         ),
     ],
 )
-
-@callback(
-    Output('display-selected-filtersTRANSPORT', 'children'),
-    Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value'))
-def transport_subtitle(race, state, singlehead):
-    return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household'
-
 
 @callback(
     Output('display-selected-filtersINCOME', 'children'),
@@ -1214,6 +1204,7 @@ def update_preterm(race, state, singlehead):
             dff = dff.loc[dff['State'] == filters['state']]
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+
     rows = dff.shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1234,6 +1225,7 @@ def update_preterm(race, state, singlehead):
             ),
             showarrow=False)])
         return fig
+
     dff = dff.dropna(how='all')
     dfff = dff.replace(np.nan, 0)
     dfff = dfff.replace(2, 1)
@@ -1266,28 +1258,31 @@ def update_preterm(race, state, singlehead):
                          'sumTerm': 'Total Term'},
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity",
                  barmode='stack')
+
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
-        annotations=[dict(
-            x=0.2,
-            y=-0.25,
-            xref='paper',
-            yref='paper',
-            text=f'Filters matched to {rows} responses.',
-            showarrow=False
-        )],
         title_font=dict(size=21),
-        title_x=0.5
-    )
-    fig.update_layout(
+        title_x=0.5,
         annotations=[dict(
             x=-0.4,
             y=1.162,
+            xref='paper',
+            yref='paper',
             text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
                         "head of household.",
             showarrow=False)]
     )
+    fig.add_annotation(
+        x=0.2,
+        y=-0.25,
+        xref='paper',
+        yref='paper',
+        text=f'Filters matched to {rows} responses.',
+        showarrow=False
+    )
+
+
     return fig
 
 @callback(
@@ -1343,7 +1338,7 @@ def update_education(race, state, singlehead):
         font_family="Montserrat",
         font_color="black",
         annotations=[dict(
-            x=0.2,
+            x=0.5,
             y=-0.25,
             xref='paper',
             yref='paper',
@@ -1353,14 +1348,13 @@ def update_education(race, state, singlehead):
         title_font=dict(size=21),
         title_x=0.5,
     )
-    fig.update_layout(
-        annotations=[dict(
-            x=0.1,
-            y=1.162,
-            text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
-                 "head of household.",
-            showarrow=False)]
-    )
+    fig.add_annotation(x=0.1,
+                       y=1.162,
+                       xref='paper',
+                       yref='paper',
+                       text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
+                       "head of household.",
+                       showarrow=False)
     return fig
 
 
@@ -1405,24 +1399,28 @@ def update_transport_pie(race, state, singlehead):
                  color_discrete_sequence=px.colors.sequential.RdBu_r
                  )
 
-    fig.update_layout(annotations=[dict(
-        x=0.1,
-        y=-0.2,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        font=dict(
-            family="Montserrat",
-            size=12
-        ),
-        showarrow=False
-    )])
     fig.update_layout(
-        title_font=dict(
-            family='Merriweather',
-            size=21,
-            color='black'
-        ))
+        font_family="Montserrat",
+        font_color="black",
+        annotations=[dict(
+            x=0.2,
+            y=-0.25,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )],
+        title_font=dict(size=21),
+        title_x=0.5,
+    )
+    fig.update_layout(
+        annotations=[dict(
+            x=0.1,
+            y=1.162,
+            text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
+                 "head of household.",
+            showarrow=False)]
+    )
     return fig
 
 
