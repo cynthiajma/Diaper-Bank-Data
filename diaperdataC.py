@@ -253,8 +253,7 @@ app.layout = html.Div(
             ],
             className='filtersRow1'
         ),
-        html.Br(),
-        html.H3(children='Map', className='mapHeader'),
+        html.H3(children='Map Filters', className='mapHeader'),
         html.Div(
             children=[
                 html.Div([
@@ -272,7 +271,7 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ],className='filter2',
+                ],className='filter',
                 ),
                 html.Div([
                     html.Label(["Map Variable"], className='label'),
@@ -284,7 +283,7 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ], className='filter2')
+                ], className='filter')
             ], className='filtersRow2'
         ),
         html.Div(
@@ -293,7 +292,6 @@ app.layout = html.Div(
                 html.H3(children='Additional Visualizations', className='part2-header'),
                 html.Br(),
                 html.Div([
-                    html.Br(),
                     html.Div(
                         children=[
                             html.H3(children="Comparison of Income Distributions for Diaper Bank Households and U.S. Census Data",
@@ -312,10 +310,15 @@ app.layout = html.Div(
                     ),
                     html.Div(
                         children=[
-                            dcc.Graph(id='transport-pie-content', className='row3-graph'),
-                            html.Img(src="assets/static.png", alt='Diaper Bank Household Statistics',
-                                     className='row3-graph')
-                        ],
+                            dcc.Graph(id='transport-pie-content', className='grid-item'),
+                            html.Div(
+                                children=[
+                                    html.H3(children="Extra Statistics", className='extra-title'),
+                                    html.Img(src="assets/static.png", alt='Diaper Bank Household Statistics',
+                                             className='image')
+                                ], className='grid-item'
+                            )
+                        ], className = 'grid-container'
                     ),
                 ]),
             ]
@@ -1205,6 +1208,10 @@ def update_preterm(race, state, singlehead):
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
 
+
+
+    dff = dff.dropna(subset = ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm',
+                               'CH7Preterm', 'CH8Preterm'], how='all')
     rows = dff.shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1219,14 +1226,13 @@ def update_preterm(race, state, singlehead):
             ),
             title_x=0.5,
             annotations=[dict(text=f'Figure hidden. Filters match to less than 10 values.',
-            font=dict(
-                family="Montserrat",
-                size=12
-            ),
-            showarrow=False)])
+                              font=dict(
+                                  family="Montserrat",
+                                  size=12
+                              ),
+                              showarrow=False)])
         return fig
 
-    dff = dff.dropna(how='all')
     dfff = dff.replace(np.nan, 0)
     dfff = dfff.replace(2, 1)
     dfff['Total Children'] = dfff[
@@ -1254,8 +1260,8 @@ def update_preterm(race, state, singlehead):
                      "Term": "#86bce8"},
                  labels={"variable": "Preterm or Term",
                          "value": "Percent",
-                         'sumPreterm': 'Total Preterm',
-                         'sumTerm': 'Total Term'},
+                         'Total Children': 'Total Children in Race'},
+                 hover_data = ['Total Children'],
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity",
                  barmode='stack')
 
@@ -1347,6 +1353,7 @@ def update_education(race, state, singlehead):
         )],
         title_font=dict(size=21),
         title_x=0.5,
+        legend_title="Education Level",
     )
     fig.add_annotation(x=0.1,
                        y=1.162,
