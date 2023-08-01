@@ -291,14 +291,6 @@ app.layout = html.Div(
             children=[
                 dcc.Graph(id='map-content'),
                 html.H3(children='Additional Visualizations', className='part2-header'),
-                html.Div(
-                    children=[
-                        html.H3(children="How Diaper Bank Recipients Access Diaper Bank Products",
-                                className='graph-title'),
-                        html.Div(id='display-selected-filtersTRANSPORT', className='subtitle'),
-                        dcc.Graph(id='transport-pie-content')
-                    ],
-                ),
                 html.Br(),
                 html.Div([
                     html.Br(),
@@ -307,19 +299,28 @@ app.layout = html.Div(
                             html.H3(children="Comparison of Income Distributions for Diaper Bank Households and U.S. Census Data",
                             className='graph-title'),
                             html.Div(id='display-selected-filtersINCOME', className='subtitle'),
-                            dcc.Graph(id='income2019-content', className='incomegraphs'),
-                            dcc.Graph(id='income2020-content', className='incomegraphs')
+                            dcc.Graph(id='income2019-content', className='income-graph'),
+                            dcc.Graph(id='income2020-content', className='income-graph')
                         ],
                     ),
                     html.Br(),
                     html.Div(
                         children=[
-                            dcc.Graph(id='preterm-content', className='preterm_graph'),
-                            dcc.Graph(id='education-content', className='preterm'),
-                        ], className='preterm_illness'
+                            dcc.Graph(id='preterm-content', className='row2-graph'),
+                            dcc.Graph(id='education-content', className='row2-graph'),
+                        ],
+                    ),
+                    html.Div(
+                        children=[
+                            html.Div(id='display-selected-filtersTRANSPORT', className='subtitle'),
+                            dcc.Graph(id='transport-pie-content', className='row3-graph'),
+                            html.Img(src="assets/static.png", alt='Diaper Bank Household Statistics',
+                                     className='row3-graph')
+                        ],
                     ),
                 ]),
-        ]),
+            ]
+        ),
     ],
 )
 
@@ -445,7 +446,8 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
+            ],
+            dragmode=False
         )
         fig.update_layout(
             title_font=dict(
@@ -517,7 +519,8 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
+            ],
+            dragmode=False
         )
 
         fig.update_layout(
@@ -605,7 +608,8 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
+            ],
+            dragmode=False
         )
         fig.update_layout(
             title_font=dict(
@@ -682,14 +686,14 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
-        )
-        fig.update_layout(
+            ],
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ))
+            ),
+            dragmode=False,
+        )
         return fig
 
     if variable == "Ad1CurrentWork":
@@ -759,14 +763,15 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
-        )
-        fig.update_layout(
+            ],
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ))
+            ),
+            dragmode=False
+        )
+
         return fig
 
     if str(variable) == "Ad1_School":
@@ -836,14 +841,15 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
-        )
-        fig.update_layout(
+            ],
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ))
+            ),
+            dragmode=False
+        )
+
         return fig
 
     if str(variable) == "AnyCareforCHILD1_C":
@@ -909,14 +915,15 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
-        )
-        fig.update_layout(
+            ],
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ))
+            ),
+            dragmode=False
+        )
+
         return fig
 
     if str(variable) == "Income_2020_2":
@@ -983,71 +990,16 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 )
-            ]
-        )
-        fig.update_layout(
+            ],
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ))
-        return fig
-
-
-
-@callback(
-   Output('transport-pie-content', 'figure'),
-   [Input('race', 'value'),
-    Input('state', 'value'),
-    Input('singlehead', 'value')]
-)
-def update_transport_pie(race, state, singlehead):
-    filters["race"] = race if race else ""
-    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
-    filters["state"] = state if state else ""
-    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
-    filters["singlehead"] = singlehead if singlehead else ""
-    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
-
-    dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
-    dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
-    dff = dff.dropna(subset=['DB_Transport'])
-
-    rows = dff.shape[0]
-    if rows < 10:
-        fig = go.Figure(layout=dict(template='plotly_white'))
-        fig.update_layout(
-            annotations=[dict(text=f'Figure hidden. Filters match to less than 10 values.',
-            font=dict(
-                family="Montserrat",
-                size=12
             ),
-            showarrow=False)])
+            dragmode=False
+        )
+
         return fig
-
-    fig = go.Figure(layout=dict(template='plotly'))
-    fig = px.pie(dff, names="DB_Transport",
-                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
-                                                   "Taxi/Ride Sharing App", "Walk", "Home Visit"
-                                                   ]},
-                 labels={"DB_Transport": "Method"},
-                 template='plotly_white',
-                 color_discrete_sequence=px.colors.sequential.RdBu_r
-                 )
-
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        font=dict(
-            family="Montserrat",
-            size=12
-        ),
-        showarrow=False
-    )])
-    return fig
 
 
 @callback(
@@ -1124,30 +1076,21 @@ def update_income2019(race, state, singlehead):
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
     fig.update_layout(
-        yaxis=dict(title='Percentage %',
-                   title_font=dict(
-                       family='Montserrat',
-                       size=16,
-                       color='black')),
+        font_family="Montserrat",
+        font_color="black",
+        yaxis=dict(title='Percentage %'),
+        barmode='overlay', bargap=0, bargroupgap=0,
         annotations=[dict(
             x=0.5,
             y=1,
             xref='paper',
             yref='paper',
             text=f'Filters matched to {rows} responses.',
-            font=dict(
-                family="Montserrat",
-                size=12
-            ),
-            showarrow=False,
+            showarrow=False
         )],
-        barmode='overlay', bargap=0, bargroupgap=0,
-        title_font=dict(
-            family='Merriweather',
-            size=21,
-            color='black'
-        ),
-        title_x=0.5
+        title_font=dict(size=21),
+        title_x=0.42,
+        title_y=0.85
     )
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%",
                       opacity=0.75)
@@ -1232,31 +1175,21 @@ def update_income2020(race, state, singlehead):
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
     fig.update_layout(
-        yaxis=dict(title='Percentage %',
-                   title_font=dict(
-                       family='Montserrat',
-                       size=16,
-                       color='black')),
+        font_family="Montserrat",
+        font_color="black",
+        yaxis=dict(title='Percentage %'),
         barmode='overlay', bargap=0, bargroupgap=0,
-
         annotations=[dict(
             x=0.5,
             y=1,
             xref='paper',
             yref='paper',
             text=f'Filters matched to {rows} responses.',
-            font=dict(
-                family="Montserrat",
-                size=12
-            ),
             showarrow=False
         )],
-        title_font=dict(
-            family='Merriweather',
-            size=21,
-            color='black'
-        ),
-        title_x=0.5
+        title_font=dict(size=21),
+        title_x=0.42,
+        title_y=0.85
     )
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%", opacity=0.75)
     return fig
@@ -1331,31 +1264,31 @@ def update_preterm(race, state, singlehead):
                          "value": "Percent",
                          'sumPreterm': 'Total Preterm',
                          'sumTerm': 'Total Term'},
-                 title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup><sup>You have "
-                       f"selected "
-                       f"{race} as race, {state} as state, and {singlehead} for single head of household.",
+                 title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity",
                  barmode='stack')
-    fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.25,
-        xref='paper',
-        yref='paper',
-        text=f'Filters matched to {rows} responses.',
-        font=dict(
-            family="Montserrat",
-            size=12
-        ),
-        showarrow=False
-    )])
     fig.update_layout(
-        title_font=dict(
-            family='Merriweather',
-            size=21,
-            color='black'
-        ))
-    fig.update_layout(title_x=0.5)
+        font_family="Montserrat",
+        font_color="black",
+        annotations=[dict(
+            x=0.2,
+            y=-0.25,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )],
+        title_font=dict(size=21),
+        title_x=0.5
+    )
+    fig.update_layout(
+        annotations=[dict(
+            x=-0.4,
+            y=1.162,
+            text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
+                        "head of household.",
+            showarrow=False)]
+    )
     return fig
-
 
 @callback(
     Output('education-content', 'figure'),
@@ -1402,14 +1335,79 @@ def update_education(race, state, singlehead):
     fig = px.pie(dff, names="Education Type", values="Number of Adults",
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
-                 title='Distribution of Education Type<br><sup><sup>You have selected ' + str(race) + " as race, "
-                       + str(state) + " as state, and " + str(singlehead) + " for single head of household.",
+                 title="Distribution of Education Type",
                  category_orders={
                      "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
                                         'Graduate degree', 'Enrolled in a Job-Training/Non-Degree Program']})
+    fig.update_layout(
+        font_family="Montserrat",
+        font_color="black",
+        annotations=[dict(
+            x=0.2,
+            y=-0.25,
+            xref='paper',
+            yref='paper',
+            text=f'Filters matched to {rows} responses.',
+            showarrow=False
+        )],
+        title_font=dict(size=21),
+        title_x=0.5,
+    )
+    fig.update_layout(
+        annotations=[dict(
+            x=0.1,
+            y=1.162,
+            text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
+                 "head of household.",
+            showarrow=False)]
+    )
+    return fig
+
+
+@callback(
+   Output('transport-pie-content', 'figure'),
+   [Input('race', 'value'),
+    Input('state', 'value'),
+    Input('singlehead', 'value')])
+def update_transport_pie(race, state, singlehead):
+    filters["race"] = race if race else ""
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+
+    dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
+    dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
+    dff = dff.dropna(subset=['DB_Transport'])
+
+    rows = dff.shape[0]
+    if rows < 10:
+        fig = go.Figure(layout=dict(template='plotly_white'))
+        fig.update_layout(
+            title="How Diaper Bank Recipients Access Diaper Bank Products",
+            annotations=[dict(text=f'Figure hidden. Filters match to less than 10 values.',
+            font=dict(
+                family="Montserrat",
+                size=12
+            ),
+            showarrow=False)])
+        return fig
+
+    fig = go.Figure(layout=dict(template='plotly'))
+    fig = px.pie(dff, names="DB_Transport",
+                 category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
+                                                   "Taxi/Ride Sharing App", "Walk", "Home Visit"
+                                                   ]},
+                 labels={"DB_Transport": "Method"},
+                 template='plotly_white',
+                 title="How Diaper Bank Recipients Access Diaper Bank Products",
+                 color_discrete_sequence=px.colors.sequential.RdBu_r
+                 )
+
     fig.update_layout(annotations=[dict(
-        x=0.5,
-        y=-0.19,
+        x=0.1,
+        y=-0.2,
         xref='paper',
         yref='paper',
         text=f'Filters matched to {rows} responses.',
@@ -1425,8 +1423,9 @@ def update_education(race, state, singlehead):
             size=21,
             color='black'
         ))
-    fig.update_layout(title_x=0.5)
     return fig
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8060)
