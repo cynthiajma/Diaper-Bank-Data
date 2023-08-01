@@ -1,56 +1,63 @@
 
 .header-title {
     color: #000000;
-    font-size: 30;
+    font-size: 30px;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-family: Merriweather;
 }
 .header-description{
-    font-size: 18;
+    font-size: 14px;
     text-align: left;
     margin-top: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     font-family: Montserrat;
 }
 .label{
     font-weight: bold;
+    font-family: Merriweather;
+    font-size:14px;
 }
 .dropdown{
     display: inline-block;
     width: 100%;
     margin-top: 2%;
 }
-.filter{
+.filter {
+    justify-content: inline-block;
     width:100%;
     margin-left: 3%;
     margin-right: 3%;
 }
 .filter2{
-    width:100%;
-    margin-right: 2%;
-}
-.mapHeader{
-    display: block;
-    margin-bottom:0;
-    background: #F7F3F2;
-    width: 50%;
-    padding: 0.5%;
-}
-.filtersRow2{
-    display: flex;
-    width: 50%;
-    justify-content: start;
-    padding: 0.5%;
-    background: #F7F3F2;
+    justify-content: inline-block;
+    margin-left: 3%;
+    margin-right: 3%;
+    flex: 0 0 27%;
 }
 .filtersRow1 {
     display: flex;
-    width: 100%;
+    width: 100%; 
     justify-content: space-evenly;
-    padding: 10px;
+    padding: 0.5%;
     background: #F7F3F2;
 }
+.mapHeader {
+    display: block;
+    margin-bottom:0;
+    background: #F7F3F2;
+    width: 100%;
+    padding: 0.5%;
+    text-align: center;
+    font-size: 20px;
+}
+.filtersRow2{
+    background: #F7F3F2;
+    display: flex;
+    justify-content: start;
+    padding: 0.5%;
+}
+
 .part2-header{
     padding: 15px;
     background: #E4E0DF;
@@ -66,30 +73,39 @@
     font-weight:normal;
     font-size: 13px;
     font-family: Montserrat;
+}
+.income-graph{
+    display: inline-block;
+    width: 50%;
+    height: 80%;
+}
+.row2-graph{
+    display: inline-block;
+    width: 50%;
+    height: 80%;
+}
 
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  grid-gap: 10px; /* Adjust the gap between columns */
+  height: 300%;
 }
-.preterm_graph{
-    display: inline-block;
-    width: 50%;
+.grid-item{
+    width:100%;
+}
+.grid-item > * {
+  /* Use this if you want to center the content within each grid-item */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.extra-title {
+    font-size: 30;
+    background: #F7F3F2;
+}
+.image {
     height: 80%;
-}
-.illness_graph{
-    display: inline-block;
-    width: 50%;
-    height: 80%;
-}
-.childgraph{
-    display: inline-block;
-    width: 50%;
-    height: 80%;
-}
-.incomegraphs{
-    display: inline-block;
-    width: 50%;
-    height: 80%;
-}
-.sankeygraphs{
-    display: inline-block;
-    width: 33.3%;
-    height: 60%;
+    width: 100%;
 }
