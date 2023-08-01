@@ -431,7 +431,7 @@ def update_bar(race, state, singlehead):
     dff = dff[
         ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
          'Race']]
-    dff = dff.dropna(how='all')
+    dff = dff.dropna(subset=['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm'], how='all')
     rows = dff.shape[0]
     dfff = dff.replace(np.nan, 0)
     dfff = dfff.replace(2, 1)
@@ -448,7 +448,6 @@ def update_bar(race, state, singlehead):
     dff = dff.merge(dfff)
     dff['Preterm'] = dff['Sum'] / dff['Total Children'] * 100
     dff['Term'] = 100 - dff['Preterm']
-    dff = dff.drop(['Sum', 'Total Children'], axis=1)
     dff = dff.sort_values(by='Preterm')
     if rows > 10:
         fig = go.Figure(layout=dict(template='plotly'))
@@ -458,11 +457,13 @@ def update_bar(race, state, singlehead):
                          "Preterm": "#e81e36",
                          "Term": "#86bce8"},
                      labels={"variable": "Preterm or Term",
-                             "value": "Percent"},
+                             "value": "Percent",
+                             "Total Children": "Total Children In Race"},
                      title="Distribution of Preterm vs Term Babies by Race or Ethnic Identity"
                            "<br><sup>You have selected "
                            + str(race) + " as race, " + str(state) + " as state, and " + str(singlehead)
                            + " for single head of household.",
+                     hover_data=['Total Children'],
                      barmode='stack')
         fig.update_layout(annotations=[dict(
             x=0.5,
