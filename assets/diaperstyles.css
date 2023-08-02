@@ -57,7 +57,6 @@
     justify-content: start;
     padding: 0.5%;
 }
-
 .part2-header{
     padding: 15px;
     background: #E4E0DF;
@@ -82,30 +81,29 @@
 .row2-graph{
     display: inline-block;
     width: 50%;
-    height: 80%;
 }
-
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  grid-gap: 10px; /* Adjust the gap between columns */
-  height: 300%;
-}
-.grid-item{
-    width:100%;
-}
-.grid-item > * {
-  /* Use this if you want to center the content within each grid-item */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.extra-title {
+.extra-title{
+    color: #000000;
     font-size: 30;
+    text-align: center;
+    padding: 0.5%;
     background: #F7F3F2;
-}
-.image {
-    height: 80%;
     width: 100%;
+    float: right;
+    display: inline-block;
+    font-family: Merriweather;
+}
+.preterm{
+    float: right;
+    width: 100%;
+    margin-top: 0%;
+    vertical-align:top;
+    text-align: center;
+    display: inline-block;
+
+}
+.edu{
+    float: left;
+    width: 50%;
+    display: inline-block;
 }

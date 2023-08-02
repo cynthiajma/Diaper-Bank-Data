@@ -290,41 +290,21 @@ app.layout = html.Div(
             children=[
                 dcc.Graph(id='map-content'),
                 html.H3(children='Additional Visualizations', className='part2-header'),
+                html.H3(id="Comparison of Income Distributions for Diaper Bank Households and U.S. Census "
+                                      "Data", className='graph-title'),
+                html.Div(id='display-selected-filtersINCOME', className='subtitle'),
+                dcc.Graph(id='income2019-content', className='income-graph'),
+                dcc.Graph(id='income2020-content', className='income-graph'),
                 html.Br(),
-                html.Div([
-                    html.Div(
-                        children=[
-                            html.H3(children="Comparison of Income Distributions for Diaper Bank Households and U.S. Census Data",
-                            className='graph-title'),
-                            html.Div(id='display-selected-filtersINCOME', className='subtitle'),
-                            dcc.Graph(id='income2019-content', className='income-graph'),
-                            dcc.Graph(id='income2020-content', className='income-graph')
-                        ],
-                    ),
-                    html.Br(),
-                    html.Div(
-                        children=[
-                            dcc.Graph(id='preterm-content', className='row2-graph'),
-                            dcc.Graph(id='education-content', className='row2-graph'),
-                        ],
-                    ),
-                    html.Div(
-                        children=[
-                            dcc.Graph(id='transport-pie-content', className='grid-item'),
-                            html.Div(
-                                children=[
-                                    html.H3(children="Extra Statistics", className='extra-title'),
-                                    html.Img(src="assets/static.png", alt='Diaper Bank Household Statistics',
-                                             className='image')
-                                ], className='grid-item'
-                            )
-                        ], className = 'grid-container'
-                    ),
-                ]),
-            ]
-        ),
-    ],
-)
+                dcc.Graph(id='preterm-content', className='row2-graph'),
+                dcc.Graph(id='education-content', className='row2-graph'),
+                dcc.Graph(id='transport-pie-content', className='edu'),
+                html.Div(children=[html.H3(children="Extra Statistics", className='extra-title'),
+                                   html.Img(src="assets/static.png", className='preterm')],
+                         className='edu')
+        ]),
+    ])
+
 
 @callback(
     Output('display-selected-filtersINCOME', 'children'),
