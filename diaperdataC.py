@@ -2,36 +2,36 @@ from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 import numpy as np
-import plotly.io as pio
 import plotly.graph_objects as go
-
 
 
 df = pd.read_csv("diaperdata.csv", encoding="latin-1")
 
-#Reading and opening census data
+# Reading and opening census data
 acsincome = pd.read_csv("ACS_5year_2021_income.csv", encoding="latin-1")
 acsincome = acsincome.loc[acsincome['Race'] != 'ALL']
 acsincome = acsincome.loc[acsincome['Race'] != 'WHITE']
 acsincome = pd.melt(acsincome, id_vars=['State', 'Race'], value_vars=["<16k", "16-20k", "20-25k", "25-30k",
-                                                                        "30-35k", "35-40k", "40-45k", "45-50k",
-                                                                        "50-60k", "60-70k", "70-80k", "80k+"])
+                                                                      "30-35k", "35-40k", "40-45k", "45-50k",
+                                                                      "50-60k", "60-70k", "70-80k", "80k+"])
 acsincome['variable'] = acsincome['variable'].replace(["<16k", "16-20k", "20-25k", "25-30k",
-                                                                        "30-35k", "35-40k", "40-45k", "45-50k",
-                                                                        "50-60k", "60-70k", "70-80k", "80k+"],
+                                                       "30-35k", "35-40k", "40-45k", "45-50k",
+                                                       "50-60k", "60-70k", "70-80k", "80k+"],
                                                       ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
-                                                     '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
-                                                     '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
-#Renaming race values in census data
+                                                       '30,000-34,999', '35,000-39,999', '40,000-44,999',
+                                                       '45,000-49,999', '50,000-59,999', '60,000-69,999',
+                                                       '70,000-79,999', '>=80,000'])
+# Renaming race values in census data
 acsincome.loc[(acsincome['Race'] == 'ASIAN'), 'Race'] = 'Asian'
 acsincome.loc[(acsincome['Race'] == 'BLACK OR AFRICAN AMERICAN'), 'Race'] = 'Black'
 acsincome.loc[(acsincome['Race'] == 'AMERICAN INDIAN AND ALASKA NATIVE'), 'Race'] = 'American Indian or Alaskan Native'
-acsincome.loc[(acsincome['Race'] == 'NATIVE HAWAIIAN AND OTHER PACIFIC ISLANDER'), 'Race'] = 'Native Hawaiian or Pacific Islander'
+acsincome.loc[(acsincome['Race'] == 'NATIVE HAWAIIAN AND OTHER PACIFIC ISLANDER'), 'Race'] = \
+    'Native Hawaiian or Pacific Islander'
 acsincome.loc[(acsincome['Race'] == 'TWO OR MORE RACES'), 'Race'] = 'Multiracial'
 acsincome.loc[(acsincome['Race'] == 'HISPANIC OR LATINO'), 'Race'] = 'Hispanic'
 acsincome.loc[(acsincome['Race'] == 'WHITE, NOT HISPANIC OR LATINO'), 'Race'] = 'White'
 
-#Replacing all state values for initials in census data
+# Replacing all state values for initials in census data
 acsincome.loc[(acsincome['State'] == 'Alabama'), 'State'] = 'AL'
 acsincome.loc[(acsincome['State'] == 'Alaska'), 'State'] = 'AK'
 acsincome.loc[(acsincome['State'] == 'Arizona'), 'State'] = 'AZ'
@@ -84,7 +84,7 @@ acsincome.loc[(acsincome['State'] == 'West Virginia'), 'State'] = 'WV'
 acsincome.loc[(acsincome['State'] == 'Wisconsin'), 'State'] = 'WI'
 acsincome.loc[(acsincome['State'] == 'Wyoming'), 'State'] = 'WY'
 
-#Replacing all state values with state intiials
+# Replacing all state values with state intiials
 df['State'] = df['State'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
                                    24, 25], ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID',
                                              'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS',
@@ -94,7 +94,7 @@ df['State'] = df['State'].replace([26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 3
                                                          'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT',
                                                          'VA', 'WA', 'WV', 'WI', 'WY', "Multiple States"])
 
-#Adding additional diaper bank state info
+# Adding additional diaper bank state info
 df.loc[(df['DiaperBankName'] == 'Bare Needs Diaper Bank'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'Basic Necessities'), 'State'] = 'LA'
 df.loc[(df['DiaperBankName'] == 'Cradles to Crayons Philadelphia'), 'State'] = 'PA'
@@ -108,7 +108,7 @@ df.loc[(df['DiaperBankName'] == 'Sweet Cheeks Diaper Ministry'), 'State'] = 'TN'
 df.loc[(df['DiaperBankName'] == 'The Life House'), 'State'] = 'NE'
 df.loc[(df['DiaperBankName'] == 'Emergency Infant Services'), 'State'] = 'OK'
 
-#Replacing values for transport type
+# Replacing values for transport type
 df.loc[(df['DB_Transport'] == 1), 'DB_Transport'] = 'Walk'
 df.loc[(df['DB_Transport'] == 2), 'DB_Transport'] = 'Public Transportation'
 df.loc[(df['DB_Transport'] == 3), 'DB_Transport'] = 'Drove Self'
@@ -116,7 +116,7 @@ df.loc[(df['DB_Transport'] == 4), 'DB_Transport'] = 'Got a Ride'
 df.loc[(df['DB_Transport'] == 5), 'DB_Transport'] = 'Taxi/Ride Sharing App'
 df.loc[(df['PartnerAgencyType'] == "HOMEVISIT"), 'DB_Transport'] = 'Home Visit'
 
-#Replacing values for race
+# Replacing values for race
 df.loc[(df['Race_PreferNoShare'] == 1), 'Race'] = 'Prefer Not to Share'
 df.loc[(df['Race_AIAN'] == 1), 'Race'] = 'American Indian or Alaskan Native'
 df.loc[(df['Race_Asian'] == 1), 'Race'] = 'Asian'
@@ -131,7 +131,7 @@ df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'R
 df.loc[((df[['Race_PreferNoShare', 'Race_AIAN', 'Race_Asian', 'Race_BlackAA', 'Race_Hispanic', 'Race_NativeHawaiianPI',
              'Race_White', 'Race_MENA', 'Race_Multiracial']].sum(axis=1)) == 0), 'Race'] = 'Prefer Not to Share'
 
-#Replacing values for education type graph
+# Replacing values for education type graph
 df.loc[(df['Ad1_EduType'] == 1), 'Ad1_EduType'] = 'High School'
 df.loc[(df['Ad1_EduType'] == 2), 'Ad1_EduType'] = 'GED'
 df.loc[(df['Ad1_EduType'] == 3), 'Ad1_EduType'] = 'Associate\'s/2-year'
@@ -145,7 +145,7 @@ df.loc[(df['Ad2_EduType'] == 4), 'Ad2_EduType'] = 'Bachelor\'s/4-year'
 df.loc[(df['Ad2_EduType'] == 5), 'Ad2_EduType'] = 'Graduate Degree'
 df.loc[(df['Ad2_EduType'] == 6), 'Ad2_EduType'] = 'Enrolled in a Job-Training/Non-Degree Program'
 
-#Assigning 2020 state median information from FRED data
+# Assigning 2020 state median information from FRED data
 df.loc[(df['State'] == 'AL'), 'State_2020_Median'] = 57243
 df.loc[(df['State'] == 'CA'), 'State_2020_Median'] = 81278
 df.loc[(df['State'] == 'CO'), 'State_2020_Median'] = 87689
@@ -176,29 +176,31 @@ df.loc[(df['State'] == 'UT'), 'State_2020_Median'] = 87915
 df.loc[(df['State'] == 'WA'), 'State_2020_Median'] = 85157
 df.loc[(df['State'] == 'WY'), 'State_2020_Median'] = 68506
 
-#Replacing values for single household
+# Replacing values for single household
 df.loc[(df['NumAdults'] == 1), 'Single Household'] = 'Yes'
 df.loc[(df['NumAdults'] != 1), 'Single Household'] = 'No'
 singlehead = ['Yes', 'No']
 
-#Sorting states, setting races
+
+# Sorting states, setting races
 states = df["State"].sort_values().unique()
 races = ['American Indian or Alaskan Native', 'Asian', 'Black', 'Hispanic', 'Middle Eastern or North African',
          'Native Hawaiian or Pacific Islander', 'White', 'Multiracial', 'Prefer Not to Share']
 df['Income_2020_2'] = df['Income_2020']
 
-#creating filters dictionary to add filters to
+# creating filters dictionary to add filters to
 filters = {"race": "",
            "region": "", "state": "", 'singlehead': ""}
 
 global percent_inHome
 
-#app layout
+# app layout
 external_stylesheets = ['assets/diaperstyles.css']
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Diaper Bank Household Data"
 app.layout = html.Div(
     children=[
+        # main dash title
         html.Div(
             children=[
                 html.H1(children="Diaper Bank Household Data", className="header-title"),
@@ -211,6 +213,7 @@ app.layout = html.Div(
             ],
             className="header",
         ),
+        # race dropdown
         html.Div([
             html.Div([
                     html.Label(["Race"], className='label'),
@@ -224,6 +227,7 @@ app.layout = html.Div(
                     ),
                 ], className='filter',
                 ),
+            # state dropdown
             html.Div([
                     html.Label(["State"], className='label'),
                     html.Br(),
@@ -234,8 +238,9 @@ app.layout = html.Div(
                         clearable=True,
                         className="dropdown"
                     ),
-                ],className='filter',
+                ], className='filter',
                 ),
+            # single head of household dropdown
             html.Div([
                     html.Label(['Single Head of Household'],
                                className='label'),
@@ -253,10 +258,12 @@ app.layout = html.Div(
             ],
             className='filtersRow1'
         ),
+        # choropleth section
         html.H3(children='Map Filters', className='mapHeader'),
         html.Div(
             children=[
                 html.Div([
+                    # category dropdown
                     html.Label(['Category'], className='label'),
                     html.Br(),
                     dcc.Dropdown(
@@ -273,6 +280,7 @@ app.layout = html.Div(
                     ),
                 ], className='filter'),
                 html.Div([
+                    # variable dropdown
                     html.Label(["Map Variable"], className='label'),
                     html.Br(),
                     dcc.Dropdown(
@@ -287,28 +295,35 @@ app.layout = html.Div(
         ),
         html.Div(
             children=[
+                # choropleth
                 dcc.Graph(id='map-content'),
+                # additional visualization section
                 html.H3(children='Additional Visualizations', className='part2-header'),
                 html.Div([
+                    # income graphs
                     html.H3(children="Comparison of Income Distributions for Diaper Bank Households and U.S. Census "
-                                      "Data", className='graph-title'),
+                            "Data", className='graph-title'),
                     html.Div(id='display-selected-filtersINCOME', className='subtitle'),
                     dcc.Graph(id='income2019-content', className='income-graph'),
                     dcc.Graph(id='income2020-content', className='income-graph'),
                 ]),
                 html.Br(),
                 html.Div([
+                    # preterm graph
                     dcc.Graph(id='preterm-content', className='row2-graph'),
+                    # education graph
                     dcc.Graph(id='education-content', className='row2-graph'),
                 ]),
+                # education graph
                 dcc.Graph(id='transport-pie-content', className='edu'),
+                # extra statistics
                 html.Div(children=[html.H3(children="Extra Statistics", className='extra-title'),
                                    html.Img(src="assets/static.png", className='preterm')],
                          className='edu')
-        ]),
+            ]),
     ])
 
-
+# display filters for income
 @callback(
     Output('display-selected-filtersINCOME', 'children'),
     Input('race', 'value'),
@@ -317,7 +332,7 @@ app.layout = html.Div(
 def income_subtitle(race, state, singlehead):
     return f'You have selected {race} as race, {state} as state, and {singlehead} for single head of household.'
 
-
+# connects variable dropdown to category dropdown
 @callback(
     Output("map-dropdown", "options"),
     Output("map-dropdown", "value"),
@@ -345,7 +360,7 @@ def update_map_dropdown(optionslctd):
         value = None
     return options, value
 
-
+# choropleth graph
 @callback(
    Output('map-content', 'figure'),
    [Input('map-dropdown', 'value'),
@@ -353,6 +368,7 @@ def update_map_dropdown(optionslctd):
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def display_choropleth(variable, race, state, singlehead):
+    # filtering dataframe
     filters["race"] = race if race else ""
     filters['state'] = state if state else ""
     filters['singlehead'] = singlehead if singlehead else ""
@@ -366,9 +382,11 @@ def display_choropleth(variable, race, state, singlehead):
             dff = dff.loc[dff['State'] == filters['state']]
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
+    # average number of children in diapers
     if variable == "NumKidsDiapers":
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shownif less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -387,8 +405,9 @@ def display_choropleth(variable, race, state, singlehead):
                                   showarrow=False)])
             return fig
 
+        # group by state and calculate means for numeric variables
         dff = dff.groupby(['State']).mean(numeric_only=True).reset_index()
-
+        # make choropleth for average number of kids in diapers
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
@@ -400,6 +419,7 @@ def display_choropleth(variable, race, state, singlehead):
                             color_continuous_scale='ice_r')
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -410,6 +430,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -425,6 +446,7 @@ def display_choropleth(variable, race, state, singlehead):
             ],
             dragmode=False
         )
+        # change font
         fig.update_layout(
             title_font=dict(
                 family='Merriweather',
@@ -432,12 +454,14 @@ def display_choropleth(variable, race, state, singlehead):
                 color='black'
             ))
         return fig
-
+    # percentage of households with a single head of household
     if variable == "NumAdults":
+        # creating single household variable
         dff.loc[(dff['NumAdults'] == 1), 'Single Household'] = 'Yes'
         dff.loc[(dff['NumAdults'] != 1), 'Single Household'] = 'No'
-
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -455,13 +479,14 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-
+        # grouping by state and counting how many responses are "Yes" for single households variable
         dff = dff[['State', 'Single Household']].groupby('State').value_counts(normalize=True)\
             .to_frame(name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Single Household'] == 'Yes']
         dff = dff[['State', 'Proportion of Households']]
+        # converting proportion to percentage
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
                             locationmode="USA-states",
@@ -473,6 +498,7 @@ def display_choropleth(variable, race, state, singlehead):
                             color_continuous_scale='ice_r')
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -483,6 +509,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -498,7 +525,7 @@ def display_choropleth(variable, race, state, singlehead):
             ],
             dragmode=False
         )
-
+        # change font
         fig.update_layout(
             title_font=dict(
                 family='Merriweather',
@@ -507,9 +534,11 @@ def display_choropleth(variable, race, state, singlehead):
             ))
 
         return fig
-
+    # median household income in 2019
     if variable == "Income_2019":
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -527,6 +556,7 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
+        # replace income ranges to numbers to calculate median
         dff['Income_2019'] = dff['Income_2019'].replace(['<=15,999', '<=15,999', '16,'
                                                                                '000-19,999',
                                                        '20,000-24,999',
@@ -535,9 +565,10 @@ def display_choropleth(variable, race, state, singlehead):
                                                        '45,000-49,999', '50,000-59,999',
                                                        '60,000-69,999', '70,000-79,999', '>=80,000'],
                                                       [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        # grouping by state and calculating medians
         dff = dff.groupby(['State']).median(numeric_only=True)['Income_2019'].apply(
             lambda x: round(x)).to_frame().reset_index()
-
+        # replacing numbers back to ranges
         dff['Income_2019'] = dff['Income_2019'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '<=15,999', '16,'
                                                                                  '000-19,999',
@@ -546,7 +577,7 @@ def display_choropleth(variable, race, state, singlehead):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
                             locationmode='USA-states',
@@ -562,6 +593,7 @@ def display_choropleth(variable, race, state, singlehead):
                             title='Median Household Income in 2019')
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -572,6 +604,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -587,6 +620,7 @@ def display_choropleth(variable, race, state, singlehead):
             ],
             dragmode=False
         )
+        # changing font
         fig.update_layout(
             title_font=dict(
                 family='Merriweather',
@@ -594,9 +628,11 @@ def display_choropleth(variable, race, state, singlehead):
                 color='black'
             ))
         return fig
-
+    # median household income in 2020
     if variable == "Income_2020":
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -614,8 +650,10 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
+        # grouping by state to calculate median income
         dff = dff.groupby(['State']).median(numeric_only=True)['Income_2020'].apply(
             lambda x: round(x)).to_frame().reset_index()
+        # replacing numbers back to income ranges
         dff['Income_2020'] = dff['Income_2020'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                         ['<=15,999', '<=15,999', '16,'
                                                                                  '000-19,999',
@@ -624,7 +662,7 @@ def display_choropleth(variable, race, state, singlehead):
                                                          '35,000-39,999', '40,000-44,999',
                                                          '45,000-49,999', '50,000-59,999',
                                                          '60,000-69,999', '70,000-79,999', '>=80,000'])
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
                             locationmode='USA-states',
@@ -640,6 +678,7 @@ def display_choropleth(variable, race, state, singlehead):
                             title='Median Household Income in 2020')
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -650,6 +689,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -663,6 +703,7 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
+            # changing font
             title_font=dict(
                 family='Merriweather',
                 size=18,
@@ -671,15 +712,19 @@ def display_choropleth(variable, race, state, singlehead):
             dragmode=False,
         )
         return fig
-
+    # percentage of households with one or more working adult
     if variable == "Ad1CurrentWork":
         dff['Ad1CurrentWork'] = df['Ad1CurrentWork']
         dff['Ad2CurrentWork'] = df['Ad2CurrentWork']
+        # dropping rows where there were no responses for both columns
         dff = dff.dropna(how='all')
+        # changing not working (2) to 0
         dff = dff.replace(2, 0)
+        # changing NA to 0
         dff = dff.replace(np.nan, 0)
-
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -697,17 +742,20 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-
+        # summing up number of adults working
         dff['Sum'] = dff['Ad1CurrentWork'] + dff['Ad2CurrentWork']
+        # calculating if household has one or more adult working
         dff.loc[(dff['Sum'] >= 1), '1+ Adult Working'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), '1+ Adult Working'] = 'No'
+        # grouping by state to see how many households have one or more working adult ('Yes')
         dff = dff[['State', '1+ Adult Working']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['1+ Adult Working'] == 'Yes']
+        # converting proportion to percentage
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
-        fig=px.choropleth(dff, locations='State',
+        fig = px.choropleth(dff, locations='State',
                           locationmode="USA-states",
                           color='Percentage of Households',
                           labels={"Percentage of Households": "% of Households"},
@@ -717,6 +765,7 @@ def display_choropleth(variable, race, state, singlehead):
                           color_continuous_scale='ice_r')
         fig.update_layout(
             annotations=[
+                # display selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -727,6 +776,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # display number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -740,6 +790,7 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
+            # changing font
             title_font=dict(
                 family='Merriweather',
                 size=18,
@@ -749,18 +800,23 @@ def display_choropleth(variable, race, state, singlehead):
         )
 
         return fig
-
+    # percentage of households with one or more adult in education or job training
     if str(variable) == "Ad1_School":
         dff['Ad1_School'] = df['Ad1_School']
         dff['Ad2_School'] = df['Ad2_School']
+        # dropping rows where both columns had to responses
         dff = dff.dropna(how='all')
+        # changing not in education/job training (2) to 0
         dff = dff.replace(2, 0)
+        # changing NA to 0
         dff = dff.replace(np.nan, 0)
+        # adding up number of adults in edu/job training
         dff['Sum'] = dff['Ad1_School'] + dff['Ad2_School']
         dff.loc[(dff['Sum'] >= 1), 'Education or Job Training'] = 'Yes'
         dff.loc[(dff['Sum'] == 0), 'Education or Job Training'] = 'No'
-
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -778,14 +834,15 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-
+        # grouping by state and counting how many have one or more adult in edu/job training
         dff = dff[['State', 'Education or Job Training']].groupby('State').value_counts(normalize=True).to_frame(
             name='Proportion of Households').reset_index()
         dff = dff.loc[dff['Education or Job Training'] == 'Yes']
+        # converting proportion to percentage
         dff['Percentage of Households'] = dff['Proportion of Households'] * 100
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
-        fig=px.choropleth(dff, locations='State',
+        fig = px.choropleth(dff, locations='State',
                           locationmode="USA-states",
                           color='Percentage of Households',
                           labels={"Percentage of Households": "% of Households"},
@@ -795,6 +852,7 @@ def display_choropleth(variable, race, state, singlehead):
                           color_continuous_scale='ice_r')
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -805,6 +863,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -818,6 +877,7 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
+            # changing font
             title_font=dict(
                 family='Merriweather',
                 size=18,
@@ -827,16 +887,20 @@ def display_choropleth(variable, race, state, singlehead):
         )
 
         return fig
-
+    # average number of children in childcare
     if str(variable) == "AnyCareforCHILD1_C":
         dff['AnyCareforCHILD1_C'] = df['AnyCareforCHILD1_C']
         dff['AnyCareforCHILD2_C'] = df['AnyCareforCHILD2_C']
+        # select rows where there are responses to at least one of two columns
         dff = dff.loc[(dff["AnyCareforCHILD1_C"] != 99) | (dff["AnyCareforCHILD2_C"] != 99)]
+        # replacing not in childcare/was in childcare as 0
         dff = dff.replace(2, 0)
         dff = dff.replace(99, 0)
+        # adding up number of kids in childcare
         dff['Sum'] = dff['AnyCareforCHILD1_C'] + dff['AnyCareforCHILD2_C']
-
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -854,12 +918,12 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-
+        # grouping by state and calculating mean for numeric variables
         dff = dff.groupby('State').mean(numeric_only=True).reset_index()
         dff = dff[['State', 'Sum']]
-
+        # create choropleth
         fig = go.Figure(layout=dict(template='plotly'))
-        fig=px.choropleth(dff,
+        fig = px.choropleth(dff,
                           locations='State',
                           locationmode="USA-states",
                           color_continuous_scale='ice_r',
@@ -869,6 +933,7 @@ def display_choropleth(variable, race, state, singlehead):
                           scope="usa")
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -879,6 +944,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching rows
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -892,6 +958,7 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
+            # changing font
             title_font=dict(
                 family='Merriweather',
                 size=18,
@@ -901,11 +968,12 @@ def display_choropleth(variable, race, state, singlehead):
         )
 
         return fig
-
+    # median income of households relative to their state's 2020 median income
     if str(variable) == "Income_2020_2":
         dff['State_2020_Median'] = df['State_2020_Median']
-
+        # counting number of responses
         rows = dff.shape[0]
+        # no choropleth shown if less than 10 responses
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -924,17 +992,19 @@ def display_choropleth(variable, race, state, singlehead):
                                   showarrow=False)])
             return fig
 
-
+        # grouping by state to calculate medians
         dff = dff.groupby(['State']).median(numeric_only=True).reset_index()
+        # converting numbers to end of income ranges
         dff['Income_2020_2'] = dff['Income_2020_2'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                             [15999, 19999, 24999, 29999, 34999, 39999, 44999, 49999,
                                                              59999,
                                                              69999, 79999, 89999])
+        # calculating proportion and converting to percentage
         dff['Proportion of State Median'] = dff['Income_2020_2'] / dff['State_2020_Median']
         dff['Percent of State Median'] = dff['Proportion of State Median'] * 100
-
+        # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
-        fig=px.choropleth(dff,
+        fig = px.choropleth(dff,
                           locations='State',
                           locationmode="USA-states",
                           color_continuous_scale='ice_r',
@@ -944,6 +1014,7 @@ def display_choropleth(variable, race, state, singlehead):
                           scope="usa")
         fig.update_layout(
             annotations=[
+                # displaying selected filters
                 dict(
                     x=-0.004,
                     y=1.17,
@@ -954,6 +1025,7 @@ def display_choropleth(variable, race, state, singlehead):
                     ),
                     showarrow=False
                 ),
+                # displaying number of matching responses
                 dict(
                     x=0.5,
                     y=-0.19,
@@ -967,6 +1039,7 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
+            # changing font
             title_font=dict(
                 family='Merriweather',
                 size=18,
