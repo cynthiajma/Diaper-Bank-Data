@@ -1074,36 +1074,32 @@ def update_income2019(race, state, singlehead):
     return fig
 
 
-
+#Income 2020 graph
 @callback(
    Output('income2020-content', 'figure'),
    [Input('race', 'value'),
    Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_income2020(race, state, singlehead):
+    # Modify df dataframe based on selected filters
     filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
-    acs = acsincome.copy()
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[
-            ['Race', 'State', 'Single Household', 'Income_2020']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-            acs = acs.loc[acs['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-            acs = acs.loc[acs['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
+    #Modify acs dataframe based on selected filters
+    acs = acsincome.loc[(acsincome['Race']) == filters["race"]] if filters["race"] else acsincome
+    acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
 
     #Convert 'Income_2020' to income ranges.
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+
+    # Find number of rows and if the number < 10, hide graph
     rows = dff.dropna(subset=['Income_2020']).shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1133,11 +1129,12 @@ def update_income2020(race, state, singlehead):
     acs['Type'] = 'ACS 5-Year Survey'
     dff['Type'] = 'Diaper Bank Recipients'
 
+    # Merge together 2 dataframes into 1
     dff = dff[['Income Range', 'Percentage', 'Type']]
     acs = acs[['Income Range', 'Percentage', 'Type']]
-
     acsdff = pd.concat([acs, dff])
 
+    # Create income 2020 histogram
     fig = go.Figure(layout=dict(template='plotly'))
     fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
                        labels={"Income Range": "Income Range ($)"},
@@ -1150,6 +1147,8 @@ def update_income2020(race, state, singlehead):
                        color_discrete_map={
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
+
+    # Change title font and size, and add filters matched to responses annotation
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
@@ -1167,34 +1166,36 @@ def update_income2020(race, state, singlehead):
         title_x=0.42,
         title_y=0.85
     )
+
+    #Change hover data to income range, and opacity of the bars
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%", opacity=0.75)
+
     return fig
 
 
+# Preterm graph
 @callback(
    Output('preterm-content', 'figure'),
    [Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_preterm(race, state, singlehead):
+    # Modify dataframe based on selected filters
     filters["race"] = race if race else ""
-    filters['state'] = state if state else ""
-    filters['singlehead'] = singlehead if singlehead else ""
-    dff = pd.DataFrame()
+    dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
+    filters["state"] = state if state else ""
+    dff = dff.loc[(df['State']) == filters["state"]] if filters["state"] else dff
+    filters["singlehead"] = singlehead if singlehead else ""
+    dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
+    dff = dff[
+        ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
+         'Race']]
 
-    if 'race' in filters or 'state' in filters or 'singlehead' in filters:
-        dff = df[['Race', 'State', 'Single Household', 'CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm']]
-        if filters['race']:
-            dff = dff.loc[dff['Race'] == filters['race']]
-        if filters['state']:
-            dff = dff.loc[dff['State'] == filters['state']]
-        if filters['singlehead']:
-            dff = dff.loc[dff['Single Household'] == filters['singlehead']]
-
-
-
+    # Drop null values in this subset of the dataframe
     dff = dff.dropna(subset = ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm',
                                'CH7Preterm', 'CH8Preterm'], how='all')
+
+    # Find number of rows and if the number < 10, hide graph
     rows = dff.shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1216,13 +1217,18 @@ def update_preterm(race, state, singlehead):
                               showarrow=False)])
         return fig
 
+    # Drop null values
     dfff = dff.replace(np.nan, 0)
+
+    # Calculate the total number of babies by race
     dfff = dfff.replace(2, 1)
     dfff['Total Children'] = dfff[
         ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm',
          'CH8Preterm']].sum(axis=1)
     dfff = dfff[['Race', 'Total Children']].groupby(['Race']).sum('Total Children').reset_index()
     dfff['Total Children'] = dfff['Total Children'].astype(int)
+
+    # Calculate the total number of preterm babies by race
     dff = dff.replace(np.nan, 0)
     dff = dff.replace(2, 0)
     dff['SumPreterm'] = dff[
@@ -1230,11 +1236,14 @@ def update_preterm(race, state, singlehead):
          'CH8Preterm']].sum(axis=1)
     dff = dff[['Race', 'SumPreterm']].groupby('Race').sum().astype(int).reset_index()
     dff = dff.merge(dfff)
+
+    # Calculate the percentage of preterm babies
     dff['Preterm'] = dff['SumPreterm'] / dff['Total Children'] * 100
     dff['Term'] = 100 - dff['Preterm']
     dff['SumTerm'] = dff['Total Children'] - dff['SumPreterm']
     dff = dff.sort_values(by='Preterm')
 
+    # Create stacked bar chart for preterm and term babies by race
     fig = go.Figure(layout=dict(template='plotly'))
     fig = px.bar(dff, y='Race', x=['Preterm', 'Term'],
                  template='plotly_white',
@@ -1248,6 +1257,7 @@ def update_preterm(race, state, singlehead):
                  title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity",
                  barmode='stack')
 
+    # Changing title font and size, and adding filters selected annotation
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
@@ -1262,6 +1272,7 @@ def update_preterm(race, state, singlehead):
                         "head of household.",
             showarrow=False)]
     )
+    # Adding how many matching responses annotation
     fig.add_annotation(
         x=0.2,
         y=-0.25,
@@ -1270,16 +1281,17 @@ def update_preterm(race, state, singlehead):
         text=f'Filters matched to {rows} responses.',
         showarrow=False
     )
-
-
     return fig
 
+
+# Education pie chart
 @callback(
     Output('education-content', 'figure'),
     Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value'))
 def update_education(race, state, singlehead):
+    # Modify dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
@@ -1287,6 +1299,7 @@ def update_education(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
+    # Removing null values, modifying dataframe
     dff1 = dff[['Ad1_School', 'Ad1_EduType']]
     dff2 = dff[['Ad2_School', 'Ad2_EduType']]
     dff1 = dff1.loc[(dff1['Ad1_School']) == 1]
@@ -1294,6 +1307,7 @@ def update_education(race, state, singlehead):
     dff1 = dff1.dropna(subset=['Ad1_EduType'])
     dff2 = dff2.dropna(subset=['Ad2_EduType'])
 
+    # Find number of rows and if the number < 10, hide graph
     rows = dff1.shape[0] + dff2.shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1314,8 +1328,11 @@ def update_education(race, state, singlehead):
                               showarrow=False)])
         return fig
 
+    #Modifying dataframe columns and values
     dff = dff1['Ad1_EduType'].value_counts() + dff2['Ad2_EduType'].value_counts()
     dff = dff.to_frame('Number of Adults').rename_axis('Education Type').reset_index()
+
+    # Create education pie chart
     fig = px.pie(dff, names="Education Type", values="Number of Adults",
                  template="plotly_white",
                  color_discrete_sequence=px.colors.sequential.RdBu_r,
@@ -1323,6 +1340,8 @@ def update_education(race, state, singlehead):
                  category_orders={
                      "Education Type": ['High School', 'GED', 'Associate’s/2-year', 'Bachelor’s/4-year',
                                         'Graduate degree', 'Enrolled in a Job-Training/Non-Degree Program']})
+
+    # Changing title font, adding how many responses annotation
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
@@ -1338,6 +1357,8 @@ def update_education(race, state, singlehead):
         title_x=0.5,
         legend_title="Education Level",
     )
+
+    # Add filters annotation
     fig.add_annotation(x=0.1,
                        y=1.162,
                        xref='paper',
@@ -1348,12 +1369,14 @@ def update_education(race, state, singlehead):
     return fig
 
 
+# Transportation pie chart
 @callback(
    Output('transport-pie-content', 'figure'),
    [Input('race', 'value'),
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_transport_pie(race, state, singlehead):
+    # Modify dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
@@ -1361,10 +1384,12 @@ def update_transport_pie(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
+    # Removing null values, modifying dataframe
     dff = dff[["DB_Transport", 'AccessDB']].dropna(subset=['AccessDB'])
     dff.loc[(dff['AccessDB'] == 1), 'DB_Transport'] = 'Home Visit'
     dff = dff.dropna(subset=['DB_Transport'])
 
+    # Find number of rows and if the number < 10, hide graph
     rows = dff.shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1378,6 +1403,7 @@ def update_transport_pie(race, state, singlehead):
             showarrow=False)])
         return fig
 
+    # Create transportation pie chart
     fig = go.Figure(layout=dict(template='plotly'))
     fig = px.pie(dff, names="DB_Transport",
                  category_orders={"DB_Transport": ["Drove Self", "Got a Ride", "Public Transportation",
@@ -1389,6 +1415,7 @@ def update_transport_pie(race, state, singlehead):
                  color_discrete_sequence=px.colors.sequential.RdBu_r
                  )
 
+    # Add how many responses match annotation
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
@@ -1403,6 +1430,8 @@ def update_transport_pie(race, state, singlehead):
         title_font=dict(size=21),
         title_x=0.5,
     )
+
+    # Add filter selection annotation
     fig.update_layout(
         annotations=[dict(
             x=0.1,
