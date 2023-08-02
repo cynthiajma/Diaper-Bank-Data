@@ -308,11 +308,10 @@ app.layout = html.Div(
                     html.Br(),
                     dcc.Graph(id='graph3-content', className='transport'),
                     dcc.Graph(id='graph4-content', className='transport'),
-                    html.H3(children="Distribution of Education Type",
-                            className='left-title'),
-                    html.H3(children="Extra Statistics", className='extra-title'),
-                    dcc.Graph(id='graph10-content', className='preterm'),
-                    html.Img(src=b64_image("assets/static.png"), className='preterm')
+                    dcc.Graph(id='graph10-content', className='edu'),
+                    html.Div(children=[html.H3(children="Extra Statistics", className='extra-title'),
+                                       html.Img(src=b64_image("assets/static.png"), className='preterm')],
+                             className='edu')
                 ])
             ])
     ])

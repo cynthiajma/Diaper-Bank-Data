@@ -34,8 +34,9 @@
     text-align: center;
     padding: 0.5%;
     background: #F7F3F2;
-    width: 50%;
+    width: 100%;
     float: right;
+    display: inline-block;
 }
 .small-title{
     text-align: center;
@@ -79,8 +80,8 @@
     width: 50%;
 }
 .preterm{
-    display: inline-block;
-    width: 50%;
+    float: right;
+    width: 100%;
     margin-top: 0%;
     vertical-align:top;
     text-align: center;
@@ -93,10 +94,16 @@
     display: inline-block;
     width: 50%;
 }
+.edu{
+    float: left;
+    width: 50%;
+    display: inline-block;
+}
 .sankey{
     display: inline-block;
     width: 33%;
-}.small-title{
+}
+.small-title{
     text-align: center;
     font-weight: normal;
 }
@@ -107,6 +114,13 @@
     justify-content: center;
 }
 .smallerleft-title{
+    text-align: center;
+    font-weight: normal;
+    font-size: 20;
+    display: inline-block;
+}
+.static-image{
+    float: right;
     text-align: center;
     font-weight: normal;
     font-size: 20;
