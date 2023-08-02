@@ -430,7 +430,8 @@ def update_bar(race, state, singlehead):
     dff = dff[
         ['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm',
          'Race']]
-    dff = dff.dropna(subset=['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm', 'CH7Preterm', 'CH8Preterm'], how='all')
+    dff = dff.dropna(subset=['CH1Preterm', 'CH2Preterm', 'CH3Preterm', 'CH4Preterm', 'CH5Preterm', 'CH6Preterm',
+                             'CH7Preterm', 'CH8Preterm'], how='all')
     rows = dff.shape[0]
     dfff = dff.replace(np.nan, 0)
     dfff = dfff.replace(2, 1)
