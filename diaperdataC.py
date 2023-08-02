@@ -984,6 +984,7 @@ def display_choropleth(variable, race, state, singlehead):
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_income2019(race, state, singlehead):
+    # Filter df dataframe based on selected filters
     filters["race"] = race if race else ""
     filters['state'] = state if state else ""
     filters['singlehead'] = singlehead if singlehead else ""
@@ -1002,6 +1003,7 @@ def update_income2019(race, state, singlehead):
         if filters['singlehead']:
             dff = dff.loc[dff['Single Household'] == filters['singlehead']]
 
+    # Find number of rows and if the number < 10, hide graph
     rows = dff.dropna(subset=['Income_2019']).shape[0]
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
@@ -1021,10 +1023,13 @@ def update_income2019(race, state, singlehead):
             showarrow=False)])
         return fig
 
+    # Convert 'Income_2019' to income ranges.
     dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
                                                      '50,000-59,999', '60,000-69,999', '70,000-79,999', '>=80,000'])
+
+    # Calculate percentage for distribution
     dff = dff['Income_2019'].value_counts(normalize=True)
     dff = dff.to_frame('Count').rename_axis('Income Range').reset_index()
     dff['Percentage'] = dff['Count'] * 100
@@ -1034,11 +1039,12 @@ def update_income2019(race, state, singlehead):
     acs['Type'] = 'ACS 5-Year Survey'
     dff['Type'] = 'Diaper Bank Recipients'
 
+    # Merge dff and acs dataframes into 1
     dff = dff[['Income Range', 'Percentage', 'Type']]
     acs = acs[['Income Range', 'Percentage', 'Type']]
-
     acsdff = pd.concat([acs, dff])
 
+    # Create income 2019 bar graph
     fig = go.Figure(layout=dict(template='plotly'))
     fig = px.histogram(acsdff, x='Income Range', y='Percentage', color='Type',
                        labels={"Income Range": "Income Range ($)"},
@@ -1051,6 +1057,8 @@ def update_income2019(race, state, singlehead):
                        color_discrete_map={
                            "Diaper Bank Recipients": "#e81e36",
                            "ACS 5-Year Survey": "#86bce8"})
+
+    # Change title font and size, and add filters matched to responses annotation
     fig.update_layout(
         font_family="Montserrat",
         font_color="black",
@@ -1068,6 +1076,8 @@ def update_income2019(race, state, singlehead):
         title_x=0.42,
         title_y=0.85
     )
+
+    # Change hover data to income range, and opacity of the bars
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%",
                       opacity=0.75)
 
@@ -1081,7 +1091,7 @@ def update_income2019(race, state, singlehead):
    Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_income2020(race, state, singlehead):
-    # Modify df dataframe based on selected filters
+    # Filter df dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
@@ -1089,11 +1099,11 @@ def update_income2020(race, state, singlehead):
     filters["singlehead"] = singlehead if singlehead else ""
     dff = dff.loc[(df['Single Household']) == filters["singlehead"]] if filters["singlehead"] else dff
 
-    #Modify acs dataframe based on selected filters
+    # Modify acs dataframe based on selected filters
     acs = acsincome.loc[(acsincome['Race']) == filters["race"]] if filters["race"] else acsincome
     acs = acs.loc[(acsincome['State']) == filters["state"]] if filters["state"] else acs
 
-    #Convert 'Income_2020' to income ranges.
+    # Convert 'Income_2020' to income ranges.
     dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                                                     ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,999',
                                                      '30,000-34,999', '35,000-39,999', '40,000-44,999', '45,000-49,999',
@@ -1167,7 +1177,7 @@ def update_income2020(race, state, singlehead):
         title_y=0.85
     )
 
-    #Change hover data to income range, and opacity of the bars
+    # Change hover data to income range, and opacity of the bars
     fig.update_traces(hovertemplate="Income Range: $%{x}<br>Percentage: %{y}%", opacity=0.75)
 
     return fig
@@ -1180,7 +1190,7 @@ def update_income2020(race, state, singlehead):
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_preterm(race, state, singlehead):
-    # Modify dataframe based on selected filters
+    # Filter dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
@@ -1291,7 +1301,7 @@ def update_preterm(race, state, singlehead):
     Input('state', 'value'),
     Input('singlehead', 'value'))
 def update_education(race, state, singlehead):
-    # Modify dataframe based on selected filters
+    # Filter dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
@@ -1376,7 +1386,7 @@ def update_education(race, state, singlehead):
     Input('state', 'value'),
     Input('singlehead', 'value')])
 def update_transport_pie(race, state, singlehead):
-    # Modify dataframe based on selected filters
+    # Filter dataframe based on selected filters
     filters["race"] = race if race else ""
     dff = df.loc[(df['Race']) == filters["race"]] if filters["race"] else df
     filters["state"] = state if state else ""
