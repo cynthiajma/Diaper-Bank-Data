@@ -1345,19 +1345,18 @@ def update_preterm(race, state, singlehead):
         font_family="Montserrat",
         font_color="black",
         title_font=dict(size=21),
-        title_x=0.5,
-        annotations=[dict(
-            x=-0.4,
-            y=1.162,
+        title_x=0.5)
+    fig.add_annotation(
+            x=0.4,
+            y=1.16,
             xref='paper',
             yref='paper',
             text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
                         "head of household.",
-            showarrow=False)]
-    )
+            showarrow=False)
     # Adding how many matching responses annotation
     fig.add_annotation(
-        x=0.2,
+        x=0.5,
         y=-0.25,
         xref='paper',
         yref='paper',
@@ -1395,8 +1394,9 @@ def update_education(race, state, singlehead):
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
         fig.update_layout(
-            title='Distribution of Education Type<br><sup><sup>You have selected ' + str(race) + " as race, "
-                  + str(state) + " as state, and " + str(singlehead) + " for single head of household.",
+            title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup><sup>You have "
+                  f"selected "
+                  f"{race} as race, {state} as state, and {singlehead} for single head of household.",
             title_font=dict(
                 family='Merriweather',
                 size=21,
@@ -1477,13 +1477,21 @@ def update_transport_pie(race, state, singlehead):
     if rows < 10:
         fig = go.Figure(layout=dict(template='plotly_white'))
         fig.update_layout(
-            title="How Diaper Bank Recipients Access Diaper Bank Products",
-            annotations=[dict(text=f'Figure hidden. Filters match to less than 10 values.',
-            font=dict(
-                family="Montserrat",
-                size=12
+            title=f"Distribution of Preterm vs Term Babies by Race or Ethnic Identity<br><sup><sup>You have "
+                  f"selected "
+                  f"{race} as race, {state} as state, and {singlehead} for single head of household.",
+            title_font=dict(
+                family='Merriweather',
+                size=21,
+                color='black'
             ),
-            showarrow=False)])
+            title_x=0.5,
+            annotations=[dict(text=f'Figure hidden. Filters match to less than 10 values.',
+                              font=dict(
+                                  family="Montserrat",
+                                  size=12
+                              ),
+                              showarrow=False)])
         return fig
 
     # Create transportation pie chart
