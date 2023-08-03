@@ -1503,8 +1503,8 @@ def update_transport_pie(race, state, singlehead):
         font_family="Montserrat",
         font_color="black",
         annotations=[dict(
-            x=0.2,
-            y=-0.25,
+            x=0.25,
+            y=-0.17,
             xref='paper',
             yref='paper',
             text=f'Filters matched to {rows} responses.',
@@ -1515,14 +1515,12 @@ def update_transport_pie(race, state, singlehead):
     )
 
     # Add filter selection annotation
-    fig.update_layout(
-        annotations=[dict(
-            x=0.1,
+    fig.add_annotation(
+            x=0,
             y=1.162,
             text=f"You have selected {race} as race, {state} as state, and {singlehead} for single "
                  "head of household.",
-            showarrow=False)]
-    )
+            showarrow=False)
     return fig
 
 
