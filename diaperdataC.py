@@ -339,8 +339,8 @@ def income_subtitle(race, state, singlehead):
     Input("variable-dropdown", "value"))
 def update_map_dropdown(optionslctd):
     if optionslctd == "Adults-value":
-        options = [{"label": 'Single Head of Household', "value": 'NumAdults'},
-                   {"label": 'One or More Working Adult', "value": 'Ad1CurrentWork'},
+        options = [{"label": 'One or More Working Adult', "value": 'Ad1CurrentWork'},
+                   {"label": 'Single Head of Household', "value": 'NumAdults'},
                    {"label": 'One or More Adult in Education or Job Training',
                     "value": 'Ad1_School'}]
         value = "Ad1CurrentWork"
