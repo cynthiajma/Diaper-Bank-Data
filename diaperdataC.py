@@ -278,7 +278,7 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ], className='filter'),
+                ], className='filter2'),
                 html.Div([
                     # variable dropdown
                     html.Label(["Map Variable"], className='label'),
@@ -290,7 +290,7 @@ app.layout = html.Div(
                         clearable=False,
                         className="dropdown"
                     ),
-                ], className='filter')
+                ], className='filter2')
             ], className='filtersRow2'
         ),
         html.Div(
@@ -302,24 +302,24 @@ app.layout = html.Div(
                 html.Div([
                     # income graphs
                     html.H3(children="Comparison of Income Distributions for Diaper Bank Households and U.S. Census "
-                            "Data", className='graph-title'),
+                            "Data", className='income-title'),
                     html.Div(id='display-selected-filtersINCOME', className='subtitle'),
-                    dcc.Graph(id='income2019-content', className='income-graph'),
-                    dcc.Graph(id='income2020-content', className='income-graph'),
+                    dcc.Graph(id='income2019-content', className='income-graphs'),
+                    dcc.Graph(id='income2020-content', className='income-graphs'),
                 ]),
                 html.Br(),
                 html.Div([
                     # preterm graph
-                    dcc.Graph(id='preterm-content', className='row2-graph'),
+                    dcc.Graph(id='preterm-content', className='row2-graphs'),
                     # education graph
-                    dcc.Graph(id='education-content', className='row2-graph'),
+                    dcc.Graph(id='education-content', className='row2-graphs'),
                 ]),
                 # education graph
-                dcc.Graph(id='transport-pie-content', className='edu'),
+                dcc.Graph(id='transport-pie-content', className='static-section'),
                 # extra statistics
-                html.Div(children=[html.H3(children="Extra Statistics", className='extra-title'),
-                                   html.Img(src="assets/static.png", className='preterm')],
-                         className='edu')
+                html.Div(children=[html.H3(children="Extra Statistics", className='stats-title'),
+                                   html.Img(src="assets/static.png", className='preterm-stats')],
+                         className='static-section')
             ]),
     ])
 
