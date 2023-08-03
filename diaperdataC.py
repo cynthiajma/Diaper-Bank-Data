@@ -343,7 +343,7 @@ def update_map_dropdown(optionslctd):
                    {"label": 'One or More Working Adult', "value": 'Ad1CurrentWork'},
                    {"label": 'One or More Adult in Education or Job Training',
                     "value": 'Ad1_School'}]
-        value = "NumAdults"
+        value = "Ad1CurrentWork"
     elif optionslctd == "Income-value":
         options = [{'label': 'Average Household Income in 2019', 'value': 'Income_2019'},
                    {'label': 'Average Household Income in 2020', 'value': 'Income_2020'},
