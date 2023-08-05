@@ -536,9 +536,24 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
     # median household income in 2019
     if variable == "Income_2019":
-        # counting number of responses
+        dff = dff[['State', 'Income_2019']]
         rows = dff.shape[0]
-        # no choropleth shown if less than 10 responses
+        dff.dropna(subset=['Income_2019'])
+        dff['Income_2019'] = dff['Income_2019'].replace(
+            ['<=15,999', '16,000-19,999', '20,000-24,999',
+             '25,000-29,999', '30,000-34,999',
+             '35,000-39,999', '40,000-44,999',
+             '45,000-49,999', '50,000-59,999',
+             '60,000-69,999', '70,000-79,999', '>=80,000'],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        dff = dff.groupby(['State']).median(numeric_only=True)
+        dff = dff['Income_2019'].round().to_frame().reset_index()
+        dff['Income_2019'] = dff['Income_2019'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999',
+                                                         '35,000-39,999', '40,000-44,999',
+                                                         '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -556,27 +571,6 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-        # replace income ranges to numbers to calculate median
-        dff['Income_2019'] = dff['Income_2019'].replace(['<=15,999', '<=15,999', '16,'
-                                                                               '000-19,999',
-                                                       '20,000-24,999',
-                                                       '25,000-29,999', '30,000-34,999',
-                                                       '35,000-39,999', '40,000-44,999',
-                                                       '45,000-49,999', '50,000-59,999',
-                                                       '60,000-69,999', '70,000-79,999', '>=80,000'],
-                                                      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
-        # grouping by state and calculating medians
-        dff = dff.groupby(['State']).median(numeric_only=True)['Income_2019'].apply(
-            lambda x: round(x)).to_frame().reset_index()
-        # replacing numbers back to ranges
-        dff['Income_2019'] = dff['Income_2019'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        ['<=15,999', '<=15,999', '16,'
-                                                                                 '000-19,999',
-                                                         '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
         # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
@@ -630,9 +624,24 @@ def display_choropleth(variable, race, state, singlehead):
         return fig
     # median household income in 2020
     if variable == "Income_2020":
-        # counting number of responses
+        dff = dff[['State', 'Income_2020']]
         rows = dff.shape[0]
-        # no choropleth shown if less than 10 responses
+        dff.dropna(subset=['Income_2020'])
+        dff['Income_2020'] = dff['Income_2020'].replace(
+            ['<=15,999', '16,000-19,999', '20,000-24,999',
+             '25,000-29,999', '30,000-34,999',
+             '35,000-39,999', '40,000-44,999',
+             '45,000-49,999', '50,000-59,999',
+             '60,000-69,999', '70,000-79,999', '>=80,000'],
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        dff = dff.groupby(['State']).median(numeric_only=True)
+        dff = dff['Income_2020'].round().to_frame().reset_index()
+        dff['Income_2020'] = dff['Income_2020'].replace([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                                                        ['<=15,999', '16,000-19,999', '20,000-24,999',
+                                                         '25,000-29,999', '30,000-34,999',
+                                                         '35,000-39,999', '40,000-44,999',
+                                                         '45,000-49,999', '50,000-59,999',
+                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
         if rows < 10:
             fig = go.Figure(layout=dict(template='plotly_white'))
             fig.update_layout(
@@ -650,18 +659,6 @@ def display_choropleth(variable, race, state, singlehead):
                                   ),
                                   showarrow=False)])
             return fig
-        # grouping by state to calculate median income
-        dff = dff.groupby(['State']).median(numeric_only=True)['Income_2020'].apply(
-            lambda x: round(x)).to_frame().reset_index()
-        # replacing numbers back to income ranges
-        dff['Income_2020'] = dff['Income_2020'].replace([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                                                        ['<=15,999', '<=15,999', '16,'
-                                                                                 '000-19,999',
-                                                         '20,000-24,999',
-                                                         '25,000-29,999', '30,000-34,999',
-                                                         '35,000-39,999', '40,000-44,999',
-                                                         '45,000-49,999', '50,000-59,999',
-                                                         '60,000-69,999', '70,000-79,999', '>=80,000'])
         # creating choropleth
         fig = go.Figure(layout=dict(template='plotly'))
         fig = px.choropleth(dff, locations='State',
@@ -669,10 +666,10 @@ def display_choropleth(variable, race, state, singlehead):
                             color='Income_2020',
                             color_discrete_sequence=px.colors.qualitative.Prism,
                             category_orders={"Income_2020": ['<=15,999', '16,000-19,999', '20,000-24,999', '25,000-29,'
-                                                                                                         '999',
-                                                           '30,000-34,999', '35,000-39,999', '40,000-44,999',
-                                                           '45,000-49,999', '50,000-59,999', '60,000-69,999',
-                                                           '70,000-79,999', '>=80,000']},
+                                                                                                           '999',
+                                                             '30,000-34,999', '35,000-39,999', '40,000-44,999',
+                                                             '45,000-49,999', '50,000-59,999', '60,000-69,999',
+                                                             '70,000-79,999', '>=80,000']},
                             labels={"Income_2020": "Income Range (in dollars)"},
                             scope="usa",
                             title='Median Household Income in 2020')
@@ -703,14 +700,15 @@ def display_choropleth(variable, race, state, singlehead):
                     showarrow=False
                 )
             ],
-            # changing font
+            dragmode=False
+        )
+        # changing font
+        fig.update_layout(
             title_font=dict(
                 family='Merriweather',
                 size=18,
                 color='black'
-            ),
-            dragmode=False,
-        )
+            ))
         return fig
     # percentage of households with one or more working adult
     if variable == "Ad1CurrentWork":
